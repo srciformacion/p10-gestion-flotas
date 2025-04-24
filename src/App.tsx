@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import NewRequest from "./pages/NewRequest";
 import RequestList from "./pages/RequestList";
 import RequestDetail from "./pages/RequestDetail";
+import Profile from "./pages/Profile";
 import AccessDenied from "./pages/AccessDenied";
 import NotFound from "./pages/NotFound";
 
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/nueva-solicitud" element={<NewRequest />} />
               <Route path="/solicitudes" element={<RequestList />} />
               <Route path="/solicitudes/:id" element={<RequestDetail />} />
+              <Route path="/perfil" element={<Profile />} />
               <Route path="/acceso-denegado" element={<AccessDenied />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
