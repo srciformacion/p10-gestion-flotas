@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
@@ -14,9 +13,16 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { requests, filteredRequests } = useRequests();
   const [activeTab, setActiveTab] = useState("overview");
-  
-  if (!user) return null;
-  
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.role === 'individual') {
+      navigate('/solicitudes');
+    }
+  }, [user, navigate]);
+
+  if (!user || user.role === 'individual') return null;
+
   const pendingRequestsCount = requests.filter(req => req.status === 'pending').length;
   const assignedRequestsCount = requests.filter(req => req.status === 'assigned').length;
   const inRouteRequestsCount = requests.filter(req => req.status === 'inRoute').length;
@@ -24,7 +30,6 @@ const Dashboard = () => {
   
   const totalRequestsCount = requests.length;
   
-  // Mostrar solicitudes relevantes según el rol del usuario
   const userRequests = user.role === 'individual' 
     ? requests.filter(req => req.createdBy === user.id)
     : user.role === 'hospital' 
@@ -150,7 +155,7 @@ const Dashboard = () => {
                       </div>
                     ) : (
                       <div className="text-center py-4">
-                        <p className="text-muted-foreground">No hay solicitudes para mostrar</p>
+                        <p className="text-muted-foreground">No hay solicitudes recientes</p>
                       </div>
                     )}
                   </CardContent>

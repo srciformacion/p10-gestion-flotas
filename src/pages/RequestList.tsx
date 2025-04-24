@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
@@ -21,30 +20,24 @@ const RequestList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<RequestStatus | "all">("all");
   
-  // Obtener el estado del query param si existe
   const queryParams = new URLSearchParams(location.search);
   const statusParam = queryParams.get("status") as RequestStatus | null;
   
-  // Usar el estado del query param para inicializar el filtro
   useState(() => {
     if (statusParam && ["pending", "assigned", "inRoute", "completed", "cancelled"].includes(statusParam)) {
       setStatusFilter(statusParam);
     }
   });
   
-  // Filtrar solicitudes según rol del usuario
-  const userRequests = user?.role === 'individual'
+  const userRequests = user?.role === 'individual' || user?.role === 'hospital'
     ? requests.filter(req => req.createdBy === user.id)
     : requests;
   
-  // Aplicar filtros
   const filteredRequests = userRequests.filter(request => {
-    // Filtrar por estado
     if (statusFilter !== "all" && request.status !== statusFilter) {
       return false;
     }
     
-    // Filtrar por término de búsqueda
     if (searchTerm) {
       const searchTermLower = searchTerm.toLowerCase();
       return (
