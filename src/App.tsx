@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +19,10 @@ import AccessDenied from "./pages/AccessDenied";
 import NotFound from "./pages/NotFound";
 import AdminCompanies from "./pages/admin/AdminCompanies";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminRequests from "./pages/admin/AdminRequests";
+import AdminSettings from "./pages/admin/AdminSettings";
+import RecoverPassword from "./pages/RecoverPassword";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +38,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/registro" element={<Register />} />
+              <Route path="/recuperar-password" element={<RecoverPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/nueva-solicitud" element={<NewRequest />} />
               <Route path="/solicitudes" element={<RequestList />} />
@@ -40,6 +46,9 @@ const App = () => (
               <Route path="/perfil" element={<Profile />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/empresas" element={<AdminCompanies />} />
+              <Route path="/admin/usuarios" element={<AdminUsers />} />
+              <Route path="/admin/solicitudes" element={<AdminRequests />} />
+              <Route path="/admin/configuracion" element={<AdminSettings />} />
               <Route path="/acceso-denegado" element={<AccessDenied />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
