@@ -5,6 +5,7 @@ import { requestsApi } from '@/services/api/requests';
 
 interface RequestsContextType {
   requests: TransportRequest[];
+  filteredRequests: TransportRequest[];
   addRequest: (request: Omit<TransportRequest, 'id' | 'status'>) => Promise<void>;
   updateRequestStatus: (id: string, status: TransportRequest['status'], data?: Partial<TransportRequest>) => Promise<void>;
   getRequestById: (id: string) => TransportRequest | undefined;
@@ -50,10 +51,15 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
     return requests.find(req => req.id === id);
   };
 
+  // Added filteredRequests - currently just returning all requests
+  // This can be modified later to actually filter based on criteria if needed
+  const filteredRequests = requests;
+
   return (
     <RequestsContext.Provider 
       value={{ 
         requests, 
+        filteredRequests,
         addRequest, 
         updateRequestStatus, 
         getRequestById,
@@ -72,4 +78,3 @@ export const useRequests = () => {
   }
   return context;
 };
-
