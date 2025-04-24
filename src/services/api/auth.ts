@@ -1,5 +1,5 @@
 
-import { User } from '@/types';
+import { User, UserRole } from '@/types';
 
 export const authApi = {
   login: async (email: string, password: string): Promise<User> => {
@@ -25,6 +25,20 @@ export const authApi = {
   getCurrentUser: async (): Promise<User | null> => {
     const stored = localStorage.getItem('user');
     return stored ? JSON.parse(stored) : null;
+  },
+
+  register: async (name: string, email: string, password: string, role: UserRole): Promise<User> => {
+    // Simulate registration process
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const mockUser: User = {
+      id: Math.random().toString(36).substring(2, 9),
+      email,
+      name,
+      role
+    };
+    
+    localStorage.setItem('user', JSON.stringify(mockUser));
+    return mockUser;
   }
 };
-
