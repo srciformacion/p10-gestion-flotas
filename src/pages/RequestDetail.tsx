@@ -5,16 +5,18 @@ import { useAuth } from "@/context/AuthContext";
 import { useRequests } from "@/context/RequestsContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { RequestStatusBadge } from "@/components/RequestStatusBadge";
 import { useNavigate, useParams } from "react-router-dom";
-import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import { RequestStatus } from "@/types";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { RequireAuth } from "@/components/RequireAuth";
-import { Separator } from "@/components/ui/separator";
+import { RequestStatusBadge } from "@/components/RequestStatusBadge";
+import { PatientInfo } from "@/components/requests/detail/PatientInfo";
+import { TransportInfo } from "@/components/requests/detail/TransportInfo";
+import { DateAndTypeInfo } from "@/components/requests/detail/DateAndTypeInfo";
+import { ResponsibleInfo } from "@/components/requests/detail/ResponsibleInfo";
+import { VehicleInfo } from "@/components/requests/detail/VehicleInfo";
+import { StatusUpdateDialog } from "@/components/requests/detail/StatusUpdateDialog";
 
 const RequestDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,6 +44,16 @@ const RequestDetail = () => {
     navigate('/solicitudes');
     return null;
   }
+
+  const formatDateTime = (dateTimeStr: string) => {
+    return new Date(dateTimeStr).toLocaleDateString('es-ES', { 
+      day: '2-digit', 
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit', 
+      minute: '2-digit'
+    });
+  };
   
   const handleStatusUpdate = (status: RequestStatus) => {
     if (status === 'assigned' || status === 'inRoute') {
@@ -52,16 +64,16 @@ const RequestDetail = () => {
     }
   };
   
-  const updateStatus = (status: RequestStatus) => {
+  const updateStatus = async (status: RequestStatus) => {
     setIsUpdating(true);
     try {
       if (status === 'assigned' || status === 'inRoute') {
-        updateRequestStatus(id, status, {
-          vehicle: vehicleInfo.vehicle,
-          eta: vehicleInfo.eta
+        await updateRequestStatus(id, status, {
+          assignedVehicle: vehicleInfo.vehicle,
+          estimatedArrival: vehicleInfo.eta
         });
       } else {
-        updateRequestStatus(id, status);
+        await updateRequestStatus(id, status);
       }
       setDialogOpen(false);
     } catch (error) {
@@ -85,16 +97,6 @@ const RequestDetail = () => {
   };
   
   const availableStatusChanges = statusOptions[request.status] || [];
-  
-  const formatDateTime = (dateTimeStr: string) => {
-    return new Date(dateTimeStr).toLocaleDateString('es-ES', { 
-      day: '2-digit', 
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit', 
-      minute: '2-digit'
-    });
-  };
 
   return (
     <RequireAuth>
@@ -125,99 +127,32 @@ const RequestDetail = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Información del Paciente</h3>
-                    <Separator className="my-2" />
-                    <div className="space-y-3">
-                      <div>
-                        <Label className="text-xs">Nombre completo</Label>
-                        <p className="font-medium">{request.patientName}</p>
-                      </div>
-                      <div>
-                        <Label className="text-xs">DNI/NIE o SS</Label>
-                        <p className="font-medium">{request.patientId}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Detalles del Traslado</h3>
-                    <Separator className="my-2" />
-                    <div className="space-y-3">
-                      <div>
-                        <Label className="text-xs">Origen</Label>
-                        <p className="font-medium">{request.origin}</p>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Destino</Label>
-                        <p className="font-medium">{request.destination}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Fecha y Tipo</h3>
-                    <Separator className="my-2" />
-                    <div className="space-y-3">
-                      <div>
-                        <Label className="text-xs">Fecha y hora programada</Label>
-                        <p className="font-medium">{formatDateTime(request.dateTime)}</p>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Tipo de transporte</Label>
-                        <p className="font-medium">
-                          {request.transportType === 'stretcher' ? 'Camilla' : 
-                           request.transportType === 'wheelchair' ? 'Silla de ruedas' : 'Andando'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Responsable</h3>
-                    <Separator className="my-2" />
-                    <div className="space-y-3">
-                      <div>
-                        <Label className="text-xs">Responsable del traslado</Label>
-                        <p className="font-medium">{request.responsiblePerson}</p>
-                      </div>
-                      {request.authorizationFile && (
-                        <div>
-                          <Label className="text-xs">Autorización médica</Label>
-                          <p className="font-medium text-primary-blue">
-                            {request.authorizationFile}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <PatientInfo name={request.patientName} id={request.patientId} />
+                  <TransportInfo origin={request.origin} destination={request.destination} />
+                  <DateAndTypeInfo 
+                    dateTime={request.dateTime}
+                    transportType={request.transportType}
+                    formatDateTime={formatDateTime}
+                  />
+                  <ResponsibleInfo 
+                    responsiblePerson={request.responsiblePerson}
+                    authorizationFile={request.authorizationFile}
+                  />
                 </div>
                 
                 {request.observations && (
                   <div>
                     <h3 className="text-sm font-medium text-gray-500">Observaciones</h3>
-                    <Separator className="my-2" />
                     <p>{request.observations}</p>
                   </div>
                 )}
                 
                 {(request.status === 'assigned' || request.status === 'inRoute') && (
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Información de la Ambulancia</h3>
-                    <Separator className="my-2" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-xs">Vehículo Asignado</Label>
-                        <p className="font-medium">{request.assignedVehicle}</p>
-                      </div>
-                      {request.estimatedArrival && (
-                        <div>
-                          <Label className="text-xs">Hora estimada de llegada</Label>
-                          <p className="font-medium">{formatDateTime(request.estimatedArrival)}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <VehicleInfo 
+                    vehicle={request.assignedVehicle || ''}
+                    estimatedArrival={request.estimatedArrival}
+                    formatDateTime={formatDateTime}
+                  />
                 )}
               </CardContent>
               {canUpdateStatus && availableStatusChanges.length > 0 && (
@@ -257,52 +192,15 @@ const RequestDetail = () => {
           </div>
         </main>
         
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {newStatus === 'assigned' ? 'Asignar Vehículo' : 'Iniciar Traslado'}
-              </DialogTitle>
-              <DialogDescription>
-                Ingrese la información del vehículo y la hora estimada de llegada
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="vehicle">Vehículo</Label>
-                <Input 
-                  id="vehicle"
-                  placeholder="Ej: Ambulancia 047"
-                  value={vehicleInfo.vehicle}
-                  onChange={(e) => setVehicleInfo(prev => ({ ...prev, vehicle: e.target.value }))}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="eta">Hora estimada de llegada</Label>
-                <Input 
-                  id="eta"
-                  type="datetime-local"
-                  value={vehicleInfo.eta}
-                  onChange={(e) => setVehicleInfo(prev => ({ ...prev, eta: e.target.value }))}
-                />
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button 
-                onClick={() => newStatus && updateStatus(newStatus)}
-                disabled={!vehicleInfo.vehicle || !vehicleInfo.eta || isUpdating}
-              >
-                {isUpdating ? "Actualizando..." : "Confirmar"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <StatusUpdateDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          vehicleInfo={vehicleInfo}
+          onVehicleInfoChange={setVehicleInfo}
+          onConfirm={() => newStatus && updateStatus(newStatus)}
+          isUpdating={isUpdating}
+          newStatus={newStatus === 'assigned' || newStatus === 'inRoute' ? newStatus : null}
+        />
       </div>
     </RequireAuth>
   );
