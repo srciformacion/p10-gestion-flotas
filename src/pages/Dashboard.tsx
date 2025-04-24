@@ -1,11 +1,12 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
 import { useRequests } from "@/context/RequestsContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RequestStatusBadge } from "@/components/RequestStatusBadge";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, FileText, Ambulance, Clock, ArrowRight } from "lucide-react";
 
@@ -30,9 +31,7 @@ const Dashboard = () => {
   
   const totalRequestsCount = requests.length;
   
-  const userRequests = user.role === 'individual' 
-    ? requests.filter(req => req.createdBy === user.id)
-    : user.role === 'hospital' 
+  const userRequests = user.role === 'hospital'
     ? requests.filter(req => req.createdBy === user.id).slice(0, 5)
     : requests.slice(0, 5);
 
@@ -174,7 +173,7 @@ const Dashboard = () => {
                     <CardDescription>Opciones comunes según tu rol</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {(user.role === 'hospital' || user.role === 'individual') && (
+                    {(user.role === 'hospital') && (
                       <Link to="/nueva-solicitud" className="w-full">
                         <Button className="w-full">
                           Nueva solicitud de transporte
@@ -264,7 +263,7 @@ const Dashboard = () => {
                   <Link to="/solicitudes">
                     <Button variant="outline">Ver todas</Button>
                   </Link>
-                  {(user.role === 'hospital' || user.role === 'individual') && (
+                  {(user.role === 'hospital') && (
                     <Link to="/nueva-solicitud">
                       <Button>Nueva solicitud</Button>
                     </Link>
