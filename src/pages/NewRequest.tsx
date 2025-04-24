@@ -1,8 +1,6 @@
-
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
-import { useRequests } from "@/context/RequestsContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,14 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/hooks/use-toast";
 import { RequireAuth } from "@/components/RequireAuth";
+import { useCreateRequest } from "@/hooks/useCreateRequest";
 
 const NewRequest = () => {
   const { user } = useAuth();
-  const { addRequest } = useRequests();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { createRequest, error: submitError, isSubmitting } = useCreateRequest();
   
   const [formData, setFormData] = useState({
     patientName: "",
@@ -33,7 +30,6 @@ const NewRequest = () => {
   });
   
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -44,45 +40,27 @@ const NewRequest = () => {
     setFormData(prev => ({ ...prev, transportType: value }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setIsSubmitting(true);
     
     // Validación básica
     if (!formData.patientName || !formData.patientId || !formData.origin || 
         !formData.destination || !formData.dateTime || !formData.responsiblePerson) {
       setError("Por favor, complete todos los campos obligatorios");
-      setIsSubmitting(false);
       return;
     }
     
     // Validación específica para usuarios particulares
     if (user?.role === 'individual' && !formData.authorizationFile) {
       setError("Como usuario particular, debe adjuntar la autorización médica");
-      setIsSubmitting(false);
       return;
     }
     
-    try {
-      // En una aplicación real, aquí subiríamos el archivo antes de guardar la solicitud
-      addRequest({
-        ...formData,
-        createdBy: user?.id || "",
-      });
-      
-      toast({
-        title: "Solicitud creada",
-        description: "Su solicitud de transporte ha sido registrada correctamente",
-      });
-      
-      navigate("/dashboard");
-    } catch (err) {
-      setError("Error al crear la solicitud. Inténtelo de nuevo más tarde.");
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
-    }
+    await createRequest({
+      ...formData,
+      createdBy: user?.id || "",
+    });
   };
   
   return (
@@ -104,9 +82,9 @@ const NewRequest = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  {error && (
+                  {(error || submitError) && (
                     <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
+                      <AlertDescription>{error || submitError}</AlertDescription>
                     </Alert>
                   )}
                   
@@ -186,7 +164,7 @@ const NewRequest = () => {
                     <Label>Medio requerido *</Label>
                     <RadioGroup 
                       value={formData.transportType} 
-                      onValueChange={(value) => handleRadioChange(value as any)}
+                      onValueChange={handleRadioChange}
                       className="flex flex-col space-y-2"
                     >
                       <div className="flex items-center space-x-2">
