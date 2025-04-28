@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -33,6 +32,9 @@ const BiDashboard = () => {
     };
     
     fetchData();
+    
+    // Add console log for debugging
+    console.log("BiDashboard component mounted");
   }, []);
 
   // Sample data for charts

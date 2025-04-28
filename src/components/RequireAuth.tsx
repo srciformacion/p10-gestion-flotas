@@ -33,6 +33,12 @@ export const RequireAuth = ({ children, allowedRoles }: RequireAuthProps) => {
     
     if (user.role === "individual") {
       redirectPath = "/solicitudes";
+    } else if (user.role === "ambulance") {
+      redirectPath = "/dashboard";
+    } else if (user.role === "hospital") {
+      redirectPath = "/dashboard";
+    } else if (user.role === "admin") {
+      redirectPath = "/admin";
     }
     
     return <Navigate to="/acceso-denegado" state={{ redirectPath }} replace />;
