@@ -3,7 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Users, FileText, Settings } from "lucide-react";
+import { Building2, Users, FileText, Settings, Ambulance } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const AdminDashboard = () => {
@@ -25,6 +25,12 @@ const AdminDashboard = () => {
       description: "Ver todas las solicitudes de transporte",
       icon: FileText,
       href: "/admin/solicitudes"
+    },
+    {
+      title: "Vehículos",
+      description: "Gestionar la flota de vehículos",
+      icon: Ambulance,
+      href: "/admin/vehiculos"
     },
     {
       title: "Configuración",

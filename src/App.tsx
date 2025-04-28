@@ -22,6 +22,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminRequests from "./pages/admin/AdminRequests";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminVehicles from "./pages/admin/AdminVehicles";
 import RecoverPassword from "./pages/RecoverPassword";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="/admin/empresas" element={<AdminCompanies />} />
               <Route path="/admin/usuarios" element={<AdminUsers />} />
               <Route path="/admin/solicitudes" element={<AdminRequests />} />
+              <Route path="/admin/vehiculos" element={<AdminVehicles />} />
               <Route path="/admin/configuracion" element={<AdminSettings />} />
               <Route path="/acceso-denegado" element={<AccessDenied />} />
               <Route path="*" element={<NotFound />} />

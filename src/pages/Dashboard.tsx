@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
@@ -10,6 +9,7 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { RecentRequests } from "@/components/dashboard/RecentRequests";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RequestsList } from "@/components/dashboard/RequestsList";
+import { DashboardActions } from "@/components/dashboard/DashboardActions";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -44,6 +44,11 @@ const Dashboard = () => {
           <h1 className="text-2xl md:text-3xl font-bold mb-6">
             Bienvenido, {user.name}
           </h1>
+          
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-4">Acciones Rápidas</h2>
+            <DashboardActions user={user} />
+          </div>
           
           <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList>
