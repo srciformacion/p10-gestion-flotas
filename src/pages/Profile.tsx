@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { RequireAuth } from "@/components/RequireAuth";
-import { User, Settings, Mail, Phone } from "lucide-react";
+import { User, Settings, Mail, Phone, Bell } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 
@@ -134,38 +134,47 @@ const Profile = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="name">Nombre</Label>
-                          <Input
-                            id="name"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            icon={<User className="h-4 w-4" />}
-                          />
+                          <div className="flex items-center relative">
+                            <User className="h-4 w-4 absolute left-3 text-gray-400" />
+                            <Input
+                              id="name"
+                              name="name"
+                              value={formData.name}
+                              onChange={handleChange}
+                              className="pl-10"
+                            />
+                          </div>
                         </div>
 
                         <div className="space-y-2">
                           <Label htmlFor="email">Correo electrónico</Label>
-                          <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            icon={<Mail className="h-4 w-4" />}
-                            disabled
-                          />
+                          <div className="flex items-center relative">
+                            <Mail className="h-4 w-4 absolute left-3 text-gray-400" />
+                            <Input
+                              id="email"
+                              name="email"
+                              type="email"
+                              value={formData.email}
+                              onChange={handleChange}
+                              className="pl-10"
+                              disabled
+                            />
+                          </div>
                         </div>
 
                         <div className="space-y-2">
                           <Label htmlFor="phone">Teléfono</Label>
-                          <Input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            icon={<Phone className="h-4 w-4" />}
-                          />
+                          <div className="flex items-center relative">
+                            <Phone className="h-4 w-4 absolute left-3 text-gray-400" />
+                            <Input
+                              id="phone"
+                              name="phone"
+                              type="tel"
+                              value={formData.phone}
+                              onChange={handleChange}
+                              className="pl-10"
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -280,4 +289,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
