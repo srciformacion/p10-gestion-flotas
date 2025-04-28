@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
@@ -31,7 +30,7 @@ const RequestList = () => {
     }
   });
   
-  const userRequests = user?.role === 'individual' || user?.role === 'hospital'
+  const userRequests = user?.role === 'individual' || user?.role === 'hospital' || user?.role === 'admin'
     ? requests.filter(req => req.createdBy === user.id)
     : requests;
   
@@ -53,7 +52,7 @@ const RequestList = () => {
     return true;
   });
 
-  const canCreateRequest = user?.role === 'hospital' || user?.role === 'individual';
+  const canCreateRequest = user?.role === 'hospital' || user?.role === 'individual' || user?.role === 'admin';
 
   return (
     <RequireAuth>
