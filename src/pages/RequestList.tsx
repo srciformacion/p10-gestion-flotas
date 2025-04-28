@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
@@ -11,6 +12,7 @@ import { SearchBar } from "@/components/requests/SearchBar";
 import { StatusFilter } from "@/components/requests/StatusFilter";
 import { RequestCard } from "@/components/requests/RequestCard";
 import { EmptyState } from "@/components/requests/EmptyState";
+import { Plus } from "lucide-react";
 
 const RequestList = () => {
   const { user } = useAuth();
@@ -66,7 +68,10 @@ const RequestList = () => {
               
               {canCreateRequest && (
                 <Link to="/nueva-solicitud">
-                  <Button>Nueva Solicitud</Button>
+                  <Button className="w-full md:w-auto" size="lg">
+                    <Plus className="mr-2" />
+                    Nueva Solicitud
+                  </Button>
                 </Link>
               )}
             </div>
