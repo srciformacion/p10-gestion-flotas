@@ -36,6 +36,14 @@ export const intelligentAssignmentService = {
         request.serviceType === 'consultation' ? 'consultation' : 'emergency'
       );
 
+      // Filter ambulances based on transport type needed
+      availableAmbulances = availableAmbulances.filter(ambulance => {
+        if (stretcherSeatsNeeded > 0 && !ambulance.hasMedicalBed) return false;
+        if (wheelchairSeatsNeeded > 0 && !ambulance.hasWheelchair) return false;
+        if (walkingSeatsNeeded > 0 && !ambulance.allowsWalking) return false;
+        return true;
+      });
+
       const ambulancesWithoutConflicts = [];
       for (const ambulance of availableAmbulances) {
         const hasConflict = await intelligentAssignmentService.checkForConflicts(

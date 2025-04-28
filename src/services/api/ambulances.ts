@@ -1,55 +1,75 @@
 
 import { Ambulance } from '@/types';
 
-// Mock ambulance data
+// Mock ambulance data with updated fields
 const mockAmbulances: Ambulance[] = [
   {
     id: "AMB-001",
     licensePlate: "1234-AAA",
     model: "Mercedes Sprinter",
     type: "consultation",
+    baseLocation: "Logroño",
+    hasMedicalBed: true,
+    hasWheelchair: true,
+    allowsWalking: true,
     stretcherSeats: 1,
     wheelchairSeats: 3,
     walkingSeats: 5,
     equipment: ["stair-chair", "oxygen"],
     zone: "Logroño",
     status: "available",
+    notes: "Ambulancia principal para servicios programados"
   },
   {
     id: "AMB-002",
     licensePlate: "5678-BBB",
     model: "Ford Transit",
     type: "consultation",
+    baseLocation: "Logroño",
+    hasMedicalBed: true,
+    hasWheelchair: true,
+    allowsWalking: true,
     stretcherSeats: 1,
     wheelchairSeats: 2,
     walkingSeats: 4,
     equipment: ["oxygen"],
     zone: "Logroño",
     status: "available",
+    notes: ""
   },
   {
     id: "AMB-003",
     licensePlate: "9012-CCC",
     model: "Volkswagen Crafter",
     type: "emergency",
+    baseLocation: "Haro",
+    hasMedicalBed: true,
+    hasWheelchair: false,
+    allowsWalking: true,
     stretcherSeats: 2,
     wheelchairSeats: 1,
     walkingSeats: 3,
-    equipment: ["stair-chair", "oxygen", "defibrillator"],
+    equipment: ["stair-chair", "oxygen", "defibrillator", "bariatric-bed"],
     zone: "Haro",
     status: "available",
+    notes: "Equipada para emergencias"
   },
   {
     id: "AMB-004",
     licensePlate: "3456-DDD",
     model: "Fiat Ducato",
     type: "consultation",
+    baseLocation: "Calahorra",
+    hasMedicalBed: true,
+    hasWheelchair: true,
+    allowsWalking: true,
     stretcherSeats: 1,
     wheelchairSeats: 2,
     walkingSeats: 4,
     equipment: ["stair-chair"],
     zone: "Calahorra",
     status: "available",
+    notes: ""
   },
 ];
 

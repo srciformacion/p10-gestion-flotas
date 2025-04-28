@@ -1,4 +1,3 @@
-
 export type UserRole = 'admin' | 'hospital' | 'individual' | 'ambulance';
 
 export interface User {
@@ -44,13 +43,18 @@ export interface Ambulance {
   licensePlate: string;
   model: string;
   type: 'consultation' | 'emergency';
+  baseLocation: string;
+  hasMedicalBed: boolean;
+  hasWheelchair: boolean;
+  allowsWalking: boolean;
   stretcherSeats: number;
   wheelchairSeats: number;
   walkingSeats: number;
-  equipment: string[]; // Equipment like "stair-chair", "oxygen", etc.
+  equipment: string[]; // Equipment like "stair-chair", "bariatric-bed", etc.
   zone: string; // Operating area like "Logroño", "Haro", etc.
   status: 'available' | 'busy' | 'maintenance';
   currentLocation?: string;
+  notes?: string;
 }
 
 // Assignment related types

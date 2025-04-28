@@ -1,6 +1,10 @@
 
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { useState, useEffect } from "react";
+import { ambulancesApi } from "@/services/api/ambulances";
+import { Ambulance } from "@/types";
+import { AmbulanceDetails } from "./AmbulanceDetails";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Ambulance as AmbulanceIcon } from "lucide-react";
 
 interface VehicleInfoProps {
   vehicle: string;
@@ -9,22 +13,56 @@ interface VehicleInfoProps {
 }
 
 export const VehicleInfo = ({ vehicle, estimatedArrival, formatDateTime }: VehicleInfoProps) => {
+  const [ambulance, setAmbulance] = useState<Ambulance | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAmbulance = async () => {
+      if (!vehicle) {
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        const data = await ambulancesApi.getById(vehicle);
+        setAmbulance(data);
+      } catch (error) {
+        console.error("Error fetching ambulance:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAmbulance();
+  }, [vehicle]);
+
+  if (loading) {
+    return <Skeleton className="h-20 w-full" />;
+  }
+
+  if (!vehicle) {
+    return null;
+  }
+
   return (
-    <div>
-      <h3 className="text-sm font-medium text-gray-500">Información de la Ambulancia</h3>
-      <Separator className="my-2" />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label className="text-xs">Vehículo Asignado</Label>
-          <p className="font-medium">{vehicle}</p>
-        </div>
-        {estimatedArrival && (
+    <div className="space-y-4">
+      <h3 className="text-sm font-medium text-gray-500">Información del Vehículo</h3>
+      
+      {ambulance ? (
+        <AmbulanceDetails ambulance={ambulance} />
+      ) : (
+        <div className="flex items-center space-x-2">
+          <AmbulanceIcon className="h-5 w-5 text-gray-400" />
           <div>
-            <Label className="text-xs">Hora estimada de llegada</Label>
-            <p className="font-medium">{formatDateTime(estimatedArrival)}</p>
+            <p className="font-medium">{vehicle}</p>
+            {estimatedArrival && (
+              <p className="text-sm text-gray-500">
+                Llegada estimada: {formatDateTime(estimatedArrival)}
+              </p>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
