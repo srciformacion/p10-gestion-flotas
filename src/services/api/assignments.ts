@@ -1,4 +1,5 @@
-import { Assignment, AssignmentIncident, BiRecord, TransportRequest } from '@/types';
+
+import { Assignment, AssignmentIncident, BiRecord, TransportRequest, Ambulance } from '@/types';
 import { requestsApi } from './requests';
 import { ambulancesApi } from './ambulances';
 
