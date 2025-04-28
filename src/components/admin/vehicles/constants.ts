@@ -1,4 +1,6 @@
 
+import { Ambulance } from "@/types";
+
 export const equipmentOptions = [
   { id: "stair-chair", label: "Silla oruga" },
   { id: "bariatric-bed", label: "Camilla bariátrica" },
