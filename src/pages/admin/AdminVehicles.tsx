@@ -4,69 +4,18 @@ import { Navbar } from "@/components/Navbar";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
 import { DataTable } from "@/components/admin/DataTable";
-import { Plus, Edit, Trash, Search } from "lucide-react";
+import { Plus, Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { Ambulance } from "@/types";
 import { ambulancesApi } from "@/services/api/ambulances";
 import { ColumnDef } from "@tanstack/react-table";
-
-const equipmentOptions = [
-  { id: "stair-chair", label: "Silla oruga" },
-  { id: "bariatric-bed", label: "Camilla bariátrica" },
-  { id: "bariatric-equipment", label: "Equipamiento para pacientes bariátricos" },
-  { id: "vital-signs", label: "Monitorización de constantes vitales" },
-  { id: "oxygen", label: "Oxígeno" },
-  { id: "defibrillator", label: "Desfibrilador" }
-];
-
-const emptyAmbulance: Omit<Ambulance, "id"> = {
-  licensePlate: "",
-  model: "",
-  type: "consultation",
-  baseLocation: "",
-  hasMedicalBed: false,
-  hasWheelchair: false,
-  allowsWalking: false,
-  stretcherSeats: 0,
-  wheelchairSeats: 0,
-  walkingSeats: 0,
-  equipment: [],
-  zone: "",
-  status: "available",
-  notes: ""
-};
+import { AmbulanceDialog } from "@/components/admin/vehicles/AmbulanceDialog";
+import { DeleteAmbulanceDialog } from "@/components/admin/vehicles/DeleteAmbulanceDialog";
+import { emptyAmbulance } from "@/components/admin/vehicles/constants";
 
 const AdminVehicles = () => {
   const [ambulances, setAmbulances] = useState<Ambulance[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -78,7 +27,7 @@ const AdminVehicles = () => {
   // Delete confirmation dialog
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [ambulanceToDelete, setAmbulanceToDelete] = useState<string | null>(null);
-  
+
   // Load ambulances on component mount
   useEffect(() => {
     const loadAmbulances = async () => {
@@ -141,19 +90,11 @@ const AdminVehicles = () => {
   
   // Submit handler for adding/editing ambulance
   const handleSubmit = useCallback(async () => {
-    if (!currentAmbulance.licensePlate || 
-        !currentAmbulance.model || 
-        !currentAmbulance.baseLocation) {
-      toast.error("Por favor, complete los campos obligatorios");
-      return;
-    }
-    
     setIsSubmitting(true);
     try {
       let updatedAmbulance;
       
       if (isEditing && "id" in currentAmbulance) {
-        // Editing existing ambulance
         updatedAmbulance = await ambulancesApi.update(
           currentAmbulance.id, 
           currentAmbulance
@@ -165,7 +106,6 @@ const AdminVehicles = () => {
         
         toast.success("Ambulancia actualizada correctamente");
       } else {
-        // Adding new ambulance
         updatedAmbulance = await ambulancesApi.create(currentAmbulance);
         setAmbulances(prev => [...prev, updatedAmbulance]);
         toast.success("Ambulancia añadida correctamente");
@@ -282,259 +222,22 @@ const AdminVehicles = () => {
               </CardContent>
             </Card>
             
-            {/* Add/Edit Ambulance Dialog */}
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogContent className="sm:max-w-[700px]">
-                <DialogHeader>
-                  <DialogTitle>
-                    {isEditing ? "Editar Ambulancia" : "Añadir Nueva Ambulancia"}
-                  </DialogTitle>
-                  <DialogDescription>
-                    Complete todos los campos obligatorios para {isEditing ? "actualizar" : "añadir"} la ambulancia.
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="id">
-                      Identificador {isEditing && "(no modificable)"}
-                    </Label>
-                    <Input
-                      id="id"
-                      placeholder="Ej: A-101, SVB-Logroño-1"
-                      value={isEditing && "id" in currentAmbulance ? currentAmbulance.id : "Se generará automáticamente"}
-                      disabled={true}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="licensePlate" className="required">Matrícula</Label>
-                    <Input
-                      id="licensePlate"
-                      placeholder="Ej: 1234ABC"
-                      value={currentAmbulance.licensePlate}
-                      onChange={(e) => handleChange("licensePlate", e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="model" className="required">Modelo</Label>
-                    <Input
-                      id="model"
-                      placeholder="Ej: Mercedes Sprinter"
-                      value={currentAmbulance.model}
-                      onChange={(e) => handleChange("model", e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="type" className="required">Tipo</Label>
-                    <Select
-                      value={currentAmbulance.type}
-                      onValueChange={(value) => handleChange("type", value)}
-                    >
-                      <SelectTrigger id="type">
-                        <SelectValue placeholder="Seleccionar tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="consultation">Transporte programado</SelectItem>
-                        <SelectItem value="emergency">Emergencias</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="baseLocation" className="required">Ubicación Base</Label>
-                    <Input
-                      id="baseLocation"
-                      placeholder="Ej: Logroño, Calahorra"
-                      value={currentAmbulance.baseLocation}
-                      onChange={(e) => handleChange("baseLocation", e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="zone" className="required">Zona de operación</Label>
-                    <Input
-                      id="zone"
-                      placeholder="Ej: Logroño, Haro"
-                      value={currentAmbulance.zone}
-                      onChange={(e) => handleChange("zone", e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="status" className="required">Estado</Label>
-                    <Select
-                      value={currentAmbulance.status}
-                      onValueChange={(value) => 
-                        handleChange("status", value as Ambulance['status'])
-                      }
-                    >
-                      <SelectTrigger id="status">
-                        <SelectValue placeholder="Seleccionar estado" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="available">Disponible</SelectItem>
-                        <SelectItem value="busy">Asignada a servicio</SelectItem>
-                        <SelectItem value="maintenance">En mantenimiento</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="col-span-1 md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label className="required">Disponibilidad</Label>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="hasMedicalBed" 
-                          checked={currentAmbulance.hasMedicalBed} 
-                          onCheckedChange={(checked) => 
-                            handleChange("hasMedicalBed", Boolean(checked))
-                          }
-                        />
-                        <label htmlFor="hasMedicalBed">
-                          Tiene camilla
-                        </label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="hasWheelchair" 
-                          checked={currentAmbulance.hasWheelchair} 
-                          onCheckedChange={(checked) => 
-                            handleChange("hasWheelchair", Boolean(checked))
-                          }
-                        />
-                        <label htmlFor="hasWheelchair">
-                          Tiene silla de ruedas
-                        </label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="allowsWalking" 
-                          checked={currentAmbulance.allowsWalking} 
-                          onCheckedChange={(checked) => 
-                            handleChange("allowsWalking", Boolean(checked))
-                          }
-                        />
-                        <label htmlFor="allowsWalking">
-                          Permite transporte andando/sentado
-                        </label>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="required">Capacidad máxima</Label>
-                      <div className="space-y-2">
-                        <div className="flex items-center">
-                          <label htmlFor="stretcherSeats" className="w-full">
-                            Pacientes en camilla:
-                          </label>
-                          <Input
-                            id="stretcherSeats"
-                            type="number"
-                            min="0"
-                            value={currentAmbulance.stretcherSeats}
-                            onChange={(e) => handleChange("stretcherSeats", parseInt(e.target.value) || 0)}
-                            className="w-20"
-                          />
-                        </div>
-                        <div className="flex items-center">
-                          <label htmlFor="wheelchairSeats" className="w-full">
-                            Pacientes en silla:
-                          </label>
-                          <Input
-                            id="wheelchairSeats"
-                            type="number"
-                            min="0"
-                            value={currentAmbulance.wheelchairSeats}
-                            onChange={(e) => handleChange("wheelchairSeats", parseInt(e.target.value) || 0)}
-                            className="w-20"
-                          />
-                        </div>
-                        <div className="flex items-center">
-                          <label htmlFor="walkingSeats" className="w-full">
-                            Pacientes andando:
-                          </label>
-                          <Input
-                            id="walkingSeats"
-                            type="number"
-                            min="0"
-                            value={currentAmbulance.walkingSeats}
-                            onChange={(e) => handleChange("walkingSeats", parseInt(e.target.value) || 0)}
-                            className="w-20"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Equipamiento especial</Label>
-                      <div className="space-y-2">
-                        {equipmentOptions.map((item) => (
-                          <div key={item.id} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`equipment-${item.id}`}
-                              checked={currentAmbulance.equipment?.includes(item.id)}
-                              onCheckedChange={() => toggleEquipment(item.id)}
-                            />
-                            <label htmlFor={`equipment-${item.id}`}>
-                              {item.label}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="col-span-1 md:col-span-2 space-y-2">
-                    <Label htmlFor="notes">Notas internas</Label>
-                    <Textarea
-                      id="notes"
-                      placeholder="Observaciones administrativas (opcional)"
-                      value={currentAmbulance.notes || ""}
-                      onChange={(e) => handleChange("notes", e.target.value)}
-                    />
-                  </div>
-                </div>
-                
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                    Cancelar
-                  </Button>
-                  <Button 
-                    onClick={handleSubmit} 
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Guardando..." : isEditing ? "Actualizar" : "Guardar"}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <AmbulanceDialog
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+              ambulance={currentAmbulance}
+              isEditing={isEditing}
+              onSubmit={handleSubmit}
+              isSubmitting={isSubmitting}
+              onFieldChange={handleChange}
+              onEquipmentToggle={toggleEquipment}
+            />
             
-            {/* Delete Confirmation Dialog */}
-            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Confirmar eliminación</DialogTitle>
-                  <DialogDescription>
-                    ¿Está seguro de que desea eliminar esta ambulancia? Esta acción no se puede deshacer.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-                    Cancelar
-                  </Button>
-                  <Button variant="destructive" onClick={handleDelete}>
-                    Eliminar
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <DeleteAmbulanceDialog
+              open={deleteDialogOpen}
+              onOpenChange={setDeleteDialogOpen}
+              onConfirm={handleDelete}
+            />
           </div>
         </main>
       </div>
