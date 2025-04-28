@@ -1,111 +1,34 @@
 
-import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
-import { useAuth } from "@/context/AuthContext";
+import { RequireAuth } from "@/components/RequireAuth";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { RequireAuth } from "@/components/RequireAuth";
-import { useCreateRequest } from "@/hooks/useCreateRequest";
-import { toast } from "sonner";
-import { FileCheck, Upload } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { FileCheck } from "lucide-react";
+import { PatientSection } from "@/components/requests/form/PatientSection";
+import { LocationSection } from "@/components/requests/form/LocationSection";
+import { TransportTypeSection } from "@/components/requests/form/TransportTypeSection";
+import { AdditionalInfoSection } from "@/components/requests/form/AdditionalInfoSection";
+import { useRequestForm } from "@/hooks/useRequestForm";
 
 const NewRequest = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const { createRequest, error: submitError, isSubmitting } = useCreateRequest();
-  
-  const [formData, setFormData] = useState({
-    patientName: "",
-    patientId: "",
-    origin: "",
-    destination: "",
-    responsiblePerson: "",
-    dateTime: "",
-    transportType: "stretcher" as "stretcher" | "wheelchair" | "walking",
-    observations: "",
-    authorizationFile: "",
-    architecturalBarriers: "",
-    specialAttention: ""
-  });
-  
-  const [error, setError] = useState("");
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleRadioChange = (value: "stretcher" | "wheelchair" | "walking") => {
-    setFormData(prev => ({ ...prev, transportType: value }));
-  };
-  
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      
-      // Validamos que sea un archivo PDF
-      if (file.type !== 'application/pdf') {
-        setError("El archivo debe ser un documento PDF");
-        return;
-      }
-      
-      // Validamos el tamaño del archivo (máx. 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError("El archivo no puede superar los 5MB");
-        return;
-      }
-      
-      setUploadedFile(file);
-      setFormData(prev => ({ ...prev, authorizationFile: file.name }));
-      
-      // Limpiamos cualquier error previo relacionado con el archivo
-      if (error.includes("autorización")) {
-        setError("");
-      }
-    }
-  };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    
-    // Validación básica
-    if (!formData.patientName || !formData.patientId || !formData.origin || 
-        !formData.destination || !formData.dateTime || !formData.responsiblePerson) {
-      setError("Por favor, complete todos los campos obligatorios");
-      return;
-    }
-    
-    // Validación específica para usuarios particulares
-    if (user?.role === 'individual' && !uploadedFile) {
-      setError("Como usuario particular, debe adjuntar la autorización médica");
-      return;
-    }
-    
-    // En un sistema real, aquí se enviaría el archivo al servidor
-    // Por ahora, simulamos que guardamos la referencia
-    const requestData = {
-      ...formData,
-      createdBy: user?.id || "",
-    };
-    
-    try {
-      await createRequest(requestData);
-      toast.success("Solicitud creada correctamente", {
-        description: "Su solicitud ha sido registrada y está pendiente de aprobación"
-      });
-    } catch (err) {
-      console.error("Error al crear la solicitud:", err);
-    }
-  };
-  
+  const {
+    formData,
+    error,
+    submitError,
+    isSubmitting,
+    uploadedFile,
+    handleChange,
+    handleRadioChange,
+    handleFileUpload,
+    handleSubmit,
+    user
+  } = useRequestForm();
+
   return (
     <RequireAuth allowedRoles={['admin', 'hospital', 'individual']}>
       <div className="min-h-screen flex flex-col">
@@ -132,65 +55,18 @@ const NewRequest = () => {
                     </Alert>
                   )}
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="patientName">Nombre del paciente *</Label>
-                      <Input
-                        id="patientName"
-                        name="patientName"
-                        value={formData.patientName}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="patientId">DNI/NIE o SS del paciente *</Label>
-                      <Input
-                        id="patientId"
-                        name="patientId"
-                        value={formData.patientId}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                  </div>
+                  <PatientSection 
+                    patientName={formData.patientName}
+                    patientId={formData.patientId}
+                    responsiblePerson={formData.responsiblePerson}
+                    onChange={handleChange}
+                  />
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="responsiblePerson">Persona responsable del traslado *</Label>
-                    <Input
-                      id="responsiblePerson"
-                      name="responsiblePerson"
-                      placeholder="Médico, enfermero, etc."
-                      value={formData.responsiblePerson}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="origin">Centro de origen *</Label>
-                      <Input
-                        id="origin"
-                        name="origin"
-                        value={formData.origin}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="destination">Destino *</Label>
-                      <Input
-                        id="destination"
-                        name="destination"
-                        value={formData.destination}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                  </div>
+                  <LocationSection 
+                    origin={formData.origin}
+                    destination={formData.destination}
+                    onChange={handleChange}
+                  />
                   
                   <div className="space-y-2">
                     <Label htmlFor="dateTime">Fecha y hora deseada *</Label>
@@ -204,60 +80,17 @@ const NewRequest = () => {
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label>Medio requerido *</Label>
-                    <RadioGroup 
-                      value={formData.transportType} 
-                      onValueChange={handleRadioChange}
-                      className="flex flex-col space-y-2"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="stretcher" id="stretcher" />
-                        <Label htmlFor="stretcher">Camilla</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="wheelchair" id="wheelchair" />
-                        <Label htmlFor="wheelchair">Silla de ruedas</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="walking" id="walking" />
-                        <Label htmlFor="walking">Andando</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
+                  <TransportTypeSection 
+                    transportType={formData.transportType}
+                    onValueChange={handleRadioChange}
+                  />
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="architecturalBarriers">Barreras arquitectónicas</Label>
-                    <Input
-                      id="architecturalBarriers"
-                      name="architecturalBarriers"
-                      placeholder="Escaleras, ascensor no operativo, etc."
-                      value={formData.architecturalBarriers}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="specialAttention">Necesidades especiales</Label>
-                    <Input
-                      id="specialAttention"
-                      name="specialAttention"
-                      placeholder="Oxígeno, monitor, etc."
-                      value={formData.specialAttention}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="observations">Observaciones médicas adicionales</Label>
-                    <Textarea
-                      id="observations"
-                      name="observations"
-                      placeholder="Indique cualquier información relevante para el traslado"
-                      value={formData.observations}
-                      onChange={handleChange}
-                    />
-                  </div>
+                  <AdditionalInfoSection 
+                    architecturalBarriers={formData.architecturalBarriers}
+                    specialAttention={formData.specialAttention}
+                    observations={formData.observations}
+                    onChange={handleChange}
+                  />
                   
                   {(user?.role === 'individual' || user?.role === 'admin') && (
                     <div className="space-y-2">
