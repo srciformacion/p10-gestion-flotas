@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
 import { useRequests } from "@/context/RequestsContext";
@@ -25,6 +25,7 @@ const RequestDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  const [request, setRequest] = useState<ReturnType<typeof getRequestById>>(undefined);
   const [vehicleInfo, setVehicleInfo] = useState({
     vehicle: "",
     eta: ""
@@ -33,19 +34,36 @@ const RequestDetail = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState<RequestStatus | null>(null);
   
-  if (!id) {
-    navigate('/solicitudes');
-    return null;
-  }
+  // Fetch request data initially and when ID changes
+  useEffect(() => {
+    if (!id) {
+      navigate('/solicitudes');
+      return;
+    }
+    
+    const requestData = getRequestById(id);
+    if (!requestData) {
+      navigate('/solicitudes');
+      return;
+    }
+    
+    setRequest(requestData);
+    
+    if (requestData.assignedVehicle) {
+      setVehicleInfo({
+        vehicle: requestData.assignedVehicle,
+        eta: requestData.estimatedArrival || ''
+      });
+    }
+  }, [id, getRequestById, navigate]);
   
-  const request = getRequestById(id);
-  
-  if (!request) {
-    navigate('/solicitudes');
+  // Redirect if no valid request
+  if (!id || !request) {
     return null;
   }
 
-  const formatDateTime = (dateTimeStr: string) => {
+  // Memoized date formatting function
+  const formatDateTime = useCallback((dateTimeStr: string) => {
     return new Date(dateTimeStr).toLocaleDateString('es-ES', { 
       day: '2-digit', 
       month: '2-digit',
@@ -53,28 +71,37 @@ const RequestDetail = () => {
       hour: '2-digit', 
       minute: '2-digit'
     });
-  };
+  }, []);
   
-  const handleStatusUpdate = (status: RequestStatus) => {
+  const handleStatusUpdate = useCallback((status: RequestStatus) => {
     if (status === 'assigned' || status === 'inRoute') {
       setNewStatus(status);
       setDialogOpen(true);
     } else {
       updateStatus(status);
     }
-  };
+  }, []);
   
   const updateStatus = async (status: RequestStatus) => {
+    if (!id) return;
+    
     setIsUpdating(true);
     try {
+      let updatedRequest;
       if (status === 'assigned' || status === 'inRoute') {
-        await updateRequestStatus(id, status, {
+        updatedRequest = await updateRequestStatus(id, status, {
           assignedVehicle: vehicleInfo.vehicle,
           estimatedArrival: vehicleInfo.eta
         });
       } else {
-        await updateRequestStatus(id, status);
+        updatedRequest = await updateRequestStatus(id, status);
       }
+      
+      // Update local state with new data
+      if (updatedRequest) {
+        setRequest(updatedRequest);
+      }
+      
       setDialogOpen(false);
     } catch (error) {
       toast({
@@ -87,16 +114,22 @@ const RequestDetail = () => {
     }
   };
   
-  const canUpdateStatus = user?.role === 'ambulance' || user?.role === 'admin';
-  const statusOptions = {
+  // Memoize permission checks and available status changes
+  const canUpdateStatus = useMemo(() => 
+    user?.role === 'ambulance' || user?.role === 'admin',
+  [user]);
+  
+  const statusOptions = useMemo(() => ({
     pending: ['assigned', 'cancelled'],
     assigned: ['inRoute', 'cancelled'],
     inRoute: ['completed', 'cancelled'],
     completed: [],
     cancelled: ['pending']
-  };
+  }), []);
   
-  const availableStatusChanges = statusOptions[request.status] || [];
+  const availableStatusChanges = useMemo(() => 
+    statusOptions[request.status] || [],
+  [statusOptions, request.status]);
 
   return (
     <RequireAuth>

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
@@ -25,31 +25,37 @@ interface Vehicle {
   status: "available" | "busy" | "maintenance";
 }
 
+// Initial vehicles data
+const initialVehicles: Vehicle[] = [
+  {
+    id: "AMB-001",
+    plateNumber: "7654ABC",
+    model: "Mercedes Sprinter",
+    capacity: "Tipo C",
+    status: "available"
+  },
+  {
+    id: "AMB-002",
+    plateNumber: "1234XYZ",
+    model: "Volkswagen Transporter",
+    capacity: "Tipo B",
+    status: "busy"
+  },
+  {
+    id: "AMB-003",
+    plateNumber: "5678DEF",
+    model: "Renault Master",
+    capacity: "Tipo A",
+    status: "maintenance"
+  }
+];
+
 const AdminVehicles = () => {
-  // Estado para manejar los vehículos
-  const [vehicles, setVehicles] = useState<Vehicle[]>([
-    {
-      id: "AMB-001",
-      plateNumber: "7654ABC",
-      model: "Mercedes Sprinter",
-      capacity: "Tipo C",
-      status: "available"
-    },
-    {
-      id: "AMB-002",
-      plateNumber: "1234XYZ",
-      model: "Volkswagen Transporter",
-      capacity: "Tipo B",
-      status: "busy"
-    },
-    {
-      id: "AMB-003",
-      plateNumber: "5678DEF",
-      model: "Renault Master",
-      capacity: "Tipo A",
-      status: "maintenance"
-    }
-  ]);
+  // State with lazy initialization
+  const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
+    const stored = localStorage.getItem('vehicles');
+    return stored ? JSON.parse(stored) : initialVehicles;
+  });
   
   const [searchTerm, setSearchTerm] = useState("");
   const [newVehicle, setNewVehicle] = useState<Omit<Vehicle, "id">>({
@@ -61,28 +67,42 @@ const AdminVehicles = () => {
   
   const [isAdding, setIsAdding] = useState(false);
   
-  // Filtrar vehículos según término de búsqueda
-  const filteredVehicles = vehicles.filter(vehicle => 
-    vehicle.plateNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vehicle.id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Memoized filtered vehicles
+  const filteredVehicles = useMemo(() => {
+    if (!searchTerm) return vehicles;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return vehicles.filter(vehicle => 
+      vehicle.plateNumber.toLowerCase().includes(searchLower) ||
+      vehicle.model.toLowerCase().includes(searchLower) ||
+      vehicle.id.toLowerCase().includes(searchLower)
+    );
+  }, [vehicles, searchTerm]);
   
-  // Manejar cambios en el formulario
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // Persist vehicles in localStorage when they change
+  const persistVehicles = useCallback((updatedVehicles: Vehicle[]) => {
+    localStorage.setItem('vehicles', JSON.stringify(updatedVehicles));
+  }, []);
+  
+  // Optimized change handler
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setNewVehicle(prev => ({ ...prev, [name]: value }));
-  };
+  }, []);
   
-  // Añadir nuevo vehículo
-  const handleAddVehicle = () => {
+  // Optimized add vehicle function
+  const handleAddVehicle = useCallback(() => {
     if (!newVehicle.plateNumber || !newVehicle.model || !newVehicle.capacity) {
       toast.error("Por favor, complete todos los campos");
       return;
     }
     
     const id = `AMB-${String(vehicles.length + 1).padStart(3, '0')}`;
-    setVehicles(prev => [...prev, { ...newVehicle, id }]);
+    const updatedVehicles = [...vehicles, { ...newVehicle, id }];
+    
+    setVehicles(updatedVehicles);
+    persistVehicles(updatedVehicles);
+    
     setNewVehicle({
       plateNumber: "",
       model: "",
@@ -92,13 +112,15 @@ const AdminVehicles = () => {
     setIsAdding(false);
     
     toast.success("Vehículo añadido correctamente");
-  };
+  }, [vehicles, newVehicle, persistVehicles]);
   
-  // Eliminar vehículo
-  const handleDeleteVehicle = (id: string) => {
-    setVehicles(prev => prev.filter(vehicle => vehicle.id !== id));
+  // Optimized delete vehicle function
+  const handleDeleteVehicle = useCallback((id: string) => {
+    const updatedVehicles = vehicles.filter(vehicle => vehicle.id !== id);
+    setVehicles(updatedVehicles);
+    persistVehicles(updatedVehicles);
     toast.success("Vehículo eliminado correctamente");
-  };
+  }, [vehicles, persistVehicles]);
 
   return (
     <RequireAuth allowedRoles={["admin"]}>
@@ -187,61 +209,63 @@ const AdminVehicles = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>ID</TableHead>
-                      <TableHead>Matrícula</TableHead>
-                      <TableHead>Modelo</TableHead>
-                      <TableHead>Capacidad</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead>Acciones</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredVehicles.length > 0 ? (
-                      filteredVehicles.map((vehicle) => (
-                        <TableRow key={vehicle.id}>
-                          <TableCell className="font-medium">{vehicle.id}</TableCell>
-                          <TableCell>{vehicle.plateNumber}</TableCell>
-                          <TableCell>{vehicle.model}</TableCell>
-                          <TableCell>{vehicle.capacity}</TableCell>
-                          <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              vehicle.status === 'available' ? 'bg-green-100 text-green-800' :
-                              vehicle.status === 'busy' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {vehicle.status === 'available' ? 'Disponible' :
-                               vehicle.status === 'busy' ? 'Ocupado' :
-                               'En mantenimiento'}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              <Button variant="ghost" size="icon">
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                onClick={() => handleDeleteVehicle(vehicle.id)}
-                              >
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            </div>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Matrícula</TableHead>
+                        <TableHead>Modelo</TableHead>
+                        <TableHead>Capacidad</TableHead>
+                        <TableHead>Estado</TableHead>
+                        <TableHead>Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredVehicles.length > 0 ? (
+                        filteredVehicles.map((vehicle) => (
+                          <TableRow key={vehicle.id}>
+                            <TableCell className="font-medium">{vehicle.id}</TableCell>
+                            <TableCell>{vehicle.plateNumber}</TableCell>
+                            <TableCell>{vehicle.model}</TableCell>
+                            <TableCell>{vehicle.capacity}</TableCell>
+                            <TableCell>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                vehicle.status === 'available' ? 'bg-green-100 text-green-800' :
+                                vehicle.status === 'busy' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {vehicle.status === 'available' ? 'Disponible' :
+                                vehicle.status === 'busy' ? 'Ocupado' :
+                                'En mantenimiento'}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex space-x-2">
+                                <Button variant="ghost" size="icon">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  onClick={() => handleDeleteVehicle(vehicle.id)}
+                                >
+                                  <Trash className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-4">
+                            No se encontraron vehículos
                           </TableCell>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-4">
-                          No se encontraron vehículos
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </div>

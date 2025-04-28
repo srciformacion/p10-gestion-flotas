@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
 import { useRequests } from "@/context/RequestsContext";
@@ -14,16 +14,36 @@ import { RequestCard } from "@/components/requests/RequestCard";
 import { EmptyState } from "@/components/requests/EmptyState";
 import { Plus } from "lucide-react";
 
+// Debounce function to optimize search
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
 const RequestList = () => {
   const { user } = useAuth();
-  const { requests } = useRequests();
+  const { requests, fetchRequests, isLoading, totalRequests } = useRequests();
   const location = useLocation();
   const navigate = useNavigate();
   
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<RequestStatus | "all">("all");
   
-  // Get status from URL parameters if provided
+  // Debounce search term to avoid excessive API calls
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  
+  // Get status from URL parameters if provided and update filters
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const statusParam = queryParams.get("status") as RequestStatus | null;
@@ -49,47 +69,24 @@ const RequestList = () => {
     navigate(newUrl, { replace: true });
   }, [statusFilter, location.pathname, navigate]);
   
-  // Filter requests based on user role
-  const userRequests = user?.role === 'individual' || user?.role === 'hospital' 
-    ? requests.filter(req => req.createdBy === user.id)
-    : user?.role === 'admin'
-    ? requests // Admin sees all requests
-    : requests; // Default (ambulance companies see all)
+  // Fetch requests whenever filters change
+  useEffect(() => {
+    fetchRequests({
+      status: statusFilter,
+      search: debouncedSearchTerm
+    });
+  }, [fetchRequests, statusFilter, debouncedSearchTerm]);
   
-  // Apply search and status filters
-  const filteredRequests = userRequests.filter(request => {
-    // Filter by status
-    if (statusFilter !== "all" && request.status !== statusFilter) {
-      return false;
-    }
-    
-    // Filter by search term
-    if (searchTerm) {
-      const searchTermLower = searchTerm.toLowerCase();
-      return (
-        request.patientName.toLowerCase().includes(searchTermLower) ||
-        (request.patientId && request.patientId.toLowerCase().includes(searchTermLower)) ||
-        request.origin.toLowerCase().includes(searchTermLower) ||
-        request.destination.toLowerCase().includes(searchTermLower)
-      );
-    }
-    
-    return true;
-  });
-
-  // Sort by date (newest first)
-  const sortedRequests = [...filteredRequests].sort((a, b) => 
-    new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()
-  );
-
-  const handleSearchChange = (value: string) => {
+  // Memoized handler functions to prevent unnecessary re-renders
+  const handleSearchChange = useCallback((value: string) => {
     setSearchTerm(value);
-  };
+  }, []);
 
-  const handleStatusChange = (status: RequestStatus | "all") => {
+  const handleStatusChange = useCallback((status: RequestStatus | "all") => {
     setStatusFilter(status);
-  };
+  }, []);
 
+  // Check user permissions
   const canCreateRequest = user?.role === 'hospital' || user?.role === 'individual' || user?.role === 'admin';
 
   return (
@@ -123,12 +120,27 @@ const RequestList = () => {
             </Card>
             
             <div className="mb-4 text-sm text-muted-foreground">
-              {sortedRequests.length} {sortedRequests.length === 1 ? 'resultado' : 'resultados'} encontrados
+              {isLoading ? 'Cargando...' : (
+                <>
+                  {requests.length} {requests.length === 1 ? 'resultado' : 'resultados'} encontrados
+                </>
+              )}
             </div>
             
-            {sortedRequests.length > 0 ? (
+            {isLoading ? (
               <div className="space-y-4">
-                {sortedRequests.map((request) => (
+                {[...Array(3)].map((_, i) => (
+                  <Card key={i} className="p-6 animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  </Card>
+                ))}
+              </div>
+            ) : requests.length > 0 ? (
+              <div className="space-y-4">
+                {requests.map((request) => (
                   <RequestCard key={request.id} request={request} />
                 ))}
               </div>
