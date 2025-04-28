@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { ServiceType, TripType, TransportType } from "@/types";
 import { useCreateRequest } from "@/hooks/useCreateRequest";
 
 export const useRequestForm = () => {
@@ -14,23 +15,44 @@ export const useRequestForm = () => {
     destination: "",
     responsiblePerson: "",
     dateTime: "",
-    transportType: "stretcher" as "stretcher" | "wheelchair" | "walking",
+    returnDateTime: "", // For round trips
+    transportType: "stretcher" as TransportType,
+    serviceType: "consultation" as ServiceType,
+    tripType: "oneWay" as TripType,
     observations: "",
     authorizationFile: "",
     architecturalBarriers: "",
-    specialAttention: ""
+    specialAttention: "",
+    requiredEquipment: [] as string[]
   });
   
   const [error, setError] = useState("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleRadioChange = (value: "stretcher" | "wheelchair" | "walking") => {
+  const handleRadioChange = (value: TransportType) => {
     setFormData(prev => ({ ...prev, transportType: value }));
+  };
+
+  const handleServiceTypeChange = (value: ServiceType) => {
+    setFormData(prev => ({ ...prev, serviceType: value }));
+  };
+
+  const handleTripTypeChange = (value: TripType) => {
+    setFormData(prev => ({ ...prev, tripType: value }));
+  };
+  
+  const handleEquipmentChange = (equipment: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      requiredEquipment: checked 
+        ? [...prev.requiredEquipment, equipment]
+        : prev.requiredEquipment.filter(item => item !== equipment)
+    }));
   };
   
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,18 +78,45 @@ export const useRequestForm = () => {
     }
   };
   
+  const validateForm = (): boolean => {
+    // Basic validation
+    if (!formData.patientName || !formData.patientId || !formData.origin || 
+        !formData.destination || !formData.dateTime || !formData.responsiblePerson) {
+      setError("Por favor, complete todos los campos obligatorios");
+      return false;
+    }
+    
+    // Validate round trip
+    if (formData.tripType === 'roundTrip' && !formData.returnDateTime) {
+      setError("Por favor, indique la fecha y hora de vuelta");
+      return false;
+    }
+    
+    // Check if return date is after initial date for round trips
+    if (formData.tripType === 'roundTrip' && formData.returnDateTime) {
+      const initialDate = new Date(formData.dateTime);
+      const returnDate = new Date(formData.returnDateTime);
+      
+      if (returnDate <= initialDate) {
+        setError("La fecha de vuelta debe ser posterior a la fecha de ida");
+        return false;
+      }
+    }
+    
+    // For individual users, require authorization file
+    if (user?.role === 'individual' && !uploadedFile) {
+      setError("Como usuario particular, debe adjuntar la autorización médica");
+      return false;
+    }
+    
+    return true;
+  };
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     
-    if (!formData.patientName || !formData.patientId || !formData.origin || 
-        !formData.destination || !formData.dateTime || !formData.responsiblePerson) {
-      setError("Por favor, complete todos los campos obligatorios");
-      return;
-    }
-    
-    if (user?.role === 'individual' && !uploadedFile) {
-      setError("Como usuario particular, debe adjuntar la autorización médica");
+    if (!validateForm()) {
       return;
     }
     
@@ -87,6 +136,9 @@ export const useRequestForm = () => {
     uploadedFile,
     handleChange,
     handleRadioChange,
+    handleServiceTypeChange,
+    handleTripTypeChange,
+    handleEquipmentChange,
     handleFileUpload,
     handleSubmit,
     user

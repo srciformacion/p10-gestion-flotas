@@ -25,6 +25,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminRequests from "./pages/admin/AdminRequests";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminVehicles from "./pages/admin/AdminVehicles";
+import BiDashboard from "./pages/admin/BiDashboard";
 import RecoverPassword from "./pages/RecoverPassword";
 import ChatPage from "./pages/messages/ChatPage";
 
@@ -56,6 +57,7 @@ const App = () => (
                 <Route path="/admin/solicitudes" element={<AdminRequests />} />
                 <Route path="/admin/vehiculos" element={<AdminVehicles />} />
                 <Route path="/admin/configuracion" element={<AdminSettings />} />
+                <Route path="/admin/bi" element={<BiDashboard />} />
                 <Route path="/acceso-denegado" element={<AccessDenied />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

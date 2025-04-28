@@ -13,6 +13,9 @@ import { LocationSection } from "@/components/requests/form/LocationSection";
 import { TransportTypeSection } from "@/components/requests/form/TransportTypeSection";
 import { AdditionalInfoSection } from "@/components/requests/form/AdditionalInfoSection";
 import { useRequestForm } from "@/hooks/useRequestForm";
+import { TripTypeSection } from "@/components/requests/form/TripTypeSection";
+import { ServiceTypeSection } from "@/components/requests/form/ServiceTypeSection";
+import { EquipmentSection } from "@/components/requests/form/EquipmentSection";
 
 const NewRequest = () => {
   const navigate = useNavigate();
@@ -24,6 +27,9 @@ const NewRequest = () => {
     uploadedFile,
     handleChange,
     handleRadioChange,
+    handleServiceTypeChange,
+    handleTripTypeChange,
+    handleEquipmentChange,
     handleFileUpload,
     handleSubmit,
     user
@@ -47,7 +53,7 @@ const NewRequest = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
                   {(error || submitError) && (
                     <Alert variant="destructive">
                       <AlertTitle>Error</AlertTitle>
@@ -55,6 +61,7 @@ const NewRequest = () => {
                     </Alert>
                   )}
                   
+                  {/* Patient Information */}
                   <PatientSection 
                     patientName={formData.patientName}
                     patientId={formData.patientId}
@@ -62,29 +69,67 @@ const NewRequest = () => {
                     onChange={handleChange}
                   />
                   
+                  {/* Service Type */}
+                  <ServiceTypeSection
+                    serviceType={formData.serviceType}
+                    onValueChange={handleServiceTypeChange}
+                  />
+                  
+                  {/* Trip Type (One Way/Round Trip) */}
+                  <TripTypeSection
+                    tripType={formData.tripType}
+                    onValueChange={handleTripTypeChange}
+                  />
+                  
+                  {/* Location Information */}
                   <LocationSection 
                     origin={formData.origin}
                     destination={formData.destination}
                     onChange={handleChange}
                   />
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="dateTime">Fecha y hora deseada *</Label>
-                    <Input
-                      id="dateTime"
-                      name="dateTime"
-                      type="datetime-local"
-                      value={formData.dateTime}
-                      onChange={handleChange}
-                      required
-                    />
+                  {/* Date and Time */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="dateTime">Fecha y hora de ida *</Label>
+                      <Input
+                        id="dateTime"
+                        name="dateTime"
+                        type="datetime-local"
+                        value={formData.dateTime}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    
+                    {formData.tripType === 'roundTrip' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="returnDateTime">Fecha y hora de vuelta *</Label>
+                        <Input
+                          id="returnDateTime"
+                          name="returnDateTime"
+                          type="datetime-local"
+                          value={formData.returnDateTime}
+                          onChange={handleChange}
+                          required={formData.tripType === 'roundTrip'}
+                        />
+                      </div>
+                    )}
                   </div>
                   
+                  {/* Transport Type */}
                   <TransportTypeSection 
                     transportType={formData.transportType}
                     onValueChange={handleRadioChange}
                   />
                   
+                  {/* Required Equipment */}
+                  <EquipmentSection
+                    selectedEquipment={formData.requiredEquipment}
+                    onEquipmentChange={handleEquipmentChange}
+                  />
+                  
+                  {/* Additional Information */}
                   <AdditionalInfoSection 
                     architecturalBarriers={formData.architecturalBarriers}
                     specialAttention={formData.specialAttention}
@@ -92,6 +137,7 @@ const NewRequest = () => {
                     onChange={handleChange}
                   />
                   
+                  {/* Authorization File */}
                   {(user?.role === 'individual' || user?.role === 'admin') && (
                     <div className="space-y-2">
                       <Label htmlFor="authorizationFile">
