@@ -3,6 +3,7 @@ import { TransportRequest, Assignment } from '@/types';
 import { requestsApi } from '@/services/api/requests';
 import { assignmentsApi } from '@/services/api/assignments';
 import { intelligentAssignmentService } from '@/services/api/intelligentAssignment';
+import { useNotifications } from '@/context/NotificationsContext';
 
 interface RequestsContextType {
   requests: TransportRequest[];
@@ -23,6 +24,7 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
   const [requests, setRequests] = useState<TransportRequest[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     const loadData = async () => {
@@ -47,6 +49,12 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
   const addRequest = async (requestData: Omit<TransportRequest, 'id' | 'status'>) => {
     const newRequest = await requestsApi.create(requestData);
     setRequests(prev => [...prev, newRequest]);
+    
+    addNotification({
+      title: 'Nueva solicitud',
+      message: `Se ha creado una nueva solicitud para ${requestData.patientName}`,
+      type: 'info'
+    });
   };
 
   const updateRequestStatus = async (
@@ -54,8 +62,35 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
     status: TransportRequest['status'], 
     data?: Partial<TransportRequest>
   ) => {
+    const request = getRequestById(id);
+    const oldStatus = request?.status;
+    
     const updatedRequest = await requestsApi.update(id, { status, ...data });
     setRequests(prev => prev.map(req => req.id === id ? updatedRequest : req));
+    
+    const statusMessages = {
+      pending: 'Solicitud en espera',
+      assigned: 'Vehículo asignado',
+      inRoute: 'Vehículo en camino',
+      completed: 'Servicio completado',
+      cancelled: 'Servicio cancelado'
+    };
+    
+    const notificationTypes = {
+      pending: 'info',
+      assigned: 'info',
+      inRoute: 'info',
+      completed: 'success',
+      cancelled: 'warning'
+    };
+    
+    if (oldStatus !== status) {
+      addNotification({
+        title: statusMessages[status],
+        message: `Solicitud ${updatedRequest.id} para ${updatedRequest.patientName}: ${statusMessages[status]}`,
+        type: notificationTypes[status] as 'info' | 'success' | 'warning' | 'error'
+      });
+    }
   };
 
   const getRequestById = (id: string) => {
@@ -74,6 +109,12 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
           setRequests(prev => prev.map(req => 
             req.id === requestId ? request : req
           ));
+          
+          addNotification({
+            title: 'Asignación automática',
+            message: `Se ha asignado automáticamente un vehículo a la solicitud ${requestId}`,
+            type: 'success'
+          });
         }
         
         return assignment;
@@ -82,6 +123,12 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
       return null;
     } catch (error) {
       console.error('Error in automatic assignment:', error);
+      
+      addNotification({
+        title: 'Error en asignación',
+        message: `No se pudo asignar un vehículo automáticamente a la solicitud ${requestId}`,
+        type: 'error'
+      });
       return null;
     }
   };

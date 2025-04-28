@@ -8,6 +8,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { RequestsProvider } from "@/context/RequestsContext";
 import { ChatProvider } from "@/context/ChatContext";
 import { ChatInterface } from "@/components/chat/ChatInterface";
+import { NotificationsWrapper } from "@/components/notifications/NotificationsWrapper";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -35,36 +36,38 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <RequestsProvider>
-          <ChatProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/registro" element={<Register />} />
-                <Route path="/recuperar-password" element={<RecoverPassword />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/nueva-solicitud" element={<NewRequest />} />
-                <Route path="/solicitudes" element={<RequestList />} />
-                <Route path="/solicitudes/:id" element={<RequestDetail />} />
-                <Route path="/perfil" element={<Profile />} />
-                <Route path="/mensajes" element={<ChatPage />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/empresas" element={<AdminCompanies />} />
-                <Route path="/admin/usuarios" element={<AdminUsers />} />
-                <Route path="/admin/solicitudes" element={<AdminRequests />} />
-                <Route path="/admin/vehiculos" element={<AdminVehicles />} />
-                <Route path="/admin/configuracion" element={<AdminSettings />} />
-                <Route path="/admin/bi" element={<BiDashboard />} />
-                <Route path="/acceso-denegado" element={<AccessDenied />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <ChatInterface />
-            </BrowserRouter>
-          </ChatProvider>
-        </RequestsProvider>
+        <NotificationsWrapper>
+          <RequestsProvider>
+            <ChatProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/registro" element={<Register />} />
+                  <Route path="/recuperar-password" element={<RecoverPassword />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/nueva-solicitud" element={<NewRequest />} />
+                  <Route path="/solicitudes" element={<RequestList />} />
+                  <Route path="/solicitudes/:id" element={<RequestDetail />} />
+                  <Route path="/perfil" element={<Profile />} />
+                  <Route path="/mensajes" element={<ChatPage />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin/empresas" element={<AdminCompanies />} />
+                  <Route path="/admin/usuarios" element={<AdminUsers />} />
+                  <Route path="/admin/solicitudes" element={<AdminRequests />} />
+                  <Route path="/admin/vehiculos" element={<AdminVehicles />} />
+                  <Route path="/admin/configuracion" element={<AdminSettings />} />
+                  <Route path="/admin/bi" element={<BiDashboard />} />
+                  <Route path="/acceso-denegado" element={<AccessDenied />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <ChatInterface />
+              </BrowserRouter>
+            </ChatProvider>
+          </RequestsProvider>
+        </NotificationsWrapper>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
