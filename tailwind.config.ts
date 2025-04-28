@@ -19,48 +19,67 @@ export default {
     },
     extend: {
       colors: {
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-          blue: {
-            light: '#1E88E5',   // Azul claro
-            DEFAULT: '#1976D2',  // Azul principal
-            dark: '#0D47A1'      // Azul oscuro
-          }
-        },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-          purple: {
-            light: '#7E57C2',   // Púrpura claro
-            DEFAULT: '#5E35B1',  // Púrpura principal
-            dark: '#3F3D56'      // Púrpura oscuro
-          }
-        },
-        medical: {
-          blue: {
-            light: '#33C3F0',   // Azul médico claro
-            DEFAULT: '#1B6DC1',  // Azul médico principal
-            dark: '#0A4F7E'      // Azul médico oscuro
+        // Corporate Colors
+        corporate: {
+          green: {
+            light: '#8ED833',    // Lighter shade of corporate green
+            DEFAULT: '#78BE20',  // Corporate green (Pantone 368 C)
+            dark: '#62A01A'      // Darker shade of corporate green
           },
           gray: {
-            light: '#8E9196',   // Gris claro
-            DEFAULT: '#403E43',  // Gris principal
-            dark: '#221F26'      // Gris oscuro
+            light: '#5A6B76',    // Lighter shade of corporate gray
+            DEFAULT: '#3D4952',  // Corporate gray (Pantone 7546 C)
+            dark: '#2B353C'      // Darker shade of corporate gray
           }
         },
-        status: {
-          pending: '#FFC107',    // Amarillo
-          assigned: '#FF9800',   // Naranja
-          inRoute: '#4CAF50',    // Verde
-          completed: '#1B5E20',  // Verde oscuro
-          cancelled: '#F44336'   // Rojo
-        }
+        // Secondary Colors
+        complementary: {
+          green: {
+            light: '#E8F5D9',    // Very light green
+            DEFAULT: '#BADF94',  // Medium green
+            dark: '#9BC06B'      // Dark green
+          },
+          gray: {
+            light: '#F5F7F8',    // Very light gray
+            DEFAULT: '#CDD5DA',  // Medium gray
+            dark: '#8B979F'      // Dark gray
+          }
+        },
+        // Off-white colors
+        offwhite: {
+          warm: '#F9F7F4',      // Warm off-white (beige tint)
+          cool: '#F5F7F8'       // Cool off-white (gray tint)
+        },
+        // System colors mapping
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: '#78BE20',
+          foreground: '#FFFFFF',
+        },
+        secondary: {
+          DEFAULT: '#3D4952',
+          foreground: '#FFFFFF',
+        },
+        destructive: {
+          DEFAULT: '#EF4444',
+          foreground: '#FFFFFF',
+        },
+        muted: {
+          DEFAULT: '#F5F7F8',
+          foreground: '#3D4952',
+        },
+        accent: {
+          DEFAULT: '#E8F5D9',
+          foreground: '#3D4952',
+        },
+        card: {
+          DEFAULT: '#FFFFFF',
+          foreground: '#3D4952',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -6,30 +7,37 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 100%;
+    --foreground: 215 25% 27%;
+    
+    --primary: 84 72% 43%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 206 15% 27%;
+    --secondary-foreground: 0 0% 100%;
 
-    --primary: 210 79% 46%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --primary-blue-light: 210 80% 50%;
-    --primary-blue-default: 210 79% 46%;
-    --primary-blue-dark: 210 79% 30%;
+    --muted: 210 30% 97%;
+    --muted-foreground: 215 25% 27%;
+    
+    --accent: 84 56% 91%;
+    --accent-foreground: 215 25% 27%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 215 25% 27%;
+    --foreground: 0 0% 100%;
+    
+    --primary: 84 72% 43%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 206 15% 97%;
+    --secondary-foreground: 215 25% 27%;
 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --primary-blue-light: 217.2 91.2% 65%;
-    --primary-blue-default: 217.2 91.2% 59.8%;
-    --primary-blue-dark: 217.2 91.2% 45%;
+    --muted: 215 25% 32%;
+    --muted-foreground: 0 0% 100%;
+    
+    --accent: 84 56% 20%;
+    --accent-foreground: 0 0% 100%;
   }
 }
 
