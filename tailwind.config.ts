@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -40,7 +41,7 @@ export default {
             dark: '#9BC06B'      // Dark green
           },
           gray: {
-            light: '#F5F7F8',    // Very light gray
+            light: '#F5F7F8',    // Very light green
             DEFAULT: '#CDD5DA',  // Medium gray
             dark: '#8B979F'      // Dark gray
           }
@@ -50,6 +51,12 @@ export default {
           warm: '#F9F7F4',      // Warm off-white (beige tint)
           cool: '#F5F7F8'       // Cool off-white (gray tint)
         },
+        // Status Colors
+        'status-pending': '#FF9800',     // Orange
+        'status-assigned': '#3B82F6',    // Blue
+        'status-inRoute': '#78BE20',     // Corporate green
+        'status-completed': '#10B981',   // Green
+        'status-cancelled': '#EF4444',   // Red
         // System colors mapping
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
