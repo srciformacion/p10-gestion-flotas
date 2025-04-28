@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
@@ -34,7 +33,6 @@ const RequestDetail = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState<RequestStatus | null>(null);
   
-  // Fetch request data initially and when ID changes
   useEffect(() => {
     if (!id) {
       navigate('/solicitudes');
@@ -57,12 +55,10 @@ const RequestDetail = () => {
     }
   }, [id, getRequestById, navigate]);
   
-  // Redirect if no valid request
   if (!id || !request) {
     return null;
   }
 
-  // Memoized date formatting function
   const formatDateTime = useCallback((dateTimeStr: string) => {
     return new Date(dateTimeStr).toLocaleDateString('es-ES', { 
       day: '2-digit', 
@@ -87,17 +83,16 @@ const RequestDetail = () => {
     
     setIsUpdating(true);
     try {
-      let updatedRequest;
       if (status === 'assigned' || status === 'inRoute') {
-        updatedRequest = await updateRequestStatus(id, status, {
+        await updateRequestStatus(id, status, {
           assignedVehicle: vehicleInfo.vehicle,
           estimatedArrival: vehicleInfo.eta
         });
       } else {
-        updatedRequest = await updateRequestStatus(id, status);
+        await updateRequestStatus(id, status);
       }
       
-      // Update local state with new data
+      const updatedRequest = getRequestById(id);
       if (updatedRequest) {
         setRequest(updatedRequest);
       }
@@ -114,7 +109,6 @@ const RequestDetail = () => {
     }
   };
   
-  // Memoize permission checks and available status changes
   const canUpdateStatus = useMemo(() => 
     user?.role === 'ambulance' || user?.role === 'admin',
   [user]);

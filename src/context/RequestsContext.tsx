@@ -11,7 +11,7 @@ interface RequestsContextType {
   filteredRequests: TransportRequest[];
   assignments: Assignment[];
   addRequest: (request: Omit<TransportRequest, 'id' | 'status'>) => Promise<void>;
-  updateRequestStatus: (id: string, status: TransportRequest['status'], data?: Partial<TransportRequest>) => Promise<void>;
+  updateRequestStatus: (id: string, status: RequestStatus, data?: Partial<TransportRequest>) => Promise<void>;
   getRequestById: (id: string) => TransportRequest | undefined;
   assignVehicleAutomatically: (requestId: string) => Promise<Assignment | null>;
   checkForAssignmentConflicts: (requestId: string, ambulanceId: string, dateTime: string) => Promise<boolean>;
@@ -118,9 +118,9 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
 
   const updateRequestStatus = async (
     id: string, 
-    status: TransportRequest['status'], 
+    status: RequestStatus, 
     data?: Partial<TransportRequest>
-  ) => {
+  ): Promise<void> => {
     try {
       const request = getRequestById(id);
       const oldStatus = request?.status;
@@ -154,8 +154,8 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
           type: notificationTypes[status] as 'info' | 'success' | 'warning' | 'error'
         });
       }
-
-      return updatedRequest;
+      
+      // Return void instead of the updatedRequest
     } catch (error) {
       console.error('Error updating request status:', error);
       throw error;
