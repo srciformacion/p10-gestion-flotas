@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { RequestsProvider } from "@/context/RequestsContext";
 import { ChatProvider } from "@/context/ChatContext";
@@ -46,6 +46,14 @@ const queryClient = new QueryClient({
   },
 });
 
+// Role definitions for different routes
+const ADMIN_ROLE: UserRole[] = ["admin"];
+const HOSPITAL_ROLES: UserRole[] = ["hospital", "admin"];
+const AMBULANCE_ROLES: UserRole[] = ["ambulance", "admin"];
+const INDIVIDUAL_ROLES: UserRole[] = ["individual", "admin"];
+const CLIENT_ROLES: UserRole[] = ["hospital", "individual", "admin"];
+const ALL_AUTH_ROLES: UserRole[] = ["admin", "hospital", "ambulance", "individual"];
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -58,120 +66,147 @@ const App = () => (
                 <Sonner />
                 <BrowserRouter>
                   <Routes>
+                    {/* Public routes */}
                     <Route path="/" element={<Index />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/registro" element={<Register />} />
                     <Route path="/recuperar-password" element={<RecoverPassword />} />
+                    <Route path="/acceso-denegado" element={<AccessDenied />} />
                     
-                    {/* Rutas protegidas que requieren autenticación */}
+                    {/* Dashboard based on role */}
                     <Route 
                       path="/dashboard" 
                       element={
-                        <RequireAuth>
+                        <RequireAuth allowedRoles={["admin", "hospital", "ambulance"]}>
                           <Dashboard />
                         </RequireAuth>
                       } 
                     />
+
+                    {/* Individual users are redirected to solicitudes instead of dashboard */}
+                    <Route
+                      path="/individual-redirect"
+                      element={
+                        <RequireAuth allowedRoles={["individual"]}>
+                          <Navigate to="/solicitudes" replace />
+                        </RequireAuth>
+                      }
+                    />
+                    
+                    {/* Create new request - only for clients */}
                     <Route 
                       path="/nueva-solicitud" 
                       element={
-                        <RequireAuth allowedRoles={['hospital', 'individual']}>
+                        <RequireAuth allowedRoles={CLIENT_ROLES}>
                           <NewRequest />
                         </RequireAuth>
                       } 
                     />
+                    
+                    {/* Requests - all authenticated users, but filtering based on role happens within */}
                     <Route 
                       path="/solicitudes" 
                       element={
-                        <RequireAuth>
+                        <RequireAuth allowedRoles={ALL_AUTH_ROLES}>
                           <RequestList />
                         </RequireAuth>
                       } 
                     />
+                    
                     <Route 
                       path="/solicitudes/:id" 
                       element={
-                        <RequireAuth>
+                        <RequireAuth allowedRoles={ALL_AUTH_ROLES}>
                           <RequestDetail />
                         </RequireAuth>
                       } 
                     />
+                    
+                    {/* Profile - all authenticated users */}
                     <Route 
                       path="/perfil" 
                       element={
-                        <RequireAuth>
+                        <RequireAuth allowedRoles={ALL_AUTH_ROLES}>
                           <Profile />
                         </RequireAuth>
                       } 
                     />
+                    
+                    {/* Messages - all authenticated users */}
                     <Route 
                       path="/mensajes" 
                       element={
-                        <RequireAuth>
+                        <RequireAuth allowedRoles={ALL_AUTH_ROLES}>
                           <ChatPage />
                         </RequireAuth>
                       } 
                     />
                     
-                    {/* Rutas de administración protegidas */}
+                    {/* Admin routes - Admin only */}
                     <Route 
                       path="/admin" 
                       element={
-                        <RequireAuth allowedRoles={['admin']}>
+                        <RequireAuth allowedRoles={ADMIN_ROLE}>
                           <AdminDashboard />
                         </RequireAuth>
                       } 
                     />
+                    
                     <Route 
                       path="/admin/empresas" 
                       element={
-                        <RequireAuth allowedRoles={['admin']}>
+                        <RequireAuth allowedRoles={ADMIN_ROLE}>
                           <AdminCompanies />
                         </RequireAuth>
                       } 
                     />
+                    
                     <Route 
                       path="/admin/usuarios" 
                       element={
-                        <RequireAuth allowedRoles={['admin']}>
+                        <RequireAuth allowedRoles={ADMIN_ROLE}>
                           <AdminUsers />
                         </RequireAuth>
                       } 
                     />
+                    
                     <Route 
                       path="/admin/solicitudes" 
                       element={
-                        <RequireAuth allowedRoles={['admin']}>
+                        <RequireAuth allowedRoles={ADMIN_ROLE}>
                           <AdminRequests />
                         </RequireAuth>
                       } 
                     />
+                    
+                    {/* Vehicle management - Admin and Ambulance companies */}
                     <Route 
                       path="/admin/vehiculos" 
                       element={
-                        <RequireAuth allowedRoles={['admin']}>
+                        <RequireAuth allowedRoles={["admin", "ambulance"]}>
                           <AdminVehicles />
                         </RequireAuth>
                       } 
                     />
+                    
                     <Route 
                       path="/admin/configuracion" 
                       element={
-                        <RequireAuth allowedRoles={['admin']}>
+                        <RequireAuth allowedRoles={ADMIN_ROLE}>
                           <AdminSettings />
                         </RequireAuth>
                       } 
                     />
+                    
                     <Route 
                       path="/admin/bi" 
                       element={
-                        <RequireAuth allowedRoles={['admin']}>
+                        <RequireAuth allowedRoles={ADMIN_ROLE}>
                           <BiDashboard />
                         </RequireAuth>
                       } 
                     />
                     
-                    <Route path="/acceso-denegado" element={<AccessDenied />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>

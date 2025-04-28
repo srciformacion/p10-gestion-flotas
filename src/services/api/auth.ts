@@ -6,15 +6,39 @@ export const authApi = {
     // Simular verificación de credenciales
     await new Promise(resolve => setTimeout(resolve, 800));
     
-    const mockUser: User = {
-      id: '1',
-      email,
-      name: 'Usuario Demo',
-      role: 'admin'
+    // Define test users with appropriate roles
+    const mockUsers: Record<string, User> = {
+      'admin@ambulink.com': {
+        id: '1',
+        email: 'admin@ambulink.com',
+        name: 'Administrador',
+        role: 'admin'
+      },
+      'hospital@ambulink.com': {
+        id: '2',
+        email: 'hospital@ambulink.com',
+        name: 'Hospital San Pedro',
+        role: 'hospital'
+      },
+      'usuario@ambulink.com': {
+        id: '3',
+        email: 'usuario@ambulink.com',
+        name: 'Juan Paciente',
+        role: 'individual'
+      },
+      'ambulancia@ambulink.com': {
+        id: '4',
+        email: 'ambulancia@ambulink.com',
+        name: 'Ambulancias Express',
+        role: 'ambulance'
+      }
     };
     
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    return mockUser;
+    // Get the user by email or return admin as fallback
+    const user = mockUsers[email] || mockUsers['admin@ambulink.com'];
+    
+    localStorage.setItem('user', JSON.stringify(user));
+    return user;
   },
 
   logout: async (): Promise<void> => {
