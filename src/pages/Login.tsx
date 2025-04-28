@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Navbar } from "@/components/Navbar";
@@ -7,17 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/sonner";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { handleError } from "@/utils/errorHandler";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -25,24 +23,21 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
     
     try {
       await login(email, password);
-      toast({
-        title: "Inicio de sesión exitoso",
-        description: "Bienvenido de nuevo a AmbulLink",
+      toast.success("Inicio de sesión exitoso", {
+        description: "Bienvenido de nuevo a AmbulLink"
       });
       navigate(from, { replace: true });
-    } catch (err: any) {
-      setError(err.message || "Error al iniciar sesión");
+    } catch (error) {
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
   };
-  
-  // Datos de prueba para facilitar las pruebas
+
   const testAccounts = [
     { email: "admin@ambulink.com", role: "Administrador" },
     { email: "hospital@ambulink.com", role: "Centro sanitario" },
@@ -64,11 +59,6 @@ const Login = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <form onSubmit={handleSubmit} className="space-y-4">
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -85,7 +75,7 @@ const Login = () => {
                     <Label htmlFor="password">Contraseña</Label>
                     <Link
                       to="/recuperar-password"
-                      className="text-sm font-medium text-primary-blue hover:underline"
+                      className="text-sm font-medium text-primary hover:underline"
                     >
                       ¿Olvidaste tu contraseña?
                     </Link>
