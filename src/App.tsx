@@ -10,6 +10,8 @@ import { ChatProvider } from "@/context/ChatContext";
 import { ChatInterface } from "@/components/chat/ChatInterface";
 import { NotificationsWrapper } from "@/components/notifications/NotificationsWrapper";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { RequireAuth } from "@/components/RequireAuth";
+import { UserRole } from "@/types";
 
 // Import page components
 import Index from "@/pages/Index";
@@ -60,19 +62,115 @@ const App = () => (
                     <Route path="/login" element={<Login />} />
                     <Route path="/registro" element={<Register />} />
                     <Route path="/recuperar-password" element={<RecoverPassword />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/nueva-solicitud" element={<NewRequest />} />
-                    <Route path="/solicitudes" element={<RequestList />} />
-                    <Route path="/solicitudes/:id" element={<RequestDetail />} />
-                    <Route path="/perfil" element={<Profile />} />
-                    <Route path="/mensajes" element={<ChatPage />} />
-                    <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/admin/empresas" element={<AdminCompanies />} />
-                    <Route path="/admin/usuarios" element={<AdminUsers />} />
-                    <Route path="/admin/solicitudes" element={<AdminRequests />} />
-                    <Route path="/admin/vehiculos" element={<AdminVehicles />} />
-                    <Route path="/admin/configuracion" element={<AdminSettings />} />
-                    <Route path="/admin/bi" element={<BiDashboard />} />
+                    
+                    {/* Rutas protegidas que requieren autenticación */}
+                    <Route 
+                      path="/dashboard" 
+                      element={
+                        <RequireAuth>
+                          <Dashboard />
+                        </RequireAuth>
+                      } 
+                    />
+                    <Route 
+                      path="/nueva-solicitud" 
+                      element={
+                        <RequireAuth allowedRoles={['hospital', 'individual']}>
+                          <NewRequest />
+                        </RequireAuth>
+                      } 
+                    />
+                    <Route 
+                      path="/solicitudes" 
+                      element={
+                        <RequireAuth>
+                          <RequestList />
+                        </RequireAuth>
+                      } 
+                    />
+                    <Route 
+                      path="/solicitudes/:id" 
+                      element={
+                        <RequireAuth>
+                          <RequestDetail />
+                        </RequireAuth>
+                      } 
+                    />
+                    <Route 
+                      path="/perfil" 
+                      element={
+                        <RequireAuth>
+                          <Profile />
+                        </RequireAuth>
+                      } 
+                    />
+                    <Route 
+                      path="/mensajes" 
+                      element={
+                        <RequireAuth>
+                          <ChatPage />
+                        </RequireAuth>
+                      } 
+                    />
+                    
+                    {/* Rutas de administración protegidas */}
+                    <Route 
+                      path="/admin" 
+                      element={
+                        <RequireAuth allowedRoles={['admin']}>
+                          <AdminDashboard />
+                        </RequireAuth>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/empresas" 
+                      element={
+                        <RequireAuth allowedRoles={['admin']}>
+                          <AdminCompanies />
+                        </RequireAuth>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/usuarios" 
+                      element={
+                        <RequireAuth allowedRoles={['admin']}>
+                          <AdminUsers />
+                        </RequireAuth>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/solicitudes" 
+                      element={
+                        <RequireAuth allowedRoles={['admin']}>
+                          <AdminRequests />
+                        </RequireAuth>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/vehiculos" 
+                      element={
+                        <RequireAuth allowedRoles={['admin']}>
+                          <AdminVehicles />
+                        </RequireAuth>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/configuracion" 
+                      element={
+                        <RequireAuth allowedRoles={['admin']}>
+                          <AdminSettings />
+                        </RequireAuth>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/bi" 
+                      element={
+                        <RequireAuth allowedRoles={['admin']}>
+                          <BiDashboard />
+                        </RequireAuth>
+                      } 
+                    />
+                    
                     <Route path="/acceso-denegado" element={<AccessDenied />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>

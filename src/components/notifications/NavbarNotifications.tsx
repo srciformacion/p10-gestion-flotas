@@ -3,9 +3,9 @@ import { NotificationBell } from './NotificationBell';
 import { useNotifications } from '@/context/NotificationsContext';
 
 export const NavbarNotifications = () => {
-  const { notifications } = useNotifications();
+  const { notifications, unreadCount } = useNotifications();
   
   return (
-    <NotificationBell />
+    <NotificationBell count={unreadCount} />
   );
 };
