@@ -1,4 +1,3 @@
-
 import { Assignment, AssignmentIncident, BiRecord, TransportRequest } from '@/types';
 import { requestsApi } from './requests';
 import { ambulancesApi } from './ambulances';
@@ -121,33 +120,60 @@ export const intelligentAssignmentService = {
       const wheelchairSeatsNeeded = request.transportType === 'wheelchair' ? 1 : 0;
       const walkingSeatsNeeded = request.transportType === 'walking' ? 1 : 0;
 
-      // Extract zone from origin (simplified logic - in production would use geocoding)
+      // Extract zone from origin
       const requestZone = extractZoneFromAddress(request.origin);
       
-      // Determine service type for ambulance type matching
-      const ambulanceServiceType = determineAmbulanceServiceType(request.serviceType);
-      
-      // Get required equipment based on notes and special attention
+      // Determine required equipment based on notes and special attention
       const requiredEquipment = determineRequiredEquipment(request);
 
+      // Calculate estimated duration based on service type
+      const estimatedDuration = calculateEstimatedDuration(request.serviceType);
+
       // Find available ambulances matching the criteria
-      const availableAmbulances = await ambulancesApi.getAvailable(
+      let availableAmbulances = await ambulancesApi.getAvailable(
         requestZone,
         requiredEquipment,
         stretcherSeatsNeeded,
         wheelchairSeatsNeeded,
         walkingSeatsNeeded,
-        ambulanceServiceType
+        request.serviceType === 'consultation' ? 'consultation' : 'emergency'
       );
 
-      if (availableAmbulances.length === 0) {
-        console.log('No available ambulances matching criteria');
+      // Filter out ambulances with scheduling conflicts
+      const ambulancesWithoutConflicts = [];
+      for (const ambulance of availableAmbulances) {
+        const hasConflict = await intelligentAssignmentService.checkForConflicts(
+          requestId,
+          ambulance.id,
+          request.dateTime,
+          estimatedDuration
+        );
+        
+        if (!hasConflict) {
+          ambulancesWithoutConflicts.push(ambulance);
+        }
+      }
+
+      if (ambulancesWithoutConflicts.length === 0) {
+        console.log('No available ambulances without scheduling conflicts');
         return null;
       }
 
-      // For now, simply take the first available ambulance
-      // In a real system, you would use more sophisticated algorithms
-      const selectedAmbulance = availableAmbulances[0];
+      // Score and sort ambulances based on multiple criteria
+      const scoredAmbulances = ambulancesWithoutConflicts.map(ambulance => ({
+        ambulance,
+        score: calculateAmbulanceScore(
+          ambulance,
+          request,
+          requestZone || '',
+          stretcherSeatsNeeded,
+          wheelchairSeatsNeeded,
+          walkingSeatsNeeded
+        )
+      })).sort((a, b) => b.score - a.score);
+
+      // Select the highest scoring ambulance
+      const selectedAmbulance = scoredAmbulances[0].ambulance;
 
       // Create the assignment
       const assignment: Omit<Assignment, 'id'> = {
@@ -334,4 +360,66 @@ function calculateOccupancyRate(
   const totalUsed = stretcherSeats + wheelchairSeats + walkingSeats;
   
   return Math.round((totalUsed / totalCapacity) * 100);
+}
+
+function calculateEstimatedDuration(serviceType: string): number {
+  switch (serviceType) {
+    case 'consultation':
+      return 60; // 1 hour
+    case 'admission':
+      return 90; // 1.5 hours
+    case 'discharge':
+      return 60; // 1 hour
+    case 'transfer':
+      return 120; // 2 hours
+    default:
+      return 60;
+  }
+}
+
+function calculateAmbulanceScore(
+  ambulance: Ambulance,
+  request: TransportRequest,
+  requestZone: string,
+  stretcherNeeded: number,
+  wheelchairNeeded: number,
+  walkingNeeded: number
+): number {
+  let score = 0;
+
+  // Zone match (highest priority)
+  if (ambulance.zone === requestZone) {
+    score += 100;
+  }
+
+  // Equipment match
+  const requiredEquipment = determineRequiredEquipment(request);
+  const equipmentScore = requiredEquipment.reduce((acc, equipment) => {
+    return acc + (ambulance.equipment.includes(equipment) ? 10 : 0);
+  }, 0);
+  score += equipmentScore;
+
+  // Capacity optimization (prefer vehicles that won't be too empty or too full)
+  const totalCapacity = ambulance.stretcherSeats + ambulance.wheelchairSeats + ambulance.walkingSeats;
+  const neededCapacity = stretcherNeeded + wheelchairNeeded + walkingNeeded;
+  const capacityRatio = neededCapacity / totalCapacity;
+  
+  // Optimal ratio is between 0.5 and 0.8
+  if (capacityRatio >= 0.5 && capacityRatio <= 0.8) {
+    score += 50;
+  } else if (capacityRatio > 0.8) {
+    score += 30; // Still okay but not optimal
+  } else {
+    score += 20; // Less than 50% utilization
+  }
+
+  // Service type match
+  if (
+    (request.serviceType === 'consultation' && ambulance.type === 'consultation') ||
+    (request.serviceType === 'admission' && ambulance.type === 'emergency')
+  ) {
+    score += 40;
+  }
+
+  return score;
 }
