@@ -2,6 +2,7 @@
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { TripType } from "@/types";
+import { CalendarClock } from "lucide-react";
 
 interface TripTypeSectionProps {
   tripType: TripType;
@@ -14,19 +15,23 @@ export const TripTypeSection = ({
 }: TripTypeSectionProps) => {
   return (
     <div className="space-y-2">
-      <Label>Tipo de traslado *</Label>
+      <div className="flex items-center gap-2">
+        <CalendarClock className="h-4 w-4 text-muted-foreground" />
+        <Label>Tipo de traslado *</Label>
+      </div>
+      
       <RadioGroup 
         value={tripType} 
         onValueChange={onValueChange}
-        className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-6"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-3"
       >
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 rounded-md border p-3 cursor-pointer hover:bg-muted">
           <RadioGroupItem value="oneWay" id="oneWay" />
-          <Label htmlFor="oneWay">Solo ida</Label>
+          <Label htmlFor="oneWay" className="cursor-pointer">Solo ida</Label>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 rounded-md border p-3 cursor-pointer hover:bg-muted">
           <RadioGroupItem value="roundTrip" id="roundTrip" />
-          <Label htmlFor="roundTrip">Ida y vuelta</Label>
+          <Label htmlFor="roundTrip" className="cursor-pointer">Ida y vuelta</Label>
         </div>
       </RadioGroup>
     </div>
