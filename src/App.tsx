@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { RequestsProvider } from "@/context/RequestsContext";
+import { ChatProvider } from "@/context/ChatContext";
+import { ChatInterface } from "@/components/chat/ChatInterface";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -24,6 +26,7 @@ import AdminRequests from "./pages/admin/AdminRequests";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminVehicles from "./pages/admin/AdminVehicles";
 import RecoverPassword from "./pages/RecoverPassword";
+import ChatPage from "./pages/messages/ChatPage";
 
 const queryClient = new QueryClient();
 
@@ -32,29 +35,33 @@ const App = () => (
     <TooltipProvider>
       <AuthProvider>
         <RequestsProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/registro" element={<Register />} />
-              <Route path="/recuperar-password" element={<RecoverPassword />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/nueva-solicitud" element={<NewRequest />} />
-              <Route path="/solicitudes" element={<RequestList />} />
-              <Route path="/solicitudes/:id" element={<RequestDetail />} />
-              <Route path="/perfil" element={<Profile />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/empresas" element={<AdminCompanies />} />
-              <Route path="/admin/usuarios" element={<AdminUsers />} />
-              <Route path="/admin/solicitudes" element={<AdminRequests />} />
-              <Route path="/admin/vehiculos" element={<AdminVehicles />} />
-              <Route path="/admin/configuracion" element={<AdminSettings />} />
-              <Route path="/acceso-denegado" element={<AccessDenied />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <ChatProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/registro" element={<Register />} />
+                <Route path="/recuperar-password" element={<RecoverPassword />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/nueva-solicitud" element={<NewRequest />} />
+                <Route path="/solicitudes" element={<RequestList />} />
+                <Route path="/solicitudes/:id" element={<RequestDetail />} />
+                <Route path="/perfil" element={<Profile />} />
+                <Route path="/mensajes" element={<ChatPage />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/empresas" element={<AdminCompanies />} />
+                <Route path="/admin/usuarios" element={<AdminUsers />} />
+                <Route path="/admin/solicitudes" element={<AdminRequests />} />
+                <Route path="/admin/vehiculos" element={<AdminVehicles />} />
+                <Route path="/admin/configuracion" element={<AdminSettings />} />
+                <Route path="/acceso-denegado" element={<AccessDenied />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <ChatInterface />
+            </BrowserRouter>
+          </ChatProvider>
         </RequestsProvider>
       </AuthProvider>
     </TooltipProvider>

@@ -3,13 +3,16 @@ import { User } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Ambulance, FileText, Plus, Users } from "lucide-react";
+import { Ambulance, FileText, MessageCircle, Plus, Users } from "lucide-react";
+import { useChat } from "@/context/ChatContext";
 
 interface DashboardActionsProps {
   user: User;
 }
 
 export const DashboardActions = ({ user }: DashboardActionsProps) => {
+  const { totalUnread } = useChat();
+  
   // Definimos las acciones disponibles según el rol del usuario
   const canCreateRequest = user?.role === 'hospital' || user?.role === 'individual' || user?.role === 'admin';
   const canManageRequests = user?.role === 'admin';
@@ -55,6 +58,31 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
           <Link to="/solicitudes" className="w-full">
             <Button variant="outline" className="w-full">
               Ver Solicitudes
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+
+      {/* Acción: Mensajes */}
+      <Card className="hover:shadow-md transition-shadow">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageCircle className="h-5 w-5 text-blue-500" />
+            Mensajes
+            {totalUnread > 0 && (
+              <span className="bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {totalUnread}
+              </span>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-4">
+            Comunícate con {user?.role === 'admin' ? 'los usuarios' : 'la administración'}
+          </p>
+          <Link to="/mensajes" className="w-full">
+            <Button variant="outline" className="w-full">
+              Ver Mensajes
             </Button>
           </Link>
         </CardContent>
