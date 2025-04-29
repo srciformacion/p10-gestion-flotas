@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { locationService } from "@/services/api/locationService";
 import { LocationAlert } from "@/types/location";
 import { Bell, Check, Truck, MapPin } from "lucide-react";
-import { useRequests } from "@/context/RequestsContext";
+import { useRequests } from "@/context/requests";
 import { formatDistance } from "date-fns";
 import { es } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";

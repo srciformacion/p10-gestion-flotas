@@ -1,5 +1,5 @@
 
-import { useRequests } from "@/context/RequestsContext";
+import { useRequests } from "@/context/requests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RequestCard } from "@/components/requests/RequestCard";
 import { Button } from "@/components/ui/button";

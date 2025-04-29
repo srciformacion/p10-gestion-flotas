@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Ambulance } from "@/types";
 import { toast } from "sonner";
-import { useRequests } from "@/context/RequestsContext";
+import { useRequests } from "@/context/requests";
 import { ambulancesApi } from "@/services/api/ambulances";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Ambulance as AmbulanceIcon } from "lucide-react";

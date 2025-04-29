@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Truck, Bell, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useRequests } from "@/context/RequestsContext";
+import { useRequests } from "@/context/requests";
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
