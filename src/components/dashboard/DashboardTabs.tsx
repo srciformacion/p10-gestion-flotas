@@ -33,21 +33,21 @@ export const DashboardTabs = ({ user, requests, totalRequestsCount }: DashboardT
       description: "Administrar mi flota de ambulancias",
       icon: Ambulance,
       href: "/vehiculos",
-      variant: "default",
+      variant: "default" as "default" | "outline",
     },
     {
       title: "Solicitudes Activas",
       description: "Ver solicitudes asignadas a mi flota",
       icon: FileText,
       href: "/solicitudes?status=assigned",
-      variant: "outline",
+      variant: "outline" as "default" | "outline",
     },
     {
       title: "Seguimiento GPS",
       description: "Ver la ubicación en tiempo real de mis vehículos",
       icon: MapPin,
       href: "/seguimiento",
-      variant: "outline",
+      variant: "outline" as "default" | "outline",
     }
   ];
   

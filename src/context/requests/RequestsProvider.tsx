@@ -1,33 +1,18 @@
 
-import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { TransportRequest, Assignment, RequestStatus } from '@/types';
 import { requestsApi } from '@/services/api/requests';
 import { assignmentsApi } from '@/services/api/assignments';
 import { intelligentAssignmentService } from '@/services/api/intelligentAssignment';
 import { useNotifications } from '@/context/NotificationsContext';
+import { RequestsContext } from './RequestsContext';
+import { clearCacheByPattern } from './cache';
 
-interface RequestsContextType {
-  requests: TransportRequest[];
-  filteredRequests: TransportRequest[];
-  assignments: Assignment[];
-  addRequest: (request: Omit<TransportRequest, 'id' | 'status'>) => Promise<void>;
-  updateRequestStatus: (id: string, status: RequestStatus, data?: Partial<TransportRequest>) => Promise<void>;
-  getRequestById: (id: string) => TransportRequest | undefined;
-  assignVehicleAutomatically: (requestId: string) => Promise<Assignment | null>;
-  checkForAssignmentConflicts: (requestId: string, ambulanceId: string, dateTime: string) => Promise<boolean>;
-  getAssignmentForRequest: (requestId: string) => Promise<Assignment | null>;
-  isLoading: boolean;
-  fetchRequests: (filters?: { status?: RequestStatus | 'all', search?: string }) => Promise<void>;
-  pageSize: number;
-  currentPage: number;
-  totalRequests: number;
-  setCurrentPage: (page: number) => void;
-  clearCache: () => void;
+interface RequestsProviderProps {
+  children: React.ReactNode;
 }
 
-const RequestsContext = createContext<RequestsContextType | undefined>(undefined);
-
-export const RequestsProvider = ({ children }: { children: React.ReactNode }) => {
+export const RequestsProvider = ({ children }: RequestsProviderProps) => {
   const [requests, setRequests] = useState<TransportRequest[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -154,8 +139,6 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
           type: notificationTypes[status] as 'info' | 'success' | 'warning' | 'error'
         });
       }
-      
-      // Return void instead of the updatedRequest
     } catch (error) {
       console.error('Error updating request status:', error);
       throw error;
@@ -260,12 +243,4 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
       {children}
     </RequestsContext.Provider>
   );
-};
-
-export const useRequests = () => {
-  const context = useContext(RequestsContext);
-  if (context === undefined) {
-    throw new Error('useRequests must be used within a RequestsProvider');
-  }
-  return context;
 };

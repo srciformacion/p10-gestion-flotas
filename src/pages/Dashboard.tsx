@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
-import { useRequests } from "@/context/RequestsContext";
+import { useRequests } from "@/context/requests";
 import { useNavigate } from "react-router-dom";
 import { RequireAuth } from "@/components/RequireAuth";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";

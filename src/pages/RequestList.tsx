@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
-import { useRequests } from "@/context/RequestsContext";
+import { useRequests } from "@/context/requests";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -101,7 +101,7 @@ const RequestList = () => {
               </h1>
               
               {canCreateRequest && (
-                <Link to="/nueva-solicitud">
+                <Link to="/solicitud">
                   <Button className="w-full md:w-auto" size="lg">
                     <Plus className="mr-2" />
                     Nueva Solicitud
