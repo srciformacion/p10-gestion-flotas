@@ -1,6 +1,6 @@
 
 import { TransportRequest, RequestStatus, Assignment } from '@/types';
-import { requestsApi } from '@/services/api/requests/index';
+import { requestsApi } from '@/services/api/requests/requestsApi';
 import { assignmentsApi } from '@/services/api/assignments';
 import { intelligentAssignmentService } from '@/services/api/intelligentAssignment';
 
@@ -8,7 +8,7 @@ export const fetchRequests = async (
   setIsLoading: (value: boolean) => void,
   setRequests: (requests: TransportRequest[]) => void,
   setTotalRequests: (count: number) => void,
-  setRequestCache: (cache: Record<string, TransportRequest>) => void,
+  setRequestCache: (cache: Record<string, TransportRequest> | ((prev: Record<string, TransportRequest>) => Record<string, TransportRequest>)) => void,
   filters?: { status?: RequestStatus | 'all', search?: string }
 ) => {
   setIsLoading(true);
@@ -74,7 +74,7 @@ export const updateRequestStatus = async (
   data: Partial<TransportRequest> | undefined,
   requests: TransportRequest[],
   setRequests: (requests: TransportRequest[]) => void,
-  setRequestCache: (cache: Record<string, TransportRequest>) => void
+  setRequestCache: (cache: Record<string, TransportRequest> | ((prev: Record<string, TransportRequest>) => Record<string, TransportRequest>)) => void
 ): Promise<TransportRequest> => {
   const updatedRequest = await requestsApi.update(id, { status, ...data });
   
