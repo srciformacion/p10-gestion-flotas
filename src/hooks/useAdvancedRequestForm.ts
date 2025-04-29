@@ -231,7 +231,8 @@ export const useAdvancedRequestForm = () => {
           dateTime: `${trip.date}T${trip.time}`,
           transportType: formData.transportType,
           serviceType: formData.serviceType,
-          tripType: trip.isReturn ? 'roundTrip' : 'oneWay',
+          // Fix: Ensure tripType is always of TripType enum
+          tripType: trip.isReturn ? 'roundTrip' as TripType : 'oneWay' as TripType,
           observations: `Parte de una solicitud recurrente. ${formData.observations || ''}`,
           createdBy: user?.id || "",
           isAdvancedRequest: true,
