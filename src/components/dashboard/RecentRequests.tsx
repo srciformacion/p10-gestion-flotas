@@ -48,14 +48,11 @@ export const RecentRequests = () => {
             )}
           </div>
         ) : (
-          <EmptyState
-            title="Sin solicitudes recientes"
-            description="No hay solicitudes de traslado recientes para mostrar."
-            action={
-              <Button asChild>
-                <Link to="/solicitud">Nueva solicitud</Link>
-              </Button>
-            }
+          <EmptyState 
+            statusFilter="all" 
+            searchTerm="" 
+            onResetFilter={() => {}} 
+            showNewRequestButton={true} 
           />
         )}
       </CardContent>

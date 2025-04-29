@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
@@ -90,7 +91,7 @@ const Dashboard = () => {
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <RecentRequests requests={userRequests} />
+                <RecentRequests />
                 <QuickActions user={user} pendingRequestsCount={pendingRequestsCount} />
               </div>
             </TabsContent>
