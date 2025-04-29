@@ -1,7 +1,8 @@
+
 import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { VehicleLocation, LocationAlert } from "@/types/location";
-import { locationService } from "@/services/api/locationService";
+import { locationService } from "@/services/api/location"; // Updated import path
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Truck, Bell, MapPin } from "lucide-react";
