@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RequestStatusBadge } from "@/components/RequestStatusBadge";
 import { useNavigate } from "react-router-dom";
+import { MapPin } from "lucide-react";
 
 interface RequestCardProps {
   request: TransportRequest;
@@ -11,6 +12,10 @@ interface RequestCardProps {
 
 export const RequestCard = ({ request }: RequestCardProps) => {
   const navigate = useNavigate();
+
+  const showTrackingButton = 
+    request.status === 'assigned' || 
+    request.status === 'inRoute';
 
   return (
     <Card className="overflow-hidden">
@@ -59,14 +64,27 @@ export const RequestCard = ({ request }: RequestCardProps) => {
               )}
             </div>
             
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="mt-4 self-end"
-              onClick={() => navigate(`/solicitudes/${request.id}`)}
-            >
-              Ver detalles
-            </Button>
+            <div className="mt-4 flex flex-wrap gap-2 justify-end">
+              {showTrackingButton && (
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={() => navigate(`/seguimiento/${request.id}`)}
+                  className="gap-1"
+                >
+                  <MapPin className="h-4 w-4" /> 
+                  Seguir ambulancia
+                </Button>
+              )}
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate(`/solicitudes/${request.id}`)}
+              >
+                Ver detalles
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

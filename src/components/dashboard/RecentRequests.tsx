@@ -1,67 +1,64 @@
 
-import { TransportRequest } from "@/types";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRequests } from "@/context/RequestsContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RequestCard } from "@/components/requests/RequestCard";
 import { Button } from "@/components/ui/button";
-import { RequestStatusBadge } from "@/components/RequestStatusBadge";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { EmptyState } from "@/components/requests/EmptyState";
 
-interface RecentRequestsProps {
-  requests: TransportRequest[];
-}
+export const RecentRequests = () => {
+  const { requests } = useRequests();
+  
+  // Obtener las solicitudes más recientes (últimas 3)
+  const recentRequests = [...requests]
+    .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime())
+    .slice(0, 3);
 
-export const RecentRequests = ({ requests }: RecentRequestsProps) => {
+  // Comprobar si hay solicitudes activas (en camino o asignadas)
+  const hasActiveRequests = recentRequests.some(
+    request => request.status === 'assigned' || request.status === 'inRoute'
+  );
+  
   return (
-    <Card className="col-span-2">
-      <CardHeader>
-        <CardTitle>Solicitudes recientes</CardTitle>
-        <CardDescription>
-          {requests.length > 0 
-            ? `${requests.length} ${requests.length === 1 ? 'solicitud reciente' : 'solicitudes recientes'}`
-            : 'No hay solicitudes recientes'
-          }
-        </CardDescription>
+    <Card className="col-span-3">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Solicitudes Recientes</CardTitle>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/solicitudes">Ver todas</Link>
+        </Button>
       </CardHeader>
       <CardContent>
-        {requests.length > 0 ? (
+        {recentRequests.length > 0 ? (
           <div className="space-y-4">
-            {requests.map((request) => (
-              <div key={request.id} className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <div className="font-medium">{request.patientName}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {new Date(request.dateTime).toLocaleDateString('es-ES', { 
-                      day: '2-digit', 
-                      month: '2-digit',
-                      hour: '2-digit', 
-                      minute: '2-digit'
-                    })}
-                  </div>
-                  <div className="mt-1">
-                    <RequestStatusBadge status={request.status} />
-                  </div>
-                </div>
-                <Link to={`/solicitudes/${request.id}`}>
-                  <Button variant="ghost" size="sm">
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
+            {recentRequests.map((request) => (
+              <RequestCard key={request.id} request={request} />
             ))}
+            
+            {hasActiveRequests && (
+              <div className="text-center pt-2">
+                <p className="text-sm text-muted-foreground mb-2">
+                  Puedes compartir el enlace de seguimiento con el paciente o sus familiares
+                </p>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/solicitudes">
+                    Ver todas las solicitudes
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
-          <div className="text-center py-4">
-            <p className="text-muted-foreground">No hay solicitudes recientes</p>
-          </div>
+          <EmptyState
+            title="Sin solicitudes recientes"
+            description="No hay solicitudes de traslado recientes para mostrar."
+            action={
+              <Button asChild>
+                <Link to="/solicitud">Nueva solicitud</Link>
+              </Button>
+            }
+          />
         )}
       </CardContent>
-      <CardFooter>
-        <Link to="/solicitudes" className="w-full">
-          <Button variant="outline" className="w-full">
-            Ver todas las solicitudes
-          </Button>
-        </Link>
-      </CardFooter>
     </Card>
   );
 };

@@ -1,12 +1,11 @@
-
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
 import { useRequests } from "@/context/RequestsContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { ArrowLeft, MapPin } from "lucide-react";
 import { RequestStatus } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -151,7 +150,22 @@ const RequestDetail = () => {
                       Creada: {formatDateTime(request.dateTime)}
                     </CardDescription>
                   </div>
-                  <RequestStatusBadge status={request.status} />
+                  <div className="flex items-center gap-2">
+                    <RequestStatusBadge status={request.status} />
+                    {(request.status === 'assigned' || request.status === 'inRoute') && (
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        asChild
+                        className="gap-1"
+                      >
+                        <Link to={`/seguimiento/${request.id}`}>
+                          <MapPin className="h-4 w-4" /> 
+                          Seguimiento
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">

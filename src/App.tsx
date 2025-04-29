@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import NewRequest from './pages/NewRequest';
 import RequestList from './pages/RequestList';
 import RequestDetail from './pages/RequestDetail';
+import AmbulanceTracking from './pages/AmbulanceTracking';
 import NotFound from './pages/NotFound';
 import AccessDenied from './pages/AccessDenied';
 import Profile from './pages/Profile';
@@ -48,6 +49,7 @@ function App() {
                 <Route path="/solicitud" element={<NewRequest />} />
                 <Route path="/solicitudes" element={<RequestList />} />
                 <Route path="/solicitudes/:id" element={<RequestDetail />} />
+                <Route path="/seguimiento/:requestId" element={<AmbulanceTracking />} />
                 <Route path="/perfil" element={<Profile />} />
                 <Route path="/mensajes" element={<ChatPage />} />
                 <Route path="/mensajes/:id" element={<ChatPage />} />
