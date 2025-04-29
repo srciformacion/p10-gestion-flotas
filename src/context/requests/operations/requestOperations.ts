@@ -1,6 +1,6 @@
 
 import { TransportRequest, RequestStatus, Assignment } from '@/types';
-import { requestsApi } from '@/services/api/requests';
+import { requestsApi } from '@/services/api/requests/index';
 import { assignmentsApi } from '@/services/api/assignments';
 import { intelligentAssignmentService } from '@/services/api/intelligentAssignment';
 
@@ -45,7 +45,7 @@ export const fetchRequests = async (
       newCache[req.id] = req;
     });
     
-    setRequestCache(prevCache => ({ ...prevCache, ...newCache }));
+    setRequestCache((prevCache) => ({ ...prevCache, ...newCache }));
     setRequests(filteredData);
   } catch (error) {
     console.error('Error fetching requests:', error);
@@ -62,7 +62,7 @@ export const addRequest = async (
 ) => {
   const newRequest = await requestsApi.create(requestData);
   setRequests(prev => [newRequest, ...prev]);
-  setRequestCache(prev => ({ ...prev, [newRequest.id]: newRequest }));
+  setRequestCache((prev) => ({ ...prev, [newRequest.id]: newRequest }));
   setTotalRequests(prev => prev + 1);
   
   return newRequest;
@@ -80,7 +80,7 @@ export const updateRequestStatus = async (
   
   // Update in state and cache
   setRequests(requests.map(req => req.id === id ? updatedRequest : req));
-  setRequestCache(prev => ({ ...prev, [id]: updatedRequest }));
+  setRequestCache((prev) => ({ ...prev, [id]: updatedRequest }));
   
   return updatedRequest;
 };
@@ -108,14 +108,14 @@ export const assignVehicleAutomatically = async (
   const assignment = await intelligentAssignmentService.assignAmbulance(requestId);
   
   if (assignment) {
-    setAssignments(prev => [...prev, assignment]);
+    setAssignments((prev) => [...prev, assignment]);
     
     const request = await requestsApi.getById(requestId);
     if (request) {
       setRequests(prev => prev.map(req => 
         req.id === requestId ? request : req
       ));
-      setRequestCache(prev => ({ ...prev, [requestId]: request }));
+      setRequestCache((prev) => ({ ...prev, [requestId]: request }));
     }
     
     return assignment;
@@ -138,7 +138,7 @@ export const getAssignmentForRequest = async (
   
   const assignment = await assignmentsApi.getByRequestId(requestId);
   if (assignment) {
-    setAssignments(prev => [...prev, assignment]);
+    setAssignments([...assignments, assignment]);
   }
   return assignment;
 };

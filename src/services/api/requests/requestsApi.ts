@@ -1,41 +1,8 @@
 
 import { TransportRequest } from '@/types';
+import { getFromCache, setInCache } from './cache';
 
-// Cache expiration time in milliseconds (5 minutes)
-const CACHE_EXPIRY = 5 * 60 * 1000;
-
-interface CacheItem<T> {
-  data: T;
-  timestamp: number;
-}
-
-// Simple in-memory cache
-const cache: {
-  [key: string]: CacheItem<any>;
-} = {};
-
-// Cache management functions
-const getFromCache = <T>(key: string): T | null => {
-  const item = cache[key];
-  if (!item) return null;
-  
-  const now = Date.now();
-  if (now - item.timestamp > CACHE_EXPIRY) {
-    delete cache[key];
-    return null;
-  }
-  
-  return item.data;
-};
-
-const setInCache = <T>(key: string, data: T): void => {
-  cache[key] = {
-    data,
-    timestamp: Date.now(),
-  };
-};
-
-// Improved API with caching
+// Core API implementation for request operations
 export const requestsApi = {
   getAll: async (): Promise<TransportRequest[]> => {
     try {
@@ -102,9 +69,6 @@ export const requestsApi = {
       localStorage.setItem('requests', JSON.stringify(requests));
       
       // Invalidate the cache for all requests
-      delete cache['allRequests'];
-      
-      // Cache the new request
       setInCache(`request-${newRequest.id}`, newRequest);
       
       return newRequest;
@@ -136,7 +100,6 @@ export const requestsApi = {
       localStorage.setItem('requests', JSON.stringify(requests));
       
       // Update cache
-      delete cache['allRequests']; // Invalidate all requests cache
       setInCache(`request-${id}`, updatedRequest); // Update individual request cache
       
       return updatedRequest;
@@ -155,22 +118,9 @@ export const requestsApi = {
       const requests: TransportRequest[] = stored ? JSON.parse(stored) : [];
       const filtered = requests.filter(req => req.id !== id);
       localStorage.setItem('requests', JSON.stringify(filtered));
-      
-      // Update cache
-      delete cache['allRequests']; // Invalidate all requests cache
-      delete cache[`request-${id}`]; // Remove deleted request from cache
     } catch (error) {
       console.error(`Error deleting request ${id}:`, error);
       throw new Error('Failed to delete request');
     }
-  },
-  
-  // New method to clear cache
-  clearCache: (): void => {
-    Object.keys(cache).forEach(key => {
-      if (key.startsWith('request-') || key === 'allRequests') {
-        delete cache[key];
-      }
-    });
   }
 };
