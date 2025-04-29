@@ -1,4 +1,5 @@
 
+import React, { useMemo } from "react";
 import { RequestStatus } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -13,8 +14,8 @@ interface RequestStatusBadgeProps {
   status: RequestStatus;
 }
 
-export function RequestStatusBadge({ status }: RequestStatusBadgeProps) {
-  const statusInfo = {
+export const RequestStatusBadge = React.memo(({ status }: RequestStatusBadgeProps) => {
+  const statusInfo = useMemo(() => ({
     pending: {
       label: 'Pendiente',
       variant: 'warning',
@@ -45,7 +46,7 @@ export function RequestStatusBadge({ status }: RequestStatusBadgeProps) {
       icon: AlertTriangle,
       className: 'bg-status-cancelled text-white'
     }
-  };
+  }), []);
 
   const { label, className, icon: Icon } = statusInfo[status];
 
@@ -55,4 +56,6 @@ export function RequestStatusBadge({ status }: RequestStatusBadgeProps) {
       {label}
     </Badge>
   );
-}
+});
+
+RequestStatusBadge.displayName = "RequestStatusBadge";

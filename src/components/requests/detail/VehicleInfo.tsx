@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ambulancesApi } from "@/services/api/ambulances";
 import { Ambulance } from "@/types";
 import { AmbulanceDetails } from "./AmbulanceDetails";
@@ -12,29 +12,33 @@ interface VehicleInfoProps {
   formatDateTime: (date: string) => string;
 }
 
-export const VehicleInfo = ({ vehicle, estimatedArrival, formatDateTime }: VehicleInfoProps) => {
+export const VehicleInfo = React.memo(({ vehicle, estimatedArrival, formatDateTime }: VehicleInfoProps) => {
   const [ambulance, setAmbulance] = useState<Ambulance | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchAmbulance = async () => {
-      if (!vehicle) {
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        const data = await ambulancesApi.getById(vehicle);
-        setAmbulance(data);
-      } catch (error) {
-        console.error("Error fetching ambulance:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchAmbulance = useCallback(async () => {
+    if (!vehicle) {
+      setLoading(false);
+      return;
+    }
     
-    fetchAmbulance();
+    try {
+      const data = await ambulancesApi.getById(vehicle);
+      setAmbulance(data);
+    } catch (error) {
+      console.error("Error fetching ambulance:", error);
+    } finally {
+      setLoading(false);
+    }
   }, [vehicle]);
+
+  useEffect(() => {
+    fetchAmbulance();
+  }, [fetchAmbulance]);
+
+  const formattedArrival = useMemo(() => {
+    return estimatedArrival ? formatDateTime(estimatedArrival) : '';
+  }, [estimatedArrival, formatDateTime]);
 
   if (loading) {
     return <Skeleton className="h-20 w-full" />;
@@ -57,7 +61,7 @@ export const VehicleInfo = ({ vehicle, estimatedArrival, formatDateTime }: Vehic
             <p className="font-medium">{vehicle}</p>
             {estimatedArrival && (
               <p className="text-sm text-gray-500">
-                Llegada estimada: {formatDateTime(estimatedArrival)}
+                Llegada estimada: {formattedArrival}
               </p>
             )}
           </div>
@@ -65,4 +69,6 @@ export const VehicleInfo = ({ vehicle, estimatedArrival, formatDateTime }: Vehic
       )}
     </div>
   );
-};
+});
+
+VehicleInfo.displayName = "VehicleInfo";

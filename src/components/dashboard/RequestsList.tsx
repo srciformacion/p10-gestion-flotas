@@ -1,4 +1,5 @@
 
+import React, { useMemo } from "react";
 import { TransportRequest, User } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,15 +12,16 @@ interface RequestsListProps {
   user: User;
 }
 
-export const RequestsList = ({ requests, totalCount, user }: RequestsListProps) => {
+export const RequestsList = React.memo(({ requests, totalCount, user }: RequestsListProps) => {
+  const countText = useMemo(() => {
+    return `${totalCount} ${totalCount === 1 ? ' solicitud en total' : ' solicitudes en total'}`;
+  }, [totalCount]);
+  
   return (
     <Card>
       <CardHeader>
         <CardTitle>Todas las solicitudes</CardTitle>
-        <CardDescription>
-          {totalCount} 
-          {totalCount === 1 ? ' solicitud en total' : ' solicitudes en total'}
-        </CardDescription>
+        <CardDescription>{countText}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -79,4 +81,6 @@ export const RequestsList = ({ requests, totalCount, user }: RequestsListProps) 
       </CardFooter>
     </Card>
   );
-};
+});
+
+RequestsList.displayName = "RequestsList";
