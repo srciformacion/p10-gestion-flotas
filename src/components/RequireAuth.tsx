@@ -19,6 +19,18 @@ export const RequireAuth = ({ children, allowedRoles }: RequireAuthProps) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Special case for BI route - only admin can access
+  if (location.pathname === "/admin/bi" && user.role === "ambulance") {
+    // Show toast notification for unauthorized access
+    useEffect(() => {
+      toast.error("Acceso denegado", {
+        description: "No tienes permisos para acceder a esta página",
+      });
+    }, []);
+    
+    return <Navigate to="/acceso-denegado" state={{ redirectPath: "/dashboard" }} replace />;
+  }
+
   // Handle unauthorized access (wrong role)
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     // Show toast notification for unauthorized access

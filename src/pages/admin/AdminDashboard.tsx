@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Users, FileText, Settings, Ambulance, BarChart, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
+  
   const menuItems = [
     {
       title: "Gestión de Empresas",
@@ -38,12 +41,13 @@ const AdminDashboard = () => {
       icon: MapPin,
       href: "/admin/tracking"
     },
-    {
+    // Only show BI for admin users
+    ...(user?.role !== "ambulance" ? [{
       title: "Business Intelligence",
       description: "Ver estadísticas y análisis de datos",
       icon: BarChart,
       href: "/admin/bi"
-    },
+    }] : []),
     {
       title: "Configuración",
       description: "Configuración del sistema",
@@ -53,7 +57,7 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <RequireAuth allowedRoles={["admin"]}>
+    <RequireAuth allowedRoles={["admin", "ambulance"]}>
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow p-4 md:p-6">
