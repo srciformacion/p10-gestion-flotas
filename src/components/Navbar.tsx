@@ -52,7 +52,7 @@ export const Navbar = () => {
                   )}
                   
                   {(user.role === 'hospital' || user.role === 'individual') && (
-                    <Link to="/nueva-solicitud" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
+                    <Link to="/solicitud" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
                       Nueva Solicitud
                     </Link>
                   )}
@@ -129,7 +129,7 @@ export const Navbar = () => {
                 
                 {(user.role === 'hospital' || user.role === 'individual') && (
                   <Link
-                    to="/nueva-solicitud"
+                    to="/solicitud"
                     className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
                     onClick={closeMenu}
                   >
