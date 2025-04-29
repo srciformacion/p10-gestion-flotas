@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
@@ -16,6 +17,7 @@ import { DateAndTypeInfo } from "@/components/requests/detail/DateAndTypeInfo";
 import { ResponsibleInfo } from "@/components/requests/detail/ResponsibleInfo";
 import { VehicleInfo } from "@/components/requests/detail/VehicleInfo";
 import { StatusUpdateDialog } from "@/components/requests/detail/StatusUpdateDialog";
+import { RealTimeTracking } from "@/components/requests/detail/RealTimeTracking";
 
 const RequestDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -181,6 +183,14 @@ const RequestDetail = () => {
                     formatDateTime={formatDateTime}
                   />
                 )}
+                
+                {(request.status === 'assigned' || request.status === 'inRoute') && 
+                 request.assignedVehicle && (
+                  <RealTimeTracking 
+                    requestId={request.id}
+                    vehicleId={request.assignedVehicle}
+                  />
+                )}
               </CardContent>
               {canUpdateStatus && availableStatusChanges.length > 0 && (
                 <CardFooter className="flex justify-end space-x-2">
@@ -227,6 +237,7 @@ const RequestDetail = () => {
           onConfirm={() => newStatus && updateStatus(newStatus)}
           isUpdating={isUpdating}
           newStatus={newStatus === 'assigned' || newStatus === 'inRoute' ? newStatus : null}
+          origin={request.origin}
         />
       </div>
     </RequireAuth>

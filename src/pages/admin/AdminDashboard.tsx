@@ -3,7 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Users, FileText, Settings, Ambulance, BarChart } from "lucide-react";
+import { Building2, Users, FileText, Settings, Ambulance, BarChart, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const AdminDashboard = () => {
@@ -31,6 +31,12 @@ const AdminDashboard = () => {
       description: "Gestionar la flota de vehículos",
       icon: Ambulance,
       href: "/admin/vehiculos"
+    },
+    {
+      title: "Seguimiento GPS",
+      description: "Ver la ubicación en tiempo real de los vehículos",
+      icon: MapPin,
+      href: "/admin/tracking"
     },
     {
       title: "Business Intelligence",

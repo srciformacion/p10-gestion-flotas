@@ -1,80 +1,66 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 215 25% 27%;
-    
-    --primary: 84 72% 43%;
-    --primary-foreground: 0 0% 100%;
-    
-    --secondary: 206 15% 27%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 210 30% 97%;
-    --muted-foreground: 215 25% 27%;
-    
-    --accent: 84 56% 91%;
-    --accent-foreground: 215 25% 27%;
-  }
-
-  .dark {
-    --background: 215 25% 27%;
-    --foreground: 0 0% 100%;
-    
-    --primary: 84 72% 43%;
-    --primary-foreground: 0 0% 100%;
-    
-    --secondary: 206 15% 97%;
-    --secondary-foreground: 215 25% 27%;
-
-    --muted: 215 25% 32%;
-    --muted-foreground: 0 0% 100%;
-    
-    --accent: 84 56% 20%;
-    --accent-foreground: 0 0% 100%;
-  }
+/* Estilos para el status badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground font-sans;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-semibold;
-  }
+.status-pending {
+  background-color: #e0f2fe;
+  color: #0369a1;
 }
 
-@layer components {
-  .status-badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+.status-assigned {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-inRoute {
+  background-color: #f3e8ff;
+  color: #6b21a8;
+}
+
+.status-completed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-cancelled {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Estilos para leaflet map */
+.highlighted {
+  z-index: 1000 !important;
+  transform: scale(1.2);
+  transition: transform 0.3s ease;
+}
+
+.pulse-animation {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
   }
-  
-  .status-pending {
-    @apply bg-status-pending bg-opacity-20 text-status-pending border border-status-pending;
+  50% {
+    transform: scale(1.05);
+    opacity: 0.4;
   }
-  
-  .status-assigned {
-    @apply bg-status-assigned bg-opacity-20 text-status-assigned border border-status-assigned;
-  }
-  
-  .status-inRoute {
-    @apply bg-status-inRoute bg-opacity-20 text-status-inRoute border border-status-inRoute;
-  }
-  
-  .status-completed {
-    @apply bg-status-completed bg-opacity-20 text-status-completed border border-status-completed;
-  }
-  
-  .status-cancelled {
-    @apply bg-status-cancelled bg-opacity-20 text-status-cancelled border border-status-cancelled;
+  100% {
+    transform: scale(0.95);
+    opacity: 0.7;
   }
 }
