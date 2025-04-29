@@ -1,7 +1,7 @@
 
 import { GpsLocation, VehicleLocation, RouteHistory, LocationAlert } from '@/types/location';
 
-// Mock data storage (will be moved from locationService.ts)
+// Mutable data storage with initial values
 export let mockVehicleLocations: VehicleLocation[] = [
   {
     id: "AMB-001",
@@ -68,5 +68,23 @@ export let mockVehicleLocations: VehicleLocation[] = [
 export let mockRouteHistory: RouteHistory[] = [];
 export let mockLocationAlerts: LocationAlert[] = [];
 
-// Shared simulation interval reference
-export let simulationInterval: number | null = null;
+// Simulation interval state management
+let _simulationInterval: number | null = null;
+
+export const simulationIntervalManager = {
+  get: () => _simulationInterval,
+  set: (value: number | null) => {
+    _simulationInterval = value;
+  }
+};
+
+// Vehicle locations state management
+export const vehicleLocationsManager = {
+  get: () => mockVehicleLocations,
+  set: (locations: VehicleLocation[]) => {
+    mockVehicleLocations = locations;
+  },
+  update: (updater: (locations: VehicleLocation[]) => VehicleLocation[]) => {
+    mockVehicleLocations = updater(mockVehicleLocations);
+  }
+};

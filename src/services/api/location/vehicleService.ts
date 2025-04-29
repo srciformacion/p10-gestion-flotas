@@ -1,28 +1,34 @@
 
 import { GpsLocation, VehicleLocation } from '@/types/location';
-import { mockVehicleLocations } from './types';
+import { mockVehicleLocations, vehicleLocationsManager } from './types';
 import { calculateDistance } from './utils';
 
 export const vehicleService = {
   getVehicleLocations: async (): Promise<VehicleLocation[]> => {
     // En producción, aquí se haría una llamada a la API real
     await new Promise(resolve => setTimeout(resolve, 500)); // Simular latencia
-    return mockVehicleLocations;
+    return vehicleLocationsManager.get();
   },
 
   getVehicleLocation: async (vehicleId: string): Promise<VehicleLocation | null> => {
     await new Promise(resolve => setTimeout(resolve, 300));
-    return mockVehicleLocations.find(vehicle => vehicle.id === vehicleId) || null;
+    return vehicleLocationsManager.get().find(vehicle => vehicle.id === vehicleId) || null;
   },
 
   updateVehicleLocation: async (vehicleId: string, location: GpsLocation): Promise<VehicleLocation> => {
-    const index = mockVehicleLocations.findIndex(vehicle => vehicle.id === vehicleId);
+    const vehicles = vehicleLocationsManager.get();
+    const index = vehicles.findIndex(vehicle => vehicle.id === vehicleId);
     if (index === -1) {
       throw new Error('Vehículo no encontrado');
     }
 
-    mockVehicleLocations[index].location = location;
-    return mockVehicleLocations[index];
+    vehicleLocationsManager.update(currentVehicles => {
+      const updatedVehicles = [...currentVehicles];
+      updatedVehicles[index].location = location;
+      return updatedVehicles;
+    });
+
+    return vehicleLocationsManager.get()[index];
   },
 
   getNearestVehicle: async (
@@ -57,13 +63,18 @@ export const vehicleService = {
   },
 
   updateEstimatedArrival: async (vehicleId: string, requestId: string, estimatedArrival: string): Promise<void> => {
-    const index = mockVehicleLocations.findIndex(vehicle => vehicle.id === vehicleId);
-    if (index === -1) {
-      throw new Error('Vehículo no encontrado');
-    }
-
-    mockVehicleLocations[index].estimatedArrival = estimatedArrival;
-    mockVehicleLocations[index].assignedToRequestId = requestId;
-    mockVehicleLocations[index].inService = true;
+    vehicleLocationsManager.update(vehicles => {
+      const index = vehicles.findIndex(vehicle => vehicle.id === vehicleId);
+      if (index === -1) {
+        throw new Error('Vehículo no encontrado');
+      }
+      
+      const updatedVehicles = [...vehicles];
+      updatedVehicles[index].estimatedArrival = estimatedArrival;
+      updatedVehicles[index].assignedToRequestId = requestId;
+      updatedVehicles[index].inService = true;
+      
+      return updatedVehicles;
+    });
   }
 };

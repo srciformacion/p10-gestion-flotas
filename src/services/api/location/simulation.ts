@@ -1,9 +1,10 @@
 
 import { GpsLocation, LocationAlert } from '@/types/location';
-import { mockLocationAlerts, mockRouteHistory, mockVehicleLocations } from './types';
+import { mockLocationAlerts, mockRouteHistory, vehicleLocationsManager } from './types';
 
 export const simulateMovement = () => {
-  mockVehicleLocations = mockVehicleLocations.map(vehicle => {
+  const vehicles = vehicleLocationsManager.get();
+  vehicleLocationsManager.update(vehicles => vehicles.map(vehicle => {
     if (vehicle.status === "maintenance" || (vehicle.status === "available" && !vehicle.inService)) {
       return vehicle;
     }
@@ -51,12 +52,13 @@ export const simulateMovement = () => {
       ...vehicle,
       location: newLocation
     };
-  });
+  }));
 };
 
 // Simular generación de alertas
 export const checkForAlerts = () => {
-  mockVehicleLocations.forEach(vehicle => {
+  const vehicles = vehicleLocationsManager.get();
+  vehicles.forEach(vehicle => {
     if (!vehicle.inService || !vehicle.assignedToRequestId) return;
 
     // Simular retraso (1% probabilidad)
@@ -91,11 +93,14 @@ export const checkForAlerts = () => {
             });
 
             // Actualizar la estimación de llegada
-            const vehicleIndex = mockVehicleLocations.findIndex(v => v.id === vehicle.id);
-            if (vehicleIndex !== -1) {
-              mockVehicleLocations[vehicleIndex].estimatedArrival = 
-                new Date(now.getTime() + 10 * 60 * 1000).toISOString();
-            }
+            vehicleLocationsManager.update(locations => {
+              const vehicleIndex = locations.findIndex(v => v.id === vehicle.id);
+              if (vehicleIndex !== -1) {
+                locations[vehicleIndex].estimatedArrival = 
+                  new Date(now.getTime() + 10 * 60 * 1000).toISOString();
+              }
+              return [...locations];
+            });
           }
         }
       }
