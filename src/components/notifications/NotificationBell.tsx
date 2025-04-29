@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { BellDot, Bell } from 'lucide-react';
 import { useNotifications } from '@/context/NotificationsContext';
 import { 
@@ -11,33 +11,51 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NotificationItem } from './NotificationItem';
+import { memo } from 'react';
 
-export const NotificationBell = () => {
+export const NotificationBell = memo(() => {
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
   const [open, setOpen] = useState(false);
 
-  const handleOpenChange = (isOpen: boolean) => {
+  const handleOpenChange = useCallback((isOpen: boolean) => {
     setOpen(isOpen);
     if (isOpen && unreadCount > 0) {
       // Mark all as read when opening
       markAllAsRead();
     }
-  };
+  }, [unreadCount, markAllAsRead]);
+
+  const notificationList = useMemo(() => {
+    return notifications.length > 0 ? (
+      notifications.map((notification) => (
+        <NotificationItem key={notification.id} notification={notification} />
+      ))
+    ) : (
+      <DropdownMenuItem disabled className="text-center py-4">
+        No hay notificaciones
+      </DropdownMenuItem>
+    );
+  }, [notifications]);
+
+  const bellIcon = useMemo(() => {
+    if (unreadCount > 0) {
+      return (
+        <>
+          <BellDot className="h-6 w-6" />
+          <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs">
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </Badge>
+        </>
+      );
+    }
+    return <Bell className="h-6 w-6" />;
+  }, [unreadCount]);
 
   return (
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          {unreadCount > 0 ? (
-            <>
-              <BellDot className="h-6 w-6" />
-              <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </Badge>
-            </>
-          ) : (
-            <Bell className="h-6 w-6" />
-          )}
+          {bellIcon}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
@@ -45,17 +63,11 @@ export const NotificationBell = () => {
           Notificaciones ({notifications.length})
         </div>
         <div className="max-h-80 overflow-y-auto">
-          {notifications.length > 0 ? (
-            notifications.map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
-            ))
-          ) : (
-            <DropdownMenuItem disabled className="text-center py-4">
-              No hay notificaciones
-            </DropdownMenuItem>
-          )}
+          {notificationList}
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+});
+
+NotificationBell.displayName = "NotificationBell";
