@@ -3,7 +3,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Estilos para el status badge */
+/* Definición de variables de colores corporativos */
+:root {
+  --color-primary: #78BE20;
+  --color-secondary: #3D4952;
+  --color-pending: #FF9800;
+  --color-assigned: #3B82F6; 
+  --color-inRoute: #8B5CF6;
+  --color-completed: #10B981;
+  --color-cancelled: #EF4444;
+}
+
+/* Estilos para el status badge - Actualizado para usar variables */
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -15,28 +26,28 @@
 }
 
 .status-pending {
-  background-color: #e0f2fe;
-  color: #0369a1;
+  background-color: var(--color-pending);
+  color: white;
 }
 
 .status-assigned {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: var(--color-assigned);
+  color: white;
 }
 
 .status-inRoute {
-  background-color: #f3e8ff;
-  color: #6b21a8;
+  background-color: var(--color-inRoute);
+  color: white;
 }
 
 .status-completed {
-  background-color: #dcfce7;
-  color: #166534;
+  background-color: var(--color-completed);
+  color: white;
 }
 
 .status-cancelled {
-  background-color: #fee2e2;
-  color: #b91c1c;
+  background-color: var(--color-cancelled);
+  color: white;
 }
 
 /* Estilos para leaflet map */
@@ -63,4 +74,34 @@
     transform: scale(0.95);
     opacity: 0.7;
   }
+}
+
+/* Estilos para elementos con estado - para botones, bordes, etc */
+.state-indicator {
+  @apply transition-all duration-200;
+}
+
+.state-indicator-pending {
+  @apply border-l-4 border-status-pending;
+}
+
+.state-indicator-assigned {
+  @apply border-l-4 border-status-assigned;
+}
+
+.state-indicator-inRoute {
+  @apply border-l-4 border-status-inRoute;
+}
+
+.state-indicator-completed {
+  @apply border-l-4 border-status-completed;
+}
+
+.state-indicator-cancelled {
+  @apply border-l-4 border-status-cancelled;
+}
+
+/* Animación suave para elementos que cambian de estado */
+.state-transition {
+  @apply transition-all duration-300;
 }

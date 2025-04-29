@@ -26,7 +26,10 @@ export const RequestsList = ({ requests, totalCount, user }: RequestsListProps) 
           {requests.length > 0 ? (
             <div className="divide-y">
               {requests.map((request) => (
-                <div key={request.id} className="flex justify-between items-center py-3">
+                <div 
+                  key={request.id} 
+                  className={`flex justify-between items-center py-3 state-indicator state-indicator-${request.status} pl-4 state-transition rounded-l`}
+                >
                   <div>
                     <div className="font-medium">{request.patientName}</div>
                     <div className="text-sm text-muted-foreground">

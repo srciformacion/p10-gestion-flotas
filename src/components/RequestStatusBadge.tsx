@@ -1,5 +1,13 @@
 
 import { RequestStatus } from "@/types";
+import { Badge } from "@/components/ui/badge";
+import { 
+  CheckCircle, 
+  Clock, 
+  MapPin, 
+  AlertTriangle, 
+  Calendar 
+} from "lucide-react";
 
 interface RequestStatusBadgeProps {
   status: RequestStatus;
@@ -9,31 +17,42 @@ export function RequestStatusBadge({ status }: RequestStatusBadgeProps) {
   const statusInfo = {
     pending: {
       label: 'Pendiente',
-      className: 'status-pending'
+      variant: 'warning',
+      icon: Clock,
+      className: 'bg-status-pending text-white'
     },
     assigned: {
       label: 'Asignada',
-      className: 'status-assigned'
+      variant: 'info',
+      icon: Calendar,
+      className: 'bg-status-assigned text-white'
     },
     inRoute: {
       label: 'En camino',
-      className: 'status-inRoute'
+      variant: 'primary',
+      icon: MapPin,
+      className: 'bg-status-inRoute text-white'
     },
     completed: {
       label: 'Completada',
-      className: 'status-completed'
+      variant: 'success',
+      icon: CheckCircle,
+      className: 'bg-status-completed text-white'
     },
     cancelled: {
       label: 'Cancelada',
-      className: 'status-cancelled'
+      variant: 'destructive',
+      icon: AlertTriangle,
+      className: 'bg-status-cancelled text-white'
     }
   };
 
-  const { label, className } = statusInfo[status];
+  const { label, className, icon: Icon } = statusInfo[status];
 
   return (
-    <span className={`status-badge ${className}`}>
+    <Badge className={`flex items-center gap-1.5 font-medium ${className} px-3 py-1`} variant="outline">
+      <Icon className="h-3.5 w-3.5" />
       {label}
-    </span>
+    </Badge>
   );
 }

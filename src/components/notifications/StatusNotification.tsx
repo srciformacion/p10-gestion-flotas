@@ -1,6 +1,6 @@
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle, AlertCircle, Info, Clock } from "lucide-react";
+import { CheckCircle, AlertTriangle, MapPin, Clock, Calendar } from "lucide-react";
 import { TransportRequest } from "@/types";
 import { cva } from "class-variance-authority";
 import { useEffect, useState } from "react";
@@ -10,11 +10,11 @@ import { es } from "date-fns/locale";
 const alertVariants = cva("mb-4", {
   variants: {
     status: {
-      pending: "border-blue-500 text-blue-500",
-      assigned: "border-amber-500 text-amber-500",
-      inRoute: "border-purple-500 text-purple-500",
-      completed: "border-green-500 text-green-500",
-      cancelled: "border-red-500 text-red-500",
+      pending: "border-2 border-status-pending bg-orange-50 text-status-pending",
+      assigned: "border-2 border-status-assigned bg-blue-50 text-status-assigned",
+      inRoute: "border-2 border-status-inRoute bg-purple-50 text-status-inRoute",
+      completed: "border-2 border-status-completed bg-green-50 text-status-completed",
+      cancelled: "border-2 border-status-cancelled bg-red-50 text-status-cancelled",
     },
   },
   defaultVariants: {
@@ -69,17 +69,17 @@ export const StatusNotification = ({ request, show, onClose }: StatusNotificatio
     pending: {
       title: "Solicitud en espera",
       description: "La solicitud está pendiente de asignación",
-      icon: Info,
+      icon: Clock,
     },
     assigned: {
       title: "Vehículo asignado",
       description: `Se ha asignado un vehículo (${request.assignedVehicle || "Sin especificar"})`,
-      icon: Info,
+      icon: Calendar,
     },
     inRoute: {
       title: "En camino",
       description: "El vehículo está en camino",
-      icon: Info,
+      icon: MapPin,
     },
     completed: {
       title: "Servicio completado",
@@ -89,7 +89,7 @@ export const StatusNotification = ({ request, show, onClose }: StatusNotificatio
     cancelled: {
       title: "Servicio cancelado",
       description: "El servicio ha sido cancelado",
-      icon: AlertCircle,
+      icon: AlertTriangle,
     },
   };
 
