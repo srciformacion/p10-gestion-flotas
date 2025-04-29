@@ -3,6 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
+/**
+ * AmbulanceVehiclesTab component
+ * 
+ * Displays a grid of action cards for ambulance companies to manage their fleet.
+ * Each card represents a different management option like vehicle management,
+ * active requests, or GPS tracking.
+ *
+ * @param options - Array of option objects with title, description, icon, href, and variant properties
+ */
 interface AmbulanceVehiclesTabProps {
   options: Array<{
     title: string;

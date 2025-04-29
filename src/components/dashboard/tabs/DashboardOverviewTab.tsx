@@ -5,6 +5,19 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { RecentRequests } from "@/components/dashboard/RecentRequests";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 
+/**
+ * DashboardOverviewTab component
+ * 
+ * Displays an overview of transport requests with their statuses and counts.
+ * Shows statistics cards for different request statuses and includes recent requests
+ * and quick actions for the user.
+ *
+ * @param pendingRequestsCount - Number of requests with 'pending' status
+ * @param assignedRequestsCount - Number of requests with 'assigned' status
+ * @param inRouteRequestsCount - Number of requests with 'inRoute' status
+ * @param completedRequestsCount - Number of requests with 'completed' status
+ * @param user - Current authenticated user object
+ */
 interface DashboardOverviewTabProps {
   pendingRequestsCount: number;
   assignedRequestsCount: number;

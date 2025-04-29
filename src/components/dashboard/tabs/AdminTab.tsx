@@ -5,6 +5,15 @@ import { Link } from "react-router-dom";
 import { Ambulance, MapPin, Users, Settings, BarChart } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
+/**
+ * AdminTab component
+ * 
+ * Provides administrative management options for admin users.
+ * Displays a grid of cards for different administrative functions like user management,
+ * vehicle fleet management, system configuration, GPS tracking, and business intelligence.
+ * 
+ * The Business Intelligence option is only displayed for users with the "admin" role.
+ */
 export const AdminTab = () => {
   const { user } = useAuth();
   
@@ -12,6 +21,7 @@ export const AdminTab = () => {
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Panel de Administración</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* User Management Card */}
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -29,6 +39,7 @@ export const AdminTab = () => {
           </CardContent>
         </Card>
         
+        {/* Vehicle Management Card */}
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -46,6 +57,7 @@ export const AdminTab = () => {
           </CardContent>
         </Card>
         
+        {/* System Configuration Card */}
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -63,6 +75,7 @@ export const AdminTab = () => {
           </CardContent>
         </Card>
         
+        {/* GPS Tracking Card */}
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -80,6 +93,7 @@ export const AdminTab = () => {
           </CardContent>
         </Card>
         
+        {/* Business Intelligence Card - Only visible for admin role */}
         {user?.role === "admin" && (
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>

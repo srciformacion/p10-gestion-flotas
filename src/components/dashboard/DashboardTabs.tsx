@@ -9,6 +9,17 @@ import { AmbulanceVehiclesTab } from "@/components/dashboard/tabs/AmbulanceVehic
 import { AdminTab } from "@/components/dashboard/tabs/AdminTab";
 import { Ambulance, FileText, MapPin } from "lucide-react";
 
+/**
+ * DashboardTabs component
+ * 
+ * Main dashboard tabbed interface that displays different views based on user role.
+ * Handles tab switching between overview, requests list, vehicle management (for ambulance users),
+ * and administration panel (for admin users).
+ * 
+ * @param user - The current authenticated user object
+ * @param requests - Array of transport requests to display
+ * @param totalRequestsCount - Total number of requests in the system
+ */
 interface DashboardTabsProps {
   user: User;
   requests: TransportRequest[];
@@ -18,12 +29,13 @@ interface DashboardTabsProps {
 export const DashboardTabs = ({ user, requests, totalRequestsCount }: DashboardTabsProps) => {
   const [activeTab, setActiveTab] = useState("overview");
   
+  // Calculate request counts by status
   const pendingRequestsCount = requests.filter(req => req.status === 'pending').length;
   const assignedRequestsCount = requests.filter(req => req.status === 'assigned').length;
   const inRouteRequestsCount = requests.filter(req => req.status === 'inRoute').length;
   const completedRequestsCount = requests.filter(req => req.status === 'completed').length;
   
-  // Opciones específicas para empresa de ambulancias
+  // Options specific for ambulance company users
   const ambulanceOptions = [
     {
       title: "Gestión de Vehículos",
