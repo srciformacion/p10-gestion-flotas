@@ -18,7 +18,7 @@ export const QuickActions = ({ user, pendingRequestsCount }: QuickActionsProps) 
       </CardHeader>
       <CardContent className="space-y-4">
         {user.role === 'hospital' && (
-          <Link to="/nueva-solicitud" className="w-full">
+          <Link to="/solicitud" className="w-full">
             <Button className="w-full">
               Nueva solicitud de transporte
             </Button>

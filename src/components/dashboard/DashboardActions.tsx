@@ -34,7 +34,7 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
             <p className="text-muted-foreground mb-4">
               Crear una nueva solicitud de transporte sanitario
             </p>
-            <Link to="/nueva-solicitud" className="w-full">
+            <Link to="/solicitud" className="w-full">
               <Button className="w-full">
                 Crear Solicitud
               </Button>
