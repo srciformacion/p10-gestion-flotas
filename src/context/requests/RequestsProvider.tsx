@@ -1,25 +1,40 @@
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { TransportRequest, Assignment, RequestStatus } from '@/types';
-import { requestsApi } from '@/services/api/requests';
+import { useEffect, useCallback, useMemo } from 'react';
+import { RequestStatus, TransportRequest } from '@/types';
 import { assignmentsApi } from '@/services/api/assignments';
-import { intelligentAssignmentService } from '@/services/api/intelligentAssignment';
 import { useNotifications } from '@/context/NotificationsContext';
 import { RequestsContext } from './RequestsContext';
-import { clearCacheByPattern } from './cache';
+import { useRequestsState } from './hooks/useRequestsState';
+import { 
+  fetchRequests as fetchRequestsOp,
+  addRequest as addRequestOp,
+  updateRequestStatus as updateRequestStatusOp,
+  getRequestById as getRequestByIdOp,
+  assignVehicleAutomatically as assignVehicleAutomaticallyOp,
+  checkForAssignmentConflicts,
+  getAssignmentForRequest as getAssignmentForRequestOp
+} from './operations/requestOperations';
+import { 
+  createStatusNotification, 
+  createRequestNotification,
+  createAssignmentNotification,
+  createAssignmentErrorNotification 
+} from './notifications/notificationHandlers';
 
 interface RequestsProviderProps {
   children: React.ReactNode;
 }
 
 export const RequestsProvider = ({ children }: RequestsProviderProps) => {
-  const [requests, setRequests] = useState<TransportRequest[]>([]);
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(10);
-  const [totalRequests, setTotalRequests] = useState(0);
-  const [requestCache, setRequestCache] = useState<Record<string, TransportRequest>>({});
+  const { 
+    requests, setRequests, 
+    assignments, setAssignments,
+    isLoading, setIsLoading,
+    currentPage, setCurrentPage,
+    pageSize, totalRequests, setTotalRequests,
+    requestCache, setRequestCache
+  } = useRequestsState();
+  
   const { addNotification } = useNotifications();
 
   // Initial data loading
@@ -41,47 +56,7 @@ export const RequestsProvider = ({ children }: RequestsProviderProps) => {
 
   // Optimized fetching with caching and filtering
   const fetchRequests = useCallback(async (filters?: { status?: RequestStatus | 'all', search?: string }) => {
-    setIsLoading(true);
-    try {
-      const requestsData = await requestsApi.getAll();
-      
-      // Update total count
-      setTotalRequests(requestsData.length);
-      
-      // Apply filters if provided
-      let filteredData = requestsData;
-      if (filters) {
-        if (filters.status && filters.status !== 'all') {
-          filteredData = filteredData.filter(req => req.status === filters.status);
-        }
-        
-        if (filters.search) {
-          const searchLower = filters.search.toLowerCase();
-          filteredData = filteredData.filter(req => 
-            req.patientName.toLowerCase().includes(searchLower) ||
-            (req.patientId && req.patientId.toLowerCase().includes(searchLower)) ||
-            req.origin.toLowerCase().includes(searchLower) ||
-            req.destination.toLowerCase().includes(searchLower)
-          );
-        }
-      }
-      
-      // Sort by date (newest first)
-      filteredData.sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
-      
-      // Update cache
-      const newCache: Record<string, TransportRequest> = {};
-      filteredData.forEach(req => {
-        newCache[req.id] = req;
-      });
-      
-      setRequestCache(prevCache => ({ ...prevCache, ...newCache }));
-      setRequests(filteredData);
-    } catch (error) {
-      console.error('Error fetching requests:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    await fetchRequestsOp(setIsLoading, setRequests, setTotalRequests, setRequestCache, filters);
   }, []);
 
   const clearCache = useCallback(() => {
@@ -89,16 +64,9 @@ export const RequestsProvider = ({ children }: RequestsProviderProps) => {
   }, []);
 
   const addRequest = async (requestData: Omit<TransportRequest, 'id' | 'status'>) => {
-    const newRequest = await requestsApi.create(requestData);
-    setRequests(prev => [newRequest, ...prev]);
-    setRequestCache(prev => ({ ...prev, [newRequest.id]: newRequest }));
-    setTotalRequests(prev => prev + 1);
+    const newRequest = await addRequestOp(requestData, setRequests, setRequestCache, setTotalRequests);
     
-    addNotification({
-      title: 'Nueva solicitud',
-      message: `Se ha creado una nueva solicitud para ${requestData.patientName}`,
-      type: 'info'
-    });
+    addNotification(createRequestNotification(requestData.patientName));
   };
 
   const updateRequestStatus = async (
@@ -110,34 +78,11 @@ export const RequestsProvider = ({ children }: RequestsProviderProps) => {
       const request = getRequestById(id);
       const oldStatus = request?.status;
       
-      const updatedRequest = await requestsApi.update(id, { status, ...data });
+      const updatedRequest = await updateRequestStatusOp(id, status, data, requests, setRequests, setRequestCache);
       
-      // Update in state and cache
-      setRequests(prev => prev.map(req => req.id === id ? updatedRequest : req));
-      setRequestCache(prev => ({ ...prev, [id]: updatedRequest }));
-      
-      const statusMessages = {
-        pending: 'Solicitud en espera',
-        assigned: 'Vehículo asignado',
-        inRoute: 'Vehículo en camino',
-        completed: 'Servicio completado',
-        cancelled: 'Servicio cancelado'
-      };
-      
-      const notificationTypes = {
-        pending: 'info',
-        assigned: 'info',
-        inRoute: 'info',
-        completed: 'success',
-        cancelled: 'warning'
-      };
-      
-      if (oldStatus !== status) {
-        addNotification({
-          title: statusMessages[status],
-          message: `Solicitud ${updatedRequest.id} para ${updatedRequest.patientName}: ${statusMessages[status]}`,
-          type: notificationTypes[status] as 'info' | 'success' | 'warning' | 'error'
-        });
+      const notification = createStatusNotification(status, updatedRequest, oldStatus);
+      if (notification) {
+        addNotification(notification);
       }
     } catch (error) {
       console.error('Error updating request status:', error);
@@ -146,36 +91,20 @@ export const RequestsProvider = ({ children }: RequestsProviderProps) => {
   };
 
   const getRequestById = useCallback((id: string) => {
-    // Check cache first
-    if (requestCache[id]) {
-      return requestCache[id];
-    }
-    
-    // Fallback to requests array
-    return requests.find(req => req.id === id);
+    return getRequestByIdOp(id, requests, requestCache);
   }, [requests, requestCache]);
 
-  const assignVehicleAutomatically = async (requestId: string): Promise<Assignment | null> => {
+  const assignVehicleAutomatically = async (requestId: string) => {
     try {
-      const assignment = await intelligentAssignmentService.assignAmbulance(requestId);
+      const assignment = await assignVehicleAutomaticallyOp(
+        requestId, 
+        setAssignments,
+        setRequests, 
+        setRequestCache
+      );
       
       if (assignment) {
-        setAssignments(prev => [...prev, assignment]);
-        
-        const request = await requestsApi.getById(requestId);
-        if (request) {
-          setRequests(prev => prev.map(req => 
-            req.id === requestId ? request : req
-          ));
-          setRequestCache(prev => ({ ...prev, [requestId]: request }));
-          
-          addNotification({
-            title: 'Asignación automática',
-            message: `Se ha asignado automáticamente un vehículo a la solicitud ${requestId}`,
-            type: 'success'
-          });
-        }
-        
+        addNotification(createAssignmentNotification(requestId));
         return assignment;
       }
       
@@ -183,28 +112,13 @@ export const RequestsProvider = ({ children }: RequestsProviderProps) => {
     } catch (error) {
       console.error('Error in automatic assignment:', error);
       
-      addNotification({
-        title: 'Error en asignación',
-        message: `No se pudo asignar un vehículo automáticamente a la solicitud ${requestId}`,
-        type: 'error'
-      });
+      addNotification(createAssignmentErrorNotification(requestId));
       return null;
     }
   };
 
-  const checkForAssignmentConflicts = async (requestId: string, ambulanceId: string, dateTime: string): Promise<boolean> => {
-    return intelligentAssignmentService.checkForConflicts(requestId, ambulanceId, dateTime);
-  };
-
-  const getAssignmentForRequest = async (requestId: string): Promise<Assignment | null> => {
-    const cached = assignments.find(a => a.requestId === requestId);
-    if (cached) return cached;
-    
-    const assignment = await assignmentsApi.getByRequestId(requestId);
-    if (assignment) {
-      setAssignments(prev => [...prev, assignment]);
-    }
-    return assignment;
+  const getAssignmentForRequest = async (requestId: string) => {
+    return getAssignmentForRequestOp(requestId, assignments, setAssignments);
   };
 
   // Memoize filtered requests to prevent unnecessary re-renders
