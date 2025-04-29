@@ -42,7 +42,7 @@ const AdminDashboard = () => {
       href: "/admin/tracking"
     },
     // Only show BI for admin users
-    ...(user?.role !== "ambulance" ? [{
+    ...(user?.role === "admin" ? [{
       title: "Business Intelligence",
       description: "Ver estadísticas y análisis de datos",
       icon: BarChart,

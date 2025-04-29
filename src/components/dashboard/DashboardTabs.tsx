@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User } from "@/types";
 import { TransportRequest } from "@/types";
 import { RequestsList } from "@/components/dashboard/RequestsList";
-import { Clock, Calendar, Ambulance, FileText, MapPin, Users, Settings } from "lucide-react";
+import { Clock, Calendar, Ambulance, FileText, MapPin, Users, Settings, BarChart } from "lucide-react";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { RecentRequests } from "@/components/dashboard/RecentRequests";
 import { QuickActions } from "@/components/dashboard/QuickActions";
@@ -186,6 +185,8 @@ const AmbulanceVehiclesTab = ({ options }: AmbulanceVehiclesTabProps) => {
 };
 
 const AdminTab = () => {
+  const { user } = useAuth();
+  
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Panel de Administración</h2>
@@ -257,6 +258,25 @@ const AdminTab = () => {
             </Button>
           </CardContent>
         </Card>
+        
+        {user?.role === "admin" && (
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart className="h-5 w-5 text-yellow-500" />
+                Business Intelligence
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Ver estadísticas y análisis de datos
+              </p>
+              <Button variant="outline" className="w-full" asChild>
+                <Link to="/admin/bi">Ver Análisis</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
       
       <div className="mt-6">

@@ -20,7 +20,7 @@ export const RequireAuth = ({ children, allowedRoles }: RequireAuthProps) => {
   }
 
   // Special case for BI route - only admin can access
-  if (location.pathname === "/admin/bi" && user.role === "ambulance") {
+  if (location.pathname === "/admin/bi" && user.role !== "admin") {
     // Show toast notification for unauthorized access
     useEffect(() => {
       toast.error("Acceso denegado", {
