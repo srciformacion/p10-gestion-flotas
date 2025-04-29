@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { RequestsProvider } from './context/requests';
 import { ChatProvider } from './context/ChatContext';
 import { NotificationsWrapper } from './components/notifications/NotificationsWrapper';
+import { ChatInterface } from './components/ChatInterface';
 
 import Index from './pages/Index';
 import Login from './pages/Login';
@@ -70,6 +71,9 @@ function App() {
                 <Route path="/acceso-denegado" element={<AccessDenied />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              
+              {/* Floating chat interface available on all pages */}
+              <ChatInterface />
             </ChatProvider>
           </RequestsProvider>
         </NotificationsWrapper>
