@@ -42,3 +42,9 @@ export interface LocationAlert {
   resolved: boolean;
   resolvedAt?: string;
 }
+
+// Leaflet specific types for internal use
+export interface LatLng {
+  lat: number;
+  lng: number;
+}

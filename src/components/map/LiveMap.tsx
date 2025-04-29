@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Truck, Bell, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRequests } from "@/context/RequestsContext";
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 // CSS para el mapa
 const mapContainerStyle = {
@@ -32,53 +34,29 @@ export const LiveMap = ({
   const [loading, setLoading] = useState(true);
   const [vehicles, setVehicles] = useState<VehicleLocation[]>([]);
   const [alerts, setAlerts] = useState<LocationAlert[]>([]);
-  const [mapLoaded, setMapLoaded] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
+  const mapRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Layer[]>([]);
   const { toast } = useToast();
   const { getRequestById } = useRequests();
   
-  // Cargar el script de Leaflet
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !window.L) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(link);
-
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-      script.async = true;
-      script.onload = () => setMapLoaded(true);
-      document.body.appendChild(script);
-
-      return () => {
-        document.head.removeChild(link);
-        document.body.removeChild(script);
-      };
-    } else if (window.L) {
-      setMapLoaded(true);
-    }
-  }, []);
-
   // Inicializar mapa
   useEffect(() => {
-    if (!mapLoaded || !mapContainerRef.current) return;
+    if (!mapContainerRef.current) return;
 
     // Crear el mapa si aún no existe
     if (!mapRef.current) {
       // Centro inicial en Logroño, La Rioja, España
-      mapRef.current = window.L.map(mapContainerRef.current).setView([42.4627, -2.4450], 14);
+      mapRef.current = L.map(mapContainerRef.current).setView([42.4627, -2.4450], 14);
       
       // Añadir capa de OpenStreetMap
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(mapRef.current);
 
       // Añadir controles de zoom
       if (showControls) {
-        window.L.control.zoom({ position: 'bottomright' }).addTo(mapRef.current);
+        L.control.zoom({ position: 'bottomright' }).addTo(mapRef.current);
       }
     }
 
@@ -91,12 +69,10 @@ export const LiveMap = ({
         markersRef.current = [];
       }
     };
-  }, [mapLoaded, showControls]);
+  }, [showControls]);
 
   // Obtener ubicaciones de vehículos
   useEffect(() => {
-    if (!mapLoaded) return;
-    
     const fetchLocations = async () => {
       try {
         setLoading(true);
@@ -142,7 +118,7 @@ export const LiveMap = ({
     // Configurar intervalo de actualización
     const interval = setInterval(fetchLocations, 10000);
     return () => clearInterval(interval);
-  }, [mapLoaded, getRequestById, toast]);
+  }, [getRequestById, toast]);
 
   // Actualizar marcadores cuando cambian los vehículos
   useEffect(() => {
@@ -174,7 +150,7 @@ export const LiveMap = ({
       const isHighlighted = highlightRequest && vehicle.assignedToRequestId === highlightRequest;
       
       // Crear icono personalizado
-      const icon = window.L.divIcon({
+      const icon = L.divIcon({
         html: `<div class="bg-${isHighlighted ? 'yellow' : iconColor}-600 p-2 rounded-full flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="1" y="3" width="15" height="13"></rect>
@@ -189,10 +165,10 @@ export const LiveMap = ({
       });
 
       // Crear marcador
-      const marker = window.L.marker(
+      const marker = L.marker(
         [vehicle.location.latitude, vehicle.location.longitude],
         { icon }
-      ).addTo(mapRef.current);
+      ).addTo(mapRef.current!);
       
       // Ventana emergente con información
       const popupContent = `
@@ -214,7 +190,7 @@ export const LiveMap = ({
       
       if (vehicleAlerts.length > 0) {
         // Crear círculo pulsante alrededor del marcador para indicar alerta
-        const alertCircle = window.L.circle(
+        const alertCircle = L.circle(
           [vehicle.location.latitude, vehicle.location.longitude],
           {
             color: '#ef4444',
@@ -223,7 +199,7 @@ export const LiveMap = ({
             radius: 100,
             className: 'pulse-animation'
           }
-        ).addTo(mapRef.current);
+        ).addTo(mapRef.current!);
         
         markersRef.current.push(alertCircle);
       }
@@ -237,7 +213,7 @@ export const LiveMap = ({
         // En producción, usar un servicio real de geocodificación
         const destinationCoords = generateSimulatedCoordinates(request.destination);
         
-        const destinationIcon = window.L.divIcon({
+        const destinationIcon = L.divIcon({
           html: `<div class="bg-purple-600 p-2 rounded-full">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
@@ -249,10 +225,10 @@ export const LiveMap = ({
           iconAnchor: [15, 15]
         });
         
-        const marker = window.L.marker(
+        const marker = L.marker(
           [destinationCoords.lat, destinationCoords.lng],
           { icon: destinationIcon }
-        ).addTo(mapRef.current);
+        ).addTo(mapRef.current!);
         
         marker.bindPopup(`<div class="p-2"><h3 class="font-bold">Destino</h3><p>${request.destination}</p></div>`);
         markersRef.current.push(marker);
@@ -295,10 +271,10 @@ export const LiveMap = ({
         style={{ 
           height, 
           position: 'relative',
-          background: loading || !mapLoaded ? '#f3f4f6' : 'transparent'
+          background: loading ? '#f3f4f6' : 'transparent'
         }}
       >
-        {loading || !mapLoaded ? (
+        {loading ? (
           <Skeleton className="w-full h-full absolute inset-0" />
         ) : (
           <>
