@@ -31,6 +31,7 @@ export const Navbar = () => {
   };
 
   const showDashboardLink = user && user.role !== 'individual';
+  const showAdvancedRequestLink = user && (user.role === 'hospital' || user.role === 'admin');
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b sticky top-0 z-50">
@@ -54,6 +55,12 @@ export const Navbar = () => {
                   {(user.role === 'hospital' || user.role === 'individual') && (
                     <Link to="/solicitud" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
                       Nueva Solicitud
+                    </Link>
+                  )}
+                  
+                  {showAdvancedRequestLink && (
+                    <Link to="/solicitud-avanzada" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
+                      Solicitud Avanzada
                     </Link>
                   )}
                   
@@ -134,6 +141,16 @@ export const Navbar = () => {
                     onClick={closeMenu}
                   >
                     Nueva Solicitud
+                  </Link>
+                )}
+                
+                {showAdvancedRequestLink && (
+                  <Link
+                    to="/solicitud-avanzada"
+                    className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
+                    onClick={closeMenu}
+                  >
+                    Solicitud Avanzada
                   </Link>
                 )}
                 

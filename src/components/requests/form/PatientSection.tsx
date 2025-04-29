@@ -1,3 +1,4 @@
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 interface PatientSectionProps {
@@ -5,18 +6,25 @@ interface PatientSectionProps {
   patientId: string;
   responsiblePerson: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isGroupPatient?: boolean;
 }
 export const PatientSection = ({
   patientName,
   patientId,
   responsiblePerson,
-  onChange
+  onChange,
+  isGroupPatient = false
 }: PatientSectionProps) => {
   return <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="patientName">Nombre del paciente *</Label>
+          <Label htmlFor="patientName">{isGroupPatient ? 'Nombre del paciente o grupo *' : 'Nombre del paciente *'}</Label>
           <Input id="patientName" name="patientName" value={patientName} onChange={onChange} required />
+          {isGroupPatient && (
+            <p className="text-xs text-muted-foreground">
+              Puede indicar un paciente individual o un grupo de pacientes.
+            </p>
+          )}
         </div>
         
         <div className="space-y-2">

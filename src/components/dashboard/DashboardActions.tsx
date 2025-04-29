@@ -3,7 +3,7 @@ import { User } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Ambulance, FileText, MessageCircle, Plus, Users } from "lucide-react";
+import { Ambulance, FileText, MessageCircle, Plus, Calendar, Users } from "lucide-react";
 import { useChat } from "@/context/ChatContext";
 
 interface DashboardActionsProps {
@@ -15,6 +15,7 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
   
   // Definimos las acciones disponibles según el rol del usuario
   const canCreateRequest = user?.role === 'hospital' || user?.role === 'individual' || user?.role === 'admin';
+  const canCreateAdvancedRequest = user?.role === 'hospital' || user?.role === 'admin';
   const canManageRequests = user?.role === 'admin';
   const canManageUsers = user?.role === 'admin';
   const canManageVehicles = user?.role === 'admin';
@@ -37,6 +38,28 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
             <Link to="/solicitud" className="w-full">
               <Button className="w-full">
                 Crear Solicitud
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Acción: Crear solicitud avanzada */}
+      {canCreateAdvancedRequest && (
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-purple-500" />
+              Solicitud Avanzada
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              Crear traslados recurrentes para un periodo de tiempo
+            </p>
+            <Link to="/solicitud-avanzada" className="w-full">
+              <Button variant="outline" className="w-full">
+                Solicitud Avanzada
               </Button>
             </Link>
           </CardContent>

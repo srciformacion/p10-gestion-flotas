@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import RecoverPassword from './pages/RecoverPassword';
 import Dashboard from './pages/Dashboard';
 import NewRequest from './pages/NewRequest';
+import NewAdvancedRequest from './pages/NewAdvancedRequest';
 import RequestList from './pages/RequestList';
 import RequestDetail from './pages/RequestDetail';
 import AmbulanceTracking from './pages/AmbulanceTracking';
@@ -47,6 +48,7 @@ function App() {
                 {/* Dashboard and user routes */}
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/solicitud" element={<NewRequest />} />
+                <Route path="/solicitud-avanzada" element={<NewAdvancedRequest />} />
                 <Route path="/solicitudes" element={<RequestList />} />
                 <Route path="/solicitudes/:id" element={<RequestDetail />} />
                 <Route path="/seguimiento/:requestId" element={<AmbulanceTracking />} />

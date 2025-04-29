@@ -10,6 +10,9 @@ interface QuickActionsProps {
 }
 
 export const QuickActions = ({ user, pendingRequestsCount }: QuickActionsProps) => {
+  const canCreateRequest = user.role === 'hospital' || user.role === 'individual';
+  const canCreateAdvancedRequest = user.role === 'hospital' || user.role === 'admin';
+
   return (
     <Card>
       <CardHeader>
@@ -17,10 +20,18 @@ export const QuickActions = ({ user, pendingRequestsCount }: QuickActionsProps) 
         <CardDescription>Opciones comunes según tu rol</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {user.role === 'hospital' && (
+        {canCreateRequest && (
           <Link to="/solicitud" className="w-full">
             <Button className="w-full">
               Nueva solicitud de transporte
+            </Button>
+          </Link>
+        )}
+        
+        {canCreateAdvancedRequest && (
+          <Link to="/solicitud-avanzada" className="w-full">
+            <Button variant="outline" className="w-full">
+              Solicitud avanzada (recurrente)
             </Button>
           </Link>
         )}

@@ -1,3 +1,4 @@
+
 export type UserRole = 'admin' | 'hospital' | 'individual' | 'ambulance';
 
 export interface User {
@@ -12,6 +13,7 @@ export type RequestStatus = 'pending' | 'assigned' | 'inRoute' | 'completed' | '
 export type TransportType = 'stretcher' | 'wheelchair' | 'walking';
 export type TripType = 'oneWay' | 'roundTrip';
 export type ServiceType = 'consultation' | 'admission' | 'discharge' | 'transfer';
+export type RecurrenceType = 'dateRange' | 'weekly';
 
 export interface TransportRequest {
   id: string;
@@ -35,6 +37,16 @@ export interface TransportRequest {
   specialAttention?: string;
   requiredEquipment?: string[];
   zone?: string; // Area of service (e.g., "Logroño")
+  isAdvancedRequest?: boolean;
+  advancedRequestDetails?: AdvancedRequestDetails;
+}
+
+export interface AdvancedRequestDetails {
+  recurrenceType: RecurrenceType;
+  startDate: string;
+  endDate: string;
+  weekdays: string[];
+  excludeHolidays: boolean;
 }
 
 // Ambulance related types
