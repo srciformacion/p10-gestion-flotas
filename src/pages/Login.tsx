@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -7,11 +7,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { LoginForm } from "@/components/auth/LoginForm";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { UserRole } from "@/types";
+import { toast } from "@/components/ui/sonner";
 
 const Login = () => {
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
   
   const from = (location.state as any)?.from?.pathname || "/dashboard";
 
@@ -37,6 +40,42 @@ const Login = () => {
     checkSession();
   }, []);
 
+  const handleQuickLogin = async (role: string) => {
+    setIsLoading(true);
+    let email = "usuario@ambulink.com"; // Default
+    
+    switch(role) {
+      case "admin":
+        email = "admin@ambulink.com";
+        break;
+      case "hospital":
+        email = "hospital@ambulink.com";
+        break;
+      case "ambulance":
+        email = "ambulancia@ambulink.com";
+        break;
+      default:
+        email = "usuario@ambulink.com";
+    }
+    
+    const password = "123456";
+    
+    try {
+      toast.info(`Iniciando sesión como ${role}...`);
+      await login(email, password);
+      toast.success(`Sesión iniciada como ${role}`, {
+        description: "Redirigiendo al panel de control..."
+      });
+    } catch (error) {
+      console.error("Error al iniciar sesión rápida:", error);
+      toast.error("Error de autenticación", {
+        description: "No se pudo iniciar sesión con las credenciales de prueba."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -53,9 +92,42 @@ const Login = () => {
               <LoginForm from={from} />
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
+              <div className="w-full border-t pt-4">
+                <h3 className="text-sm font-medium mb-2 text-center">Acceso rápido con cuentas de prueba</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleQuickLogin("admin")}
+                    disabled={isLoading}
+                  >
+                    Entrar como Admin
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleQuickLogin("hospital")}
+                    disabled={isLoading}
+                  >
+                    Entrar como Hospital
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleQuickLogin("user")}
+                    disabled={isLoading}
+                  >
+                    Entrar como Usuario
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleQuickLogin("ambulance")}
+                    disabled={isLoading}
+                  >
+                    Entrar como Ambulancia
+                  </Button>
+                </div>
+              </div>
               <Link to="/demo-accounts" className="w-full">
                 <Button variant="secondary" className="w-full">
-                  Ver cuentas de demostración
+                  Ver todas las cuentas de demostración
                 </Button>
               </Link>
             </CardFooter>
