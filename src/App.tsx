@@ -3,8 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { RequestsProvider } from './context/requests';
 import { ChatProvider } from './context/ChatContext';
-import { NotificationsWrapper } from './components/notifications/NotificationsWrapper';
+import { NotificationsWrapper } from './components/notifications/NotificationsProvider';
 import { ChatInterface } from './components/ChatInterface';
+import { Toaster } from './components/ui/toaster';
 
 import Index from './pages/Index';
 import Login from './pages/Login';
@@ -76,6 +77,9 @@ function App() {
               
               {/* Floating chat interface available on all pages */}
               <ChatInterface />
+              
+              {/* Toast notifications */}
+              <Toaster />
             </ChatProvider>
           </RequestsProvider>
         </NotificationsWrapper>

@@ -2,6 +2,7 @@
 import { TransportRequest } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useNotifications } from "@/context/NotificationsContext";
+import { useEffect } from 'react';
 
 type NotificationCallback = (notification: {
   type: 'status_change' | 'new_request' | 'assignment';
@@ -106,7 +107,7 @@ export const useRealTimeNotifications = () => {
   const { addNotification } = useNotifications();
   
   // Suscribirse a notificaciones en tiempo real
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribe = realTimeNotificationService.subscribe((notification) => {
       // Convertir notificaciones en tiempo real a notificaciones del sistema
       switch (notification.type) {
