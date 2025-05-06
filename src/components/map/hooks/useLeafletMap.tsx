@@ -16,23 +16,47 @@ export const useLeafletMap = ({ containerRef, showControls = true }: UseLeafletM
 
     // Create map if it doesn't exist yet
     if (!mapRef.current) {
-      // Initial center in Logroño, La Rioja, Spain
-      mapRef.current = L.map(containerRef.current).setView([42.4627, -2.4450], 14);
-      
-      // Add OpenStreetMap layer
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(mapRef.current);
+      console.log("useLeafletMap: Creando nuevo mapa");
+      try {
+        // Initial center in Spain
+        mapRef.current = L.map(containerRef.current, {
+          center: [40.4168, -3.7038],
+          zoom: 6,
+          zoomControl: showControls
+        });
+        
+        // Add OpenStreetMap layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mapRef.current);
 
-      // Add zoom controls
-      if (showControls) {
-        L.control.zoom({ position: 'bottomright' }).addTo(mapRef.current);
+        // Add zoom controls if needed
+        if (showControls) {
+          L.control.zoom({ position: 'bottomright' }).addTo(mapRef.current);
+        }
+        
+        console.log("useLeafletMap: Mapa creado exitosamente");
+      } catch (error) {
+        console.error("Error creando mapa:", error);
       }
     }
 
+    // Ensure map is responsive to container size changes
+    const handleResize = () => {
+      if (mapRef.current) {
+        console.log("useLeafletMap: Recalculando tamaño del mapa");
+        mapRef.current.invalidateSize();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
     // Clean up previous markers on reload
     return () => {
+      window.removeEventListener('resize', handleResize);
+      
       if (markersRef.current.length > 0) {
+        console.log("useLeafletMap: Limpiando marcadores antiguos");
         markersRef.current.forEach(marker => {
           if (mapRef.current) marker.remove();
         });

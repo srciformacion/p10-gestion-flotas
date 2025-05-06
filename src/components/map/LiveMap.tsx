@@ -52,7 +52,7 @@ export const LiveMap = ({
           setMapInitialized(true);
           console.log("LiveMap: Mapa invalidado y recalculado");
         }
-      }, 200);
+      }, 500); // Increased timeout for better reliability
     }
   }, [mapRef.current, mapContainerRef.current, mapInitialized]);
 
@@ -149,12 +149,10 @@ export const LiveMap = ({
         };
       } else if (vehicles.length > 1) {
         // Center to fit all vehicles
-        mapRef.current.setView([defaultView.lat, defaultView.lng], 10);
-        
-        const bounds = vehicles.reduce((bounds, vehicle) => {
+        const bounds = L.latLngBounds([]);
+        vehicles.forEach(vehicle => {
           bounds.extend([vehicle.location.latitude, vehicle.location.longitude]);
-          return bounds;
-        }, L.latLngBounds([]));
+        });
         
         if (bounds.isValid()) {
           mapRef.current.fitBounds(bounds, { padding: [50, 50] });
