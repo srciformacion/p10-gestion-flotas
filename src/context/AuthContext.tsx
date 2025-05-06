@@ -1,17 +1,12 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
-import { UserRole } from '@/types';
+import { UserRole, User } from '@/types';
 import { toast } from "@/components/ui/sonner";
 
-interface UserWithRole extends User {
-  role: UserRole;
-  name: string;
-}
-
 interface AuthContextType {
-  user: UserWithRole | null;
+  user: User | null;
   session: Session | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -22,7 +17,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<UserWithRole | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -45,11 +40,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               
               if (error) throw error;
               
-              // Combinar datos de usuario con su rol y nombre
+              // Combinar datos de usuario con su rol y nombre para crear un objeto User compatible
               setUser({
-                ...currentSession.user,
-                role: profile?.role as UserRole,
-                name: profile?.full_name || ''
+                id: currentSession.user.id,
+                email: currentSession.user.email || '',
+                name: profile?.full_name || '',
+                role: profile?.role as UserRole
               });
             } catch (error) {
               console.error('Error al cargar el perfil:', error);
@@ -77,10 +73,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           
           if (error) throw error;
           
+          // Asegurar que el usuario cumple con la interfaz User
           setUser({
-            ...currentSession.user,
-            role: profile?.role as UserRole,
-            name: profile?.full_name || ''
+            id: currentSession.user.id,
+            email: currentSession.user.email || '',
+            name: profile?.full_name || '',
+            role: profile?.role as UserRole
           });
         }
       } catch (error) {
