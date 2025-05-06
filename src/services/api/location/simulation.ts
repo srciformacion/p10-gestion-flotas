@@ -1,133 +1,173 @@
 
-import { GpsLocation, LocationAlert } from '@/types/location';
-import { mockLocationAlerts, mockRouteHistory, vehicleLocationsManager } from './types';
+import { mockVehicleLocations, mockLocationAlerts, vehicleLocationsManager } from './types';
+import { getRandomNearbyPoint, calculateDistance, calculateHeading, generateUUID } from './utils';
+import { LocationAlert } from '@/types/location';
 
-export const simulateMovement = () => {
-  const vehicles = vehicleLocationsManager.get();
-  vehicleLocationsManager.update(vehicles => vehicles.map(vehicle => {
-    if (vehicle.status === "maintenance" || (vehicle.status === "available" && !vehicle.inService)) {
-      return vehicle;
-    }
+// Simular el movimiento de vehículos para probar el sistema
+export function simulateMovement(): void {
+  const currentLocations = vehicleLocationsManager.get();
 
-    // Simular movimiento aleatorio para vehículos en servicio
-    const latChange = (Math.random() - 0.5) * 0.001;
-    const lngChange = (Math.random() - 0.5) * 0.001;
-    const newSpeed = vehicle.status === "busy" ? Math.random() * 50 + 10 : 0;
-    
-    const newLocation: GpsLocation = {
-      latitude: vehicle.location.latitude + latChange,
-      longitude: vehicle.location.longitude + lngChange,
-      timestamp: new Date().toISOString(),
-      vehicleId: vehicle.id,
-      speed: newSpeed,
-      heading: Math.random() * 360
-    };
+  vehicleLocationsManager.update(locations => {
+    return locations.map(vehicle => {
+      // Solo mover vehículos disponibles o en servicio
+      if (vehicle.status === 'maintenance') {
+        return vehicle;
+      }
 
-    // Registrar punto en la ruta histórica si está en servicio
-    if (vehicle.inService && vehicle.assignedToRequestId) {
-      const routeExists = mockRouteHistory.some(
-        route => route.vehicleId === vehicle.id && !route.completed
+      // Obtener un punto cercano aleatorio
+      const currentPos = {
+        lat: vehicle.location.latitude,
+        lng: vehicle.location.longitude
+      };
+
+      // Simular movimiento más agresivo para vehículos en servicio
+      const movementRadius = vehicle.inService ? 0.003 : 0.001;
+      const newPos = getRandomNearbyPoint(currentPos, movementRadius);
+
+      // Calcular nueva velocidad - entre 0 y 80 km/h
+      const speed = vehicle.inService ? 
+        Math.random() * 60 + 20 : // 20-80 km/h en servicio
+        Math.random() * 20;       // 0-20 km/h en espera
+
+      // Calcular rumbo basado en el movimiento
+      const heading = calculateHeading(
+        currentPos.lat, 
+        currentPos.lng, 
+        newPos.lat, 
+        newPos.lng
       );
 
-      if (!routeExists) {
-        mockRouteHistory.push({
-          id: `ROUTE-${Date.now()}-${vehicle.id}`,
-          assignmentId: `ASSIGN-${vehicle.assignedToRequestId}`,
-          vehicleId: vehicle.id,
-          startTime: new Date().toISOString(),
-          points: [newLocation],
-          completed: false
-        });
-      } else {
-        const routeIndex = mockRouteHistory.findIndex(
-          route => route.vehicleId === vehicle.id && !route.completed
-        );
-        if (routeIndex !== -1) {
-          mockRouteHistory[routeIndex].points.push(newLocation);
+      return {
+        ...vehicle,
+        location: {
+          ...vehicle.location,
+          latitude: newPos.lat,
+          longitude: newPos.lng,
+          timestamp: new Date().toISOString(),
+          speed: speed,
+          heading: heading
         }
-      }
-    }
+      };
+    });
+  });
+}
 
-    return {
-      ...vehicle,
-      location: newLocation
-    };
-  }));
-};
-
-// Simular generación de alertas
-export const checkForAlerts = () => {
+// Verificar si hay condiciones para generar alertas
+export function checkForAlerts(): void {
   const vehicles = vehicleLocationsManager.get();
+  
   vehicles.forEach(vehicle => {
+    // Solo verificar vehículos en servicio
     if (!vehicle.inService || !vehicle.assignedToRequestId) return;
-
-    // Simular retraso (1% probabilidad)
-    if (Math.random() < 0.01 && vehicle.estimatedArrival) {
-      const estimatedArrival = new Date(vehicle.estimatedArrival);
-      const now = new Date();
+    
+    const speed = vehicle.location.speed || 0;
+    
+    // Alerta por detenido
+    if (vehicle.status === 'busy' && speed < 5) {
+      const stoppedAlert: LocationAlert = {
+        id: generateUUID(),
+        vehicleId: vehicle.id,
+        requestId: vehicle.assignedToRequestId,
+        assignmentId: `ASN-${vehicle.assignedToRequestId}`,
+        type: 'stopped',
+        timestamp: new Date().toISOString(),
+        location: {
+          latitude: vehicle.location.latitude,
+          longitude: vehicle.location.longitude,
+          timestamp: vehicle.location.timestamp,
+          vehicleId: vehicle.id,
+          speed: speed,
+          heading: vehicle.location.heading
+        },
+        details: `Vehículo ${vehicle.id} detenido durante más de 3 minutos`,
+        resolved: false
+      };
       
-      // Si la estimación es en el pasado y aún no ha llegado
-      if (estimatedArrival < now) {
-        const delayMinutes = Math.floor((now.getTime() - estimatedArrival.getTime()) / (1000 * 60));
-        
-        if (delayMinutes > 5) {
-          // Crear alerta de retraso si no existe una sin resolver
-          const existingAlert = mockLocationAlerts.some(
-            alert => alert.vehicleId === vehicle.id && 
-                    alert.type === 'delay' && 
-                    !alert.resolved &&
-                    alert.requestId === vehicle.assignedToRequestId
-          );
-
-          if (!existingAlert) {
-            mockLocationAlerts.push({
-              id: `ALERT-${Date.now()}-${vehicle.id}`,
-              vehicleId: vehicle.id,
-              requestId: vehicle.assignedToRequestId,
-              assignmentId: `ASSIGN-${vehicle.assignedToRequestId}`,
-              type: 'delay',
-              timestamp: new Date().toISOString(),
-              location: vehicle.location,
-              details: `Retraso de ${delayMinutes} minutos en la llegada estimada`,
-              resolved: false
-            });
-
-            // Actualizar la estimación de llegada
-            vehicleLocationsManager.update(locations => {
-              const vehicleIndex = locations.findIndex(v => v.id === vehicle.id);
-              if (vehicleIndex !== -1) {
-                locations[vehicleIndex].estimatedArrival = 
-                  new Date(now.getTime() + 10 * 60 * 1000).toISOString();
-              }
-              return [...locations];
-            });
-          }
-        }
+      // Verificar si ya existe esta alerta
+      const existingAlert = mockLocationAlerts.some(
+        alert => alert.vehicleId === vehicle.id && 
+                alert.type === 'stopped' && 
+                !alert.resolved
+      );
+      
+      // Solo agregar si no existe y con probabilidad baja para no generar muchas alertas
+      if (!existingAlert && Math.random() < 0.05) {
+        mockLocationAlerts.push(stoppedAlert);
       }
     }
-
-    // Simular desvío (0.5% probabilidad)
-    if (Math.random() < 0.005) {
-      const existingDetourAlert = mockLocationAlerts.some(
+    
+    // Alerta por desvío
+    if (vehicle.status === 'busy' && Math.random() < 0.02) {
+      const detourAlert: LocationAlert = {
+        id: generateUUID(),
+        vehicleId: vehicle.id,
+        requestId: vehicle.assignedToRequestId,
+        assignmentId: `ASN-${vehicle.assignedToRequestId}`,
+        type: 'detour',
+        timestamp: new Date().toISOString(),
+        location: {
+          latitude: vehicle.location.latitude,
+          longitude: vehicle.location.longitude,
+          timestamp: vehicle.location.timestamp,
+          vehicleId: vehicle.id,
+          speed: speed,
+          heading: vehicle.location.heading
+        },
+        details: `Vehículo ${vehicle.id} desviado de la ruta planificada`,
+        resolved: false
+      };
+      
+      // Verificar si ya existe esta alerta
+      const existingAlert = mockLocationAlerts.some(
         alert => alert.vehicleId === vehicle.id && 
                 alert.type === 'detour' && 
-                !alert.resolved &&
-                alert.requestId === vehicle.assignedToRequestId
+                !alert.resolved
       );
-
-      if (!existingDetourAlert) {
-        mockLocationAlerts.push({
-          id: `ALERT-${Date.now()}-${vehicle.id}`,
+      
+      // Solo agregar si no existe
+      if (!existingAlert) {
+        mockLocationAlerts.push(detourAlert);
+      }
+    }
+    
+    // Alerta por retraso
+    if (vehicle.estimatedArrival && Math.random() < 0.01) {
+      const now = new Date();
+      const eta = new Date(vehicle.estimatedArrival);
+      
+      // Si la fecha estimada ya pasó
+      if (now > eta) {
+        const delayAlert: LocationAlert = {
+          id: generateUUID(),
           vehicleId: vehicle.id,
           requestId: vehicle.assignedToRequestId,
-          assignmentId: `ASSIGN-${vehicle.assignedToRequestId}`,
-          type: 'detour',
-          timestamp: new Date().toISOString(),
-          location: vehicle.location,
-          details: `La ambulancia se ha desviado significativamente de la ruta planificada`,
+          assignmentId: `ASN-${vehicle.assignedToRequestId}`,
+          type: 'delay',
+          timestamp: now.toISOString(),
+          location: {
+            latitude: vehicle.location.latitude,
+            longitude: vehicle.location.longitude,
+            timestamp: vehicle.location.timestamp,
+            vehicleId: vehicle.id,
+            speed: speed,
+            heading: vehicle.location.heading
+          },
+          details: `Vehículo ${vehicle.id} retrasado en su llegada estimada`,
           resolved: false
-        });
+        };
+        
+        // Verificar si ya existe esta alerta
+        const existingAlert = mockLocationAlerts.some(
+          alert => alert.vehicleId === vehicle.id && 
+                  alert.type === 'delay' && 
+                  !alert.resolved
+        );
+        
+        // Solo agregar si no existe
+        if (!existingAlert) {
+          mockLocationAlerts.push(delayAlert);
+        }
       }
     }
   });
-};
+}

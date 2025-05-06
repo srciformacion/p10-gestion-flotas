@@ -66,6 +66,48 @@ export type Database = {
         }
         Relationships: []
       }
+      location_alerts: {
+        Row: {
+          assignment_id: string
+          details: string
+          id: string
+          latitude: number
+          longitude: number
+          request_id: string
+          resolved: boolean
+          resolved_at: string | null
+          timestamp: string
+          type: string
+          vehicle_id: string
+        }
+        Insert: {
+          assignment_id: string
+          details: string
+          id?: string
+          latitude: number
+          longitude: number
+          request_id: string
+          resolved?: boolean
+          resolved_at?: string | null
+          timestamp?: string
+          type: string
+          vehicle_id: string
+        }
+        Update: {
+          assignment_id?: string
+          details?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          request_id?: string
+          resolved?: boolean
+          resolved_at?: string | null
+          timestamp?: string
+          type?: string
+          vehicle_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           activated_at: string | null
@@ -120,6 +162,122 @@ export type Database = {
           phone?: string
           role?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      route_history: {
+        Row: {
+          assignment_id: string
+          completed: boolean
+          distance: number | null
+          duration: number | null
+          end_time: string | null
+          id: string
+          start_time: string
+          vehicle_id: string
+        }
+        Insert: {
+          assignment_id: string
+          completed?: boolean
+          distance?: number | null
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          start_time?: string
+          vehicle_id: string
+        }
+        Update: {
+          assignment_id?: string
+          completed?: boolean
+          distance?: number | null
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          start_time?: string
+          vehicle_id?: string
+        }
+        Relationships: []
+      }
+      route_points: {
+        Row: {
+          heading: number | null
+          id: string
+          latitude: number
+          longitude: number
+          route_id: string
+          speed: number | null
+          timestamp: string
+        }
+        Insert: {
+          heading?: number | null
+          id?: string
+          latitude: number
+          longitude: number
+          route_id: string
+          speed?: number | null
+          timestamp?: string
+        }
+        Update: {
+          heading?: number | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          route_id?: string
+          speed?: number | null
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "route_points_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "route_history"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_locations: {
+        Row: {
+          assigned_to_request_id: string | null
+          estimated_arrival: string | null
+          heading: number | null
+          id: string
+          in_service: boolean
+          latitude: number
+          license_plate: string
+          longitude: number
+          speed: number | null
+          status: string
+          timestamp: string
+          vehicle_id: string
+        }
+        Insert: {
+          assigned_to_request_id?: string | null
+          estimated_arrival?: string | null
+          heading?: number | null
+          id?: string
+          in_service?: boolean
+          latitude: number
+          license_plate: string
+          longitude: number
+          speed?: number | null
+          status?: string
+          timestamp?: string
+          vehicle_id: string
+        }
+        Update: {
+          assigned_to_request_id?: string | null
+          estimated_arrival?: string | null
+          heading?: number | null
+          id?: string
+          in_service?: boolean
+          latitude?: number
+          license_plate?: string
+          longitude?: number
+          speed?: number | null
+          status?: string
+          timestamp?: string
+          vehicle_id?: string
         }
         Relationships: []
       }
