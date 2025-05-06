@@ -12,12 +12,15 @@ const Index = () => {
         <p className="text-muted-foreground">
           La solución integral para la gestión eficiente de traslados sanitarios.
         </p>
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap justify-center">
           <Link to="/login">
             <Button>Iniciar Sesión</Button>
           </Link>
           <Link to="/registro">
             <Button variant="outline">Crear Cuenta</Button>
+          </Link>
+          <Link to="/demo">
+            <Button variant="secondary">Ver Demostración</Button>
           </Link>
         </div>
       </div>
