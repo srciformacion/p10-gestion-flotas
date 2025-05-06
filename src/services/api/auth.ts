@@ -5,25 +5,40 @@ import { supabase } from '@/integrations/supabase/client';
 export const authApi = {
   login: async (email: string, password: string): Promise<User> => {
     try {
+      console.log('Intentando iniciar sesión con:', email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error de autenticación:', error);
+        throw error;
+      }
       
       if (!data.user) {
+        console.error('Usuario no encontrado en respuesta');
         throw new Error('Usuario no encontrado');
       }
 
       // Obtener el perfil completo del usuario
+      console.log('Usuario autenticado, obteniendo perfil para:', data.user.id);
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('role, full_name')
         .eq('id', data.user.id)
         .single();
       
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Error obteniendo perfil:', profileError);
+        throw profileError;
+      }
+      
+      if (!profile) {
+        console.error('Perfil no encontrado para usuario:', data.user.id);
+        throw new Error('Perfil de usuario no encontrado');
+      }
       
       const user: User = {
         id: data.user.id,
@@ -32,6 +47,7 @@ export const authApi = {
         role: profile?.role as UserRole
       };
       
+      console.log('Login exitoso para usuario:', user);
       return user;
     } catch (error) {
       console.error('Error en login:', error);
@@ -40,19 +56,31 @@ export const authApi = {
   },
 
   logout: async (): Promise<void> => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error en logout:', error);
+        throw error;
+      }
+      console.log('Logout exitoso');
+    } catch (error) {
+      console.error('Error en logout:', error);
+      throw error;
+    }
   },
 
   getCurrentUser: async (): Promise<User | null> => {
     try {
+      console.log('Verificando sesión actual');
       const { data } = await supabase.auth.getSession();
       
       if (!data.session?.user) {
+        console.log('No hay sesión activa');
         return null;
       }
       
       // Obtener el perfil del usuario
+      console.log('Obteniendo perfil para usuario activo:', data.session.user.id);
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('role, full_name')

@@ -22,13 +22,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Inicializando AuthContext');
+    
     // Establecer el listener para cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log('Evento de autenticación:', event);
         setSession(currentSession);
         
         // Actualizar el usuario con su rol
         if (currentSession?.user) {
+          console.log('Usuario en sesión:', currentSession.user.email);
           setTimeout(async () => {
             try {
               // Obtener el perfil del usuario de la tabla profiles
@@ -38,7 +42,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 .eq('id', currentSession.user.id)
                 .single();
               
-              if (error) throw error;
+              if (error) {
+                console.error('Error al cargar el perfil:', error);
+                throw error;
+              }
+              
+              if (!profile) {
+                console.warn('Perfil no encontrado para usuario:', currentSession.user.id);
+              }
               
               // Combinar datos de usuario con su rol y nombre para crear un objeto User compatible
               setUser({
@@ -60,18 +71,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Comprobar si hay una sesión al cargar
     const checkSession = async () => {
       try {
+        console.log('Verificando sesión existente');
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         setSession(currentSession);
         
         // Si hay sesión, cargar datos del perfil
         if (currentSession?.user) {
+          console.log('Sesión encontrada para:', currentSession.user.email);
           const { data: profile, error } = await supabase
             .from('profiles')
             .select('role, full_name')
             .eq('id', currentSession.user.id)
             .single();
           
-          if (error) throw error;
+          if (error) {
+            console.error('Error al cargar perfil inicial:', error);
+            throw error;
+          }
           
           // Asegurar que el usuario cumple con la interfaz User
           setUser({
@@ -80,6 +96,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             name: profile?.full_name || '',
             role: profile?.role as UserRole
           });
+        } else {
+          console.log('No se encontró sesión activa');
         }
       } catch (error) {
         console.error('Error al cargar la sesión:', error);
@@ -98,13 +116,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Función para iniciar sesión
   const login = async (email: string, password: string) => {
     try {
+      console.log('Intentando login para:', email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error de autenticación en login:', error);
+        throw error;
+      }
+      
+      if (!data.user) {
+        console.error('Usuario no encontrado en respuesta de login');
+        throw new Error('Usuario no encontrado');
+      }
 
+      console.log('Login exitoso para:', data.user.email);
       return;
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);

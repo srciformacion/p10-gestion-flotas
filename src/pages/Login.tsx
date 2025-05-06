@@ -35,24 +35,39 @@ const Login = () => {
     setIsLoading(true);
     setErrorMessage(null);
     
+    if (!email || !password) {
+      setErrorMessage("Por favor ingresa tu email y contraseña");
+      setIsLoading(false);
+      return;
+    }
+    
     try {
+      console.log('Intentando iniciar sesión con:', email);
       await login(email, password);
+      console.log('Login exitoso');
       toast.success("Inicio de sesión exitoso", {
         description: "Bienvenido de nuevo a AmbulLink"
       });
     } catch (error: any) {
       console.error("Error de inicio de sesión:", error);
-      let message = "Error al iniciar sesión. Verifica tus credenciales e inténtalo nuevamente.";
       
       // Mensajes de error más específicos según el código de error
-      if (error.message?.includes("Invalid login credentials")) {
-        message = "Credenciales inválidas. Por favor verifica tu email y contraseña.";
-      } else if (error.message?.includes("Email not confirmed")) {
-        message = "Tu email no ha sido confirmado. Verifica tu bandeja de entrada.";
+      let message = "Error al iniciar sesión. Verifica tus credenciales e inténtalo nuevamente.";
+      
+      if (typeof error.message === 'string') {
+        if (error.message.includes("Invalid login credentials")) {
+          message = "Credenciales inválidas. Por favor verifica tu email y contraseña.";
+        } else if (error.message.includes("Email not confirmed")) {
+          message = "Tu email no ha sido confirmado. Verifica tu bandeja de entrada.";
+        } else if (error.message.includes("too many requests")) {
+          message = "Demasiados intentos fallidos. Por favor intenta más tarde.";
+        } else {
+          message = `Error: ${error.message}`;
+        }
       }
       
+      console.log('Mensaje de error configurado:', message);
       setErrorMessage(message);
-      // No usamos handleError aquí para mostrar el error en la interfaz misma
     } finally {
       setIsLoading(false);
     }
@@ -64,6 +79,12 @@ const Login = () => {
     { email: "usuario@ambulink.com", role: "Usuario particular" },
     { email: "ambulancia@ambulink.com", role: "Empresa de ambulancias" }
   ];
+  
+  const fillTestAccount = (testEmail: string) => {
+    setEmail(testEmail);
+    setPassword("123456");
+    setErrorMessage(null);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -143,7 +164,7 @@ const Login = () => {
                       variant="outline"
                       size="sm"
                       className="text-xs justify-start"
-                      onClick={() => setEmail(account.email)}
+                      onClick={() => fillTestAccount(account.email)}
                     >
                       <span className="truncate">{account.role}</span>
                       <ArrowRight className="ml-auto h-3 w-3" />
