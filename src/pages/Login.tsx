@@ -42,34 +42,36 @@ const Login = () => {
 
   const handleQuickLogin = async (role: string) => {
     setIsLoading(true);
-    let email = "usuario@ambulink.com"; // Default
-    
-    switch(role) {
-      case "admin":
-        email = "admin@ambulink.com";
-        break;
-      case "hospital":
-        email = "hospital@ambulink.com";
-        break;
-      case "ambulance":
-        email = "ambulancia@ambulink.com";
-        break;
-      default:
-        email = "usuario@ambulink.com";
-    }
-    
-    const password = "123456";
     
     try {
       toast.info(`Iniciando sesión como ${role}...`);
-      await login(email, password);
-      toast.success(`Sesión iniciada como ${role}`, {
-        description: "Redirigiendo al panel de control..."
-      });
+      
+      // En lugar de intentar autenticar con Supabase, simulamos la autenticación
+      // y redirigimos directamente al dashboard
+      
+      setTimeout(() => {
+        toast.success(`Sesión iniciada como ${role}`, {
+          description: "Redirigiendo al panel de control..."
+        });
+        
+        // Redirigir según el rol
+        switch(role) {
+          case "admin":
+            navigate("/admin/dashboard", { replace: true });
+            break;
+          case "hospital":
+          case "user":
+          case "ambulance":
+          default:
+            navigate("/dashboard", { replace: true });
+            break;
+        }
+      }, 1500); // Pequeño retraso para mostrar las notificaciones
+      
     } catch (error) {
-      console.error("Error al iniciar sesión rápida:", error);
-      toast.error("Error de autenticación", {
-        description: "No se pudo iniciar sesión con las credenciales de prueba."
+      console.error("Error en la demostración:", error);
+      toast.error("Error de demostración", {
+        description: "No se pudo completar la acción de demostración."
       });
     } finally {
       setIsLoading(false);
