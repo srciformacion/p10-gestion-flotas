@@ -1,5 +1,5 @@
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRequests } from "@/context/requests";
@@ -124,6 +124,3 @@ export const LiveMap = ({
     </Card>
   );
 };
-
-// Don't forget to import useEffect
-import { useEffect } from "react";

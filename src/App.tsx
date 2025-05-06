@@ -56,6 +56,7 @@ function App() {
                 <Route path="/solicitudes" element={<RequestList />} />
                 <Route path="/solicitudes/:id" element={<RequestDetail />} />
                 <Route path="/seguimiento/:requestId" element={<AmbulanceTracking />} />
+                <Route path="/ambulance-tracking/:requestId" element={<AmbulanceTracking />} /> {/* Add this alias route */}
                 <Route path="/perfil" element={<Profile />} />
                 <Route path="/mensajes" element={<ChatPage />} />
                 <Route path="/mensajes/:id" element={<ChatPage />} />
