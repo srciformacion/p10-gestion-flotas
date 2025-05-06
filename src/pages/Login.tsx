@@ -10,7 +10,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/sonner";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ArrowRight, AlertTriangle, Info } from "lucide-react";
-import { handleError } from "@/utils/errorHandler";
 import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
@@ -19,7 +18,8 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
-  const { login, user } = useAuth();
+  const [loginAttemptCount, setLoginAttemptCount] = useState(0);
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -28,6 +28,7 @@ const Login = () => {
   // Redirigir si el usuario ya está autenticado
   useEffect(() => {
     if (user) {
+      console.log('Usuario autenticado, redirigiendo a:', from);
       navigate(from, { replace: true });
     }
   }, [user, navigate, from]);
@@ -40,7 +41,7 @@ const Login = () => {
         console.log("Sesión activa detectada al cargar Login");
       } else {
         console.log("No hay sesión activa al cargar Login");
-        setInfoMessage("Usa una de las cuentas de prueba con contraseña 123456");
+        setInfoMessage("Usar una de las cuentas de prueba con contraseña 123456");
       }
     };
     
@@ -52,6 +53,7 @@ const Login = () => {
     setIsLoading(true);
     setErrorMessage(null);
     setInfoMessage(null);
+    setLoginAttemptCount(prev => prev + 1);
     
     if (!email || !password) {
       setErrorMessage("Por favor ingresa tu email y contraseña");
@@ -60,26 +62,36 @@ const Login = () => {
     }
     
     try {
-      console.log('Intentando iniciar sesión directamente con Supabase para:', email);
+      console.log(`Intento de login #${loginAttemptCount + 1} para: ${email}`);
       
-      // Intentar login directamente con Supabase para diagnosticar
+      // Intento de login directo con Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email, 
         password
       });
       
       if (error) {
-        console.error("Error de Supabase:", error);
-        throw error;
+        console.error("Error de autenticación:", error);
+        
+        // Mensaje personalizado según el código de error
+        if (error.message.includes("Invalid login credentials")) {
+          setErrorMessage(`Credenciales inválidas (#${loginAttemptCount + 1}). Por favor verifica tu email y contraseña. Recuerda que la contraseña para las cuentas de prueba es 123456.`);
+        } else {
+          setErrorMessage(`Error: ${error.message} (Intento #${loginAttemptCount + 1})`);
+        }
+        
+        setIsLoading(false);
+        return;
       }
       
       if (!data.user) {
-        throw new Error("No se recibieron datos del usuario");
+        setErrorMessage(`No se recibieron datos del usuario (Intento #${loginAttemptCount + 1})`);
+        setIsLoading(false);
+        return;
       }
       
-      console.log('Login con Supabase exitoso, datos:', data);
+      console.log('Login exitoso, datos recibidos:', data);
       
-      // Si llegamos aquí, el login fue exitoso
       toast.success("Inicio de sesión exitoso", {
         description: "Bienvenido de nuevo a AmbulLink"
       });
@@ -88,24 +100,8 @@ const Login = () => {
       navigate(from, { replace: true });
       
     } catch (error: any) {
-      console.error("Error detallado de inicio de sesión:", error);
-      
-      // Mensajes de error más específicos según el código de error
-      let message = "Error al iniciar sesión. Verifica tus credenciales e inténtalo nuevamente.";
-      
-      if (typeof error.message === 'string') {
-        if (error.message.includes("Invalid login credentials")) {
-          message = "Credenciales inválidas. Por favor verifica tu email y contraseña. Recuerda que la contraseña para las cuentas de prueba es 123456.";
-        } else if (error.message.includes("Email not confirmed")) {
-          message = "Tu email no ha sido confirmado. Verifica tu bandeja de entrada.";
-        } else if (error.message.includes("too many requests")) {
-          message = "Demasiados intentos fallidos. Por favor intenta más tarde.";
-        } else {
-          message = `Error: ${error.message}`;
-        }
-      }
-      
-      setErrorMessage(message);
+      console.error("Error inesperado en inicio de sesión:", error);
+      setErrorMessage(`Error inesperado: ${error.message || "Desconocido"} (Intento #${loginAttemptCount + 1})`);
     } finally {
       setIsLoading(false);
     }
@@ -123,6 +119,42 @@ const Login = () => {
     setPassword("123456");
     setErrorMessage(null);
     setInfoMessage(`Cuenta de prueba seleccionada: ${testEmail}. Haz clic en "Iniciar sesión" para continuar.`);
+  };
+
+  // Test de conexión directo
+  const testDirectConnection = async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    setInfoMessage("Probando conexión directa a Supabase...");
+    
+    try {
+      // 1. Probar ping básico
+      const { data: pingData, error: pingError } = await supabase.from('profiles').select('count').limit(1);
+      
+      if (pingError) {
+        setInfoMessage(`Error de conexión: ${pingError.message}`);
+      } else {
+        setInfoMessage("Conexión a Supabase establecida correctamente. Intentando autenticación de prueba...");
+        
+        // 2. Probar autenticación
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: "admin@ambulink.com",
+          password: "123456"
+        });
+        
+        if (error) {
+          setErrorMessage(`Error en test de autenticación: ${error.message}`);
+        } else if (data.user) {
+          setInfoMessage(`Test exitoso! Usuario autenticado: ${data.user.email}`);
+        } else {
+          setErrorMessage("Test de autenticación falló: No se devolvió usuario");
+        }
+      }
+    } catch (error: any) {
+      setErrorMessage(`Error en test: ${error.message || "Desconocido"}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -191,6 +223,15 @@ const Login = () => {
                   {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
                 </Button>
               </form>
+              
+              <Button 
+                variant="outline" 
+                className="w-full mt-2"
+                onClick={testDirectConnection}
+                disabled={isLoading}
+              >
+                {isLoading ? "Probando..." : "Diagnosticar conexión"}
+              </Button>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <div className="text-center text-sm">
