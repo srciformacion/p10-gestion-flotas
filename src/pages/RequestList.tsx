@@ -12,7 +12,9 @@ import { SearchBar } from "@/components/requests/SearchBar";
 import { StatusFilter } from "@/components/requests/StatusFilter";
 import { RequestCard } from "@/components/requests/RequestCard";
 import { EmptyState } from "@/components/requests/EmptyState";
-import { Plus } from "lucide-react";
+import { LiveMap } from "@/components/map/LiveMap";
+import { MapPin, List, Plus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Debounce function to optimize search
 const useDebounce = (value: string, delay: number) => {
@@ -39,6 +41,7 @@ const RequestList = () => {
   
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<RequestStatus | "all">("all");
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
   
   // Debounce search term to avoid excessive API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -89,6 +92,11 @@ const RequestList = () => {
   // Check user permissions
   const canCreateRequest = user?.role === 'hospital' || user?.role === 'individual' || user?.role === 'admin';
 
+  // Find highlighted request (first assigned or inRoute)
+  const highlightedRequest = requests.find(req => 
+    req.status === 'assigned' || req.status === 'inRoute'
+  )?.id;
+
   return (
     <RequireAuth>
       <div className="min-h-screen flex flex-col">
@@ -115,6 +123,21 @@ const RequestList = () => {
                 <div className="flex flex-col md:flex-row gap-4">
                   <SearchBar value={searchTerm} onChange={handleSearchChange} />
                   <StatusFilter currentStatus={statusFilter} onStatusChange={handleStatusChange} />
+                  
+                  <div className="flex items-center ml-auto">
+                    <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "list" | "map")}>
+                      <TabsList>
+                        <TabsTrigger value="list" className="flex items-center gap-1">
+                          <List className="h-4 w-4" />
+                          <span className="hidden sm:inline">Lista</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="map" className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          <span className="hidden sm:inline">Mapa</span>
+                        </TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -127,30 +150,42 @@ const RequestList = () => {
               )}
             </div>
             
-            {isLoading ? (
-              <div className="space-y-4">
-                {[...Array(3)].map((_, i) => (
-                  <Card key={i} className="p-6 animate-pulse">
-                    <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  </Card>
-                ))}
-              </div>
-            ) : requests.length > 0 ? (
-              <div className="space-y-4">
-                {requests.map((request) => (
-                  <RequestCard key={request.id} request={request} />
-                ))}
-              </div>
+            {viewMode === "list" ? (
+              isLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <Card key={i} className="p-6 animate-pulse">
+                      <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    </Card>
+                  ))}
+                </div>
+              ) : requests.length > 0 ? (
+                <div className="space-y-4">
+                  {requests.map((request) => (
+                    <RequestCard key={request.id} request={request} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyState 
+                  statusFilter={statusFilter}
+                  searchTerm={searchTerm}
+                  onResetFilter={() => setStatusFilter("all")}
+                  showNewRequestButton={canCreateRequest}
+                />
+              )
             ) : (
-              <EmptyState 
-                statusFilter={statusFilter}
-                searchTerm={searchTerm}
-                onResetFilter={() => setStatusFilter("all")}
-                showNewRequestButton={canCreateRequest}
-              />
+              <Card className="overflow-hidden">
+                <div className="h-[600px]">
+                  <LiveMap 
+                    height="100%" 
+                    showControls={true}
+                    highlightRequest={highlightedRequest}
+                  />
+                </div>
+              </Card>
             )}
           </div>
         </main>
