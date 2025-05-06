@@ -3,42 +3,44 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { authApi } from "@/services/api/auth";
+import { useAuth } from "@/context/AuthContext";
+import { UserRole } from "@/types";
 import { toast } from "@/components/ui/sonner";
 
 interface DemoAccount {
   email: string;
   password: string;
-  role: string;
+  role: UserRole;
   description: string;
 }
 
 const DemoAccounts = () => {
   const navigate = useNavigate();
+  const { simulateDemoLogin } = useAuth();
 
   const demoAccounts: DemoAccount[] = [
     {
       email: "admin@ambulink.com",
       password: "123456",
-      role: "Administrador",
+      role: "admin",
       description: "Acceso completo a todas las funciones del sistema, gestión de usuarios y empresas."
     },
     {
       email: "hospital@ambulink.com",
       password: "123456",
-      role: "Centro sanitario",
+      role: "hospital",
       description: "Solicitud de traslados sanitarios y seguimiento en tiempo real."
     },
     {
       email: "usuario@ambulink.com",
       password: "123456",
-      role: "Usuario particular",
+      role: "individual",
       description: "Solicitud básica de traslados y seguimiento de estado."
     },
     {
       email: "ambulancia@ambulink.com",
       password: "123456",
-      role: "Empresa de ambulancias", 
+      role: "ambulance", 
       description: "Gestión de flota de vehículos y asignación de traslados."
     }
   ];
@@ -46,10 +48,23 @@ const DemoAccounts = () => {
   const loginWithAccount = async (account: DemoAccount) => {
     try {
       toast.info(`Iniciando sesión como ${account.role}...`);
-      await authApi.login(account.email, account.password);
+      
+      // Usar la función de simulación de inicio de sesión
+      await simulateDemoLogin(account.role);
+      
       toast.success(`Sesión iniciada como ${account.role}`, {
         description: "Redirigiendo al panel de control..."
       });
+      
+      // Redirigir según el rol
+      setTimeout(() => {
+        if (account.role === "admin") {
+          navigate("/admin/dashboard", { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
+      }, 1000);
+      
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
       toast.error("Error al iniciar sesión", {
@@ -83,7 +98,10 @@ const DemoAccounts = () => {
               {demoAccounts.map((account) => (
                 <Card key={account.email} className="overflow-hidden border-2 hover:border-primary transition-colors">
                   <CardHeader className="bg-gray-50 pb-3">
-                    <CardTitle className="text-lg">{account.role}</CardTitle>
+                    <CardTitle className="text-lg">{account.role === "individual" ? "Usuario particular" : 
+                      account.role === "admin" ? "Administrador" : 
+                      account.role === "hospital" ? "Centro sanitario" : 
+                      "Empresa de ambulancias"}</CardTitle>
                   </CardHeader>
                   <CardContent className="pt-4">
                     <p className="text-sm text-gray-600 mb-4">{account.description}</p>
@@ -99,7 +117,10 @@ const DemoAccounts = () => {
                       className="w-full" 
                       onClick={() => loginWithAccount(account)}
                     >
-                      Iniciar sesión como {account.role}
+                      Iniciar sesión como {account.role === "individual" ? "Usuario" : 
+                        account.role === "admin" ? "Administrador" : 
+                        account.role === "hospital" ? "Centro sanitario" : 
+                        "Empresa ambulancias"}
                     </Button>
                   </CardFooter>
                 </Card>

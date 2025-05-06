@@ -11,7 +11,7 @@ import { UserRole } from "@/types";
 import { toast } from "@/components/ui/sonner";
 
 const Login = () => {
-  const { user, login } = useAuth();
+  const { user, login, simulateDemoLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
@@ -40,33 +40,31 @@ const Login = () => {
     checkSession();
   }, []);
 
-  const handleQuickLogin = async (role: string) => {
+  const handleQuickLogin = async (role: UserRole) => {
     setIsLoading(true);
     
     try {
       toast.info(`Iniciando sesión como ${role}...`);
       
-      // En lugar de intentar autenticar con Supabase, simulamos la autenticación
-      // y redirigimos directamente al dashboard
+      // Usar la función de simulación de inicio de sesión del AuthContext
+      await simulateDemoLogin(role);
       
-      setTimeout(() => {
-        toast.success(`Sesión iniciada como ${role}`, {
-          description: "Redirigiendo al panel de control..."
-        });
-        
-        // Redirigir según el rol
-        switch(role) {
-          case "admin":
-            navigate("/admin/dashboard", { replace: true });
-            break;
-          case "hospital":
-          case "user":
-          case "ambulance":
-          default:
-            navigate("/dashboard", { replace: true });
-            break;
-        }
-      }, 1500); // Pequeño retraso para mostrar las notificaciones
+      toast.success(`Sesión iniciada como ${role}`, {
+        description: "Redirigiendo al panel de control..."
+      });
+      
+      // Redirigir según el rol
+      switch(role) {
+        case "admin":
+          navigate("/admin/dashboard", { replace: true });
+          break;
+        case "hospital":
+        case "individual":
+        case "ambulance":
+        default:
+          navigate("/dashboard", { replace: true });
+          break;
+      }
       
     } catch (error) {
       console.error("Error en la demostración:", error);
@@ -113,7 +111,7 @@ const Login = () => {
                   </Button>
                   <Button 
                     variant="outline"
-                    onClick={() => handleQuickLogin("user")}
+                    onClick={() => handleQuickLogin("individual")}
                     disabled={isLoading}
                   >
                     Entrar como Usuario

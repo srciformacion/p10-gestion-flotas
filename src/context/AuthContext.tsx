@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +13,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => Promise<void>;
+  simulateDemoLogin: (role: UserRole) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -154,8 +156,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Función para simular inicio de sesión con cuentas de demostración
+  const simulateDemoLogin = async (role: UserRole) => {
+    try {
+      // Generar un ID único para el usuario simulado
+      const demoUserId = `demo-${role}-${Date.now()}`;
+      
+      // Crear un usuario demo basado en el rol
+      let demoUser: User = {
+        id: demoUserId,
+        email: `${role}@demo.ambulink.com`,
+        name: `Demo ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+        role: role
+      };
+      
+      console.log('Simulando inicio de sesión para:', demoUser);
+      
+      // Actualizar el estado de autenticación
+      setUser(demoUser);
+      
+      // No tenemos un session real para demostración, pero creamos un objeto similar
+      const mockSession = {
+        access_token: `demo-token-${demoUserId}`,
+        refresh_token: `demo-refresh-${demoUserId}`,
+        user: {
+          id: demoUserId,
+          email: demoUser.email
+        }
+      };
+      
+      // @ts-ignore - Ignoramos error de tipado para la sesión simulada
+      setSession(mockSession);
+      
+      return;
+    } catch (error) {
+      console.error("Error al simular inicio de sesión:", error);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, session, loading, login, register, logout, simulateDemoLogin }}>
       {children}
     </AuthContext.Provider>
   );
