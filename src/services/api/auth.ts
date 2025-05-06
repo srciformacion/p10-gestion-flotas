@@ -1,11 +1,10 @@
-
 import { User, UserRole } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 
 export const authApi = {
   login: async (email: string, password: string): Promise<User> => {
     try {
-      console.log('Intentando iniciar sesión con:', email);
+      console.log('[AUTH SERVICE] Iniciando sesión con:', email);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -13,17 +12,19 @@ export const authApi = {
       });
       
       if (error) {
-        console.error('Error de autenticación:', error);
+        console.error('[AUTH SERVICE] Error de autenticación:', error);
         throw error;
       }
       
       if (!data.user) {
-        console.error('Usuario no encontrado en respuesta');
+        console.error('[AUTH SERVICE] Usuario no encontrado en respuesta');
         throw new Error('Usuario no encontrado');
       }
 
+      console.log('[AUTH SERVICE] Sesión creada correctamente:', data.session);
+      
       // Obtener el perfil completo del usuario
-      console.log('Usuario autenticado, obteniendo perfil para:', data.user.id);
+      console.log('[AUTH SERVICE] Obteniendo perfil para:', data.user.id);
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('role, full_name')
@@ -31,12 +32,12 @@ export const authApi = {
         .single();
       
       if (profileError) {
-        console.error('Error obteniendo perfil:', profileError);
+        console.error('[AUTH SERVICE] Error obteniendo perfil:', profileError);
         throw profileError;
       }
       
       if (!profile) {
-        console.error('Perfil no encontrado para usuario:', data.user.id);
+        console.error('[AUTH SERVICE] Perfil no encontrado para usuario:', data.user.id);
         throw new Error('Perfil de usuario no encontrado');
       }
       
@@ -47,10 +48,10 @@ export const authApi = {
         role: profile?.role as UserRole
       };
       
-      console.log('Login exitoso para usuario:', user);
+      console.log('[AUTH SERVICE] Login exitoso para usuario:', user);
       return user;
     } catch (error) {
-      console.error('Error en login:', error);
+      console.error('[AUTH SERVICE] Error en login:', error);
       throw error;
     }
   },
@@ -120,9 +121,6 @@ export const authApi = {
       if (error) throw error;
       if (!data.user) throw new Error('Error al crear usuario');
       
-      // En un ambiente de producción, es posible que necesites esperar a que el usuario confirme su email
-      // En este caso, asumimos que se crea el perfil inmediatamente gracias al trigger en la base de datos
-      
       return {
         id: data.user.id,
         email: data.user.email || '',
@@ -130,7 +128,7 @@ export const authApi = {
         role
       };
     } catch (error) {
-      console.error('Error en registro:', error);
+      console.error('[AUTH SERVICE] Error en registro:', error);
       throw error;
     }
   }

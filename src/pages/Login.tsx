@@ -9,14 +9,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/sonner";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ArrowRight, AlertTriangle } from "lucide-react";
+import { ArrowRight, AlertTriangle, Info } from "lucide-react";
 import { handleError } from "@/utils/errorHandler";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const { login, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,10 +32,26 @@ const Login = () => {
     }
   }, [user, navigate, from]);
 
+  // Verificar el estado de la sesión al cargar
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        console.log("Sesión activa detectada al cargar Login");
+      } else {
+        console.log("No hay sesión activa al cargar Login");
+        setInfoMessage("Usa una de las cuentas de prueba con contraseña 123456");
+      }
+    };
+    
+    checkSession();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage(null);
+    setInfoMessage(null);
     
     if (!email || !password) {
       setErrorMessage("Por favor ingresa tu email y contraseña");
@@ -42,21 +60,42 @@ const Login = () => {
     }
     
     try {
-      console.log('Intentando iniciar sesión con:', email);
-      await login(email, password);
-      console.log('Login exitoso');
+      console.log('Intentando iniciar sesión directamente con Supabase para:', email);
+      
+      // Intentar login directamente con Supabase para diagnosticar
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email, 
+        password
+      });
+      
+      if (error) {
+        console.error("Error de Supabase:", error);
+        throw error;
+      }
+      
+      if (!data.user) {
+        throw new Error("No se recibieron datos del usuario");
+      }
+      
+      console.log('Login con Supabase exitoso, datos:', data);
+      
+      // Si llegamos aquí, el login fue exitoso
       toast.success("Inicio de sesión exitoso", {
         description: "Bienvenido de nuevo a AmbulLink"
       });
+      
+      // Navegar después de un login exitoso
+      navigate(from, { replace: true });
+      
     } catch (error: any) {
-      console.error("Error de inicio de sesión:", error);
+      console.error("Error detallado de inicio de sesión:", error);
       
       // Mensajes de error más específicos según el código de error
       let message = "Error al iniciar sesión. Verifica tus credenciales e inténtalo nuevamente.";
       
       if (typeof error.message === 'string') {
         if (error.message.includes("Invalid login credentials")) {
-          message = "Credenciales inválidas. Por favor verifica tu email y contraseña.";
+          message = "Credenciales inválidas. Por favor verifica tu email y contraseña. Recuerda que la contraseña para las cuentas de prueba es 123456.";
         } else if (error.message.includes("Email not confirmed")) {
           message = "Tu email no ha sido confirmado. Verifica tu bandeja de entrada.";
         } else if (error.message.includes("too many requests")) {
@@ -66,7 +105,6 @@ const Login = () => {
         }
       }
       
-      console.log('Mensaje de error configurado:', message);
       setErrorMessage(message);
     } finally {
       setIsLoading(false);
@@ -84,6 +122,7 @@ const Login = () => {
     setEmail(testEmail);
     setPassword("123456");
     setErrorMessage(null);
+    setInfoMessage(`Cuenta de prueba seleccionada: ${testEmail}. Haz clic en "Iniciar sesión" para continuar.`);
   };
 
   return (
@@ -105,6 +144,14 @@ const Login = () => {
                   <AlertDescription>{errorMessage}</AlertDescription>
                 </Alert>
               )}
+              
+              {infoMessage && (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>{infoMessage}</AlertDescription>
+                </Alert>
+              )}
+              
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
