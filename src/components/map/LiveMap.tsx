@@ -1,5 +1,5 @@
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRequests } from "@/context/requests";
@@ -38,10 +38,35 @@ export const LiveMap = ({
   });
   const { vehicles, alerts, loading } = useMapData();
   const { getRequestById } = useRequests();
+  const [mapInitialized, setMapInitialized] = useState(false);
   
+  // Initialize map when component mounts
+  useEffect(() => {
+    if (mapContainerRef.current && mapRef.current && !mapInitialized) {
+      console.log("LiveMap: Inicializando mapa");
+      // Force map to recalculate its size after component is fully rendered
+      setTimeout(() => {
+        if (mapRef.current) {
+          mapRef.current.invalidateSize();
+          setMapInitialized(true);
+          console.log("LiveMap: Mapa invalidado y recalculado");
+        }
+      }, 200);
+    }
+  }, [mapRef.current, mapContainerRef.current, mapInitialized]);
+
   // Update markers when vehicles change
   useEffect(() => {
-    if (!mapRef.current || vehicles.length === 0) return;
+    if (!mapRef.current) {
+      console.log("LiveMap: mapRef no disponible aún");
+      return;
+    }
+    
+    console.log("LiveMap: Actualizando marcadores", { 
+      vehiclesCount: vehicles.length,
+      mapInitialized,
+      highlightRequest 
+    });
 
     // Clear previous markers
     markersRef.current.forEach(marker => marker.remove());
@@ -51,6 +76,7 @@ export const LiveMap = ({
     if (centerOnVehicle) {
       const targetVehicle = vehicles.find(v => v.id === centerOnVehicle);
       if (targetVehicle && mapRef.current) {
+        console.log("LiveMap: Centrando en vehículo específico", targetVehicle);
         mapRef.current.setView(
           [targetVehicle.location.latitude, targetVehicle.location.longitude],
           15
@@ -68,6 +94,12 @@ export const LiveMap = ({
         alert.vehicleId === vehicle.id && !alert.resolved
       );
       
+      console.log("LiveMap: Creando marcador para vehículo", { 
+        vehicleId: vehicle.id,
+        isHighlighted,
+        position: [vehicle.location.latitude, vehicle.location.longitude]
+      });
+      
       // Create marker
       createVehicleMarker({
         vehicle,
@@ -82,6 +114,11 @@ export const LiveMap = ({
     if (highlightRequest && !vehicles.some(v => v.assignedToRequestId === highlightRequest)) {
       const request = getRequestById(highlightRequest);
       if (request && mapRef.current) {
+        console.log("LiveMap: Creando marcador para destino de solicitud", {
+          requestId: highlightRequest,
+          destination: request.destination
+        });
+        
         // Create destination marker
         const { coordinates } = createDestinationMarker({
           requestId: highlightRequest,
@@ -96,7 +133,37 @@ export const LiveMap = ({
         }
       }
     }
-  }, [vehicles, centerOnVehicle, highlightRequest, alerts, getRequestById]);
+    
+    // If no specific center was requested, but we have vehicles, center the map to show all vehicles
+    if (!centerOnVehicle && !highlightRequest && vehicles.length > 0 && mapRef.current) {
+      // Default to Madrid if no vehicles
+      let defaultView = { lat: 40.4168, lng: -3.7038, zoom: 12 };
+      
+      if (vehicles.length === 1) {
+        // Center on the single vehicle
+        defaultView = {
+          lat: vehicles[0].location.latitude,
+          lng: vehicles[0].location.longitude,
+          zoom: 14
+        };
+      } else if (vehicles.length > 1) {
+        // Center to fit all vehicles
+        mapRef.current.setView([defaultView.lat, defaultView.lng], 10);
+        
+        const bounds = vehicles.reduce((bounds, vehicle) => {
+          bounds.extend([vehicle.location.latitude, vehicle.location.longitude]);
+          return bounds;
+        }, L.latLngBounds([]));
+        
+        if (bounds.isValid()) {
+          mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+          return; // Skip the setView below since we used fitBounds
+        }
+      }
+      
+      mapRef.current.setView([defaultView.lat, defaultView.lng], defaultView.zoom);
+    }
+  }, [vehicles, centerOnVehicle, highlightRequest, alerts, getRequestById, mapInitialized]);
 
   return (
     <Card className="overflow-hidden">
@@ -111,7 +178,7 @@ export const LiveMap = ({
           <Skeleton className="w-full h-full absolute inset-0" />
         ) : (
           <>
-            <div ref={mapContainerRef} style={mapContainerStyle} />
+            <div ref={mapContainerRef} style={mapContainerStyle} className="leaflet-container" />
             
             {/* Legend */}
             {showControls && <MapLegend />}

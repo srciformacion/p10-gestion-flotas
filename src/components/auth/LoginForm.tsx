@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { supabase, SUPABASE_CONFIG } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/sonner";
 import { AlertTriangle, Info } from "lucide-react";
 import { TestAccountsSection } from "./TestAccountsSection";
+import { useAuth } from "@/context/AuthContext";
 
 interface LoginFormProps {
   from?: string;
@@ -22,6 +23,7 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [loginAttemptCount, setLoginAttemptCount] = useState(0);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,35 +45,8 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
       const cleanEmail = email.trim();
       const cleanPassword = password.trim();
       
-      console.log("Intentando login con:", { email: cleanEmail });
-      
-      // Intento de login optimizado con Supabase
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: cleanEmail,
-        password: cleanPassword
-      });
-      
-      if (error) {
-        console.error("Error de autenticación:", error);
-        
-        // Mensaje personalizado según el código de error
-        if (error.message.includes("Invalid login credentials")) {
-          setErrorMessage(`Credenciales inválidas (#${loginAttemptCount + 1}). Por favor verifica tu email y contraseña. Recuerda que la contraseña para las cuentas de prueba es 123456.`);
-        } else {
-          setErrorMessage(`Error: ${error.message} (Intento #${loginAttemptCount + 1})`);
-        }
-        
-        setIsLoading(false);
-        return;
-      }
-      
-      if (!data.user) {
-        setErrorMessage(`No se recibieron datos del usuario (Intento #${loginAttemptCount + 1})`);
-        setIsLoading(false);
-        return;
-      }
-      
-      console.log('Login exitoso, datos recibidos:', data);
+      // Usar el método login del contexto de autenticación
+      await login(cleanEmail, cleanPassword);
       
       toast.success("Inicio de sesión exitoso", {
         description: "Bienvenido de nuevo a AmbulLink"
@@ -81,8 +56,14 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
       navigate(from, { replace: true });
       
     } catch (error: any) {
-      console.error("Error inesperado en inicio de sesión:", error);
-      setErrorMessage(`Error inesperado: ${error.message || "Desconocido"} (Intento #${loginAttemptCount + 1})`);
+      console.error("Error en inicio de sesión:", error);
+      
+      // Mensaje personalizado según el código de error
+      if (error.message?.includes("Invalid login credentials")) {
+        setErrorMessage(`Credenciales inválidas (#${loginAttemptCount + 1}). Por favor verifica tu email y contraseña. Recuerda que la contraseña para las cuentas de prueba es 123456.`);
+      } else {
+        setErrorMessage(`Error: ${error.message || "Desconocido"} (Intento #${loginAttemptCount + 1})`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -102,9 +83,6 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
     setInfoMessage("Probando conexión directa a Supabase...");
     
     try {
-      // Verificar la configuración del cliente de Supabase
-      console.log("Configuración del cliente Supabase:", SUPABASE_CONFIG);
-      
       // 1. Probar ping básico
       const { data: pingData, error: pingError } = await supabase.from('profiles').select('count').limit(1);
       
@@ -125,16 +103,8 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
         
         if (error) {
           setErrorMessage(`Error en test de autenticación: ${error.message} (código: ${error.name})`);
-          
-          // Verificar si hay problemas con la URL de redirección
-          if (error.message.includes("invalid")) {
-            setInfoMessage("Posible problema con URLs de redirección en la configuración de Supabase. Verifica la configuración en el panel de Supabase.");
-          }
         } else if (data.user) {
           setInfoMessage(`Test exitoso! Usuario autenticado: ${data.user.email}`);
-          
-          // Cerrar sesión después de la prueba exitosa
-          await supabase.auth.signOut();
         } else {
           setErrorMessage("Test de autenticación falló: No se devolvió usuario");
         }

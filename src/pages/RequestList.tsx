@@ -50,9 +50,14 @@ const RequestList = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const statusParam = queryParams.get("status") as RequestStatus | null;
+    const viewParam = queryParams.get("view") as "list" | "map" | null;
     
     if (statusParam && ["pending", "assigned", "inRoute", "completed", "cancelled"].includes(statusParam)) {
       setStatusFilter(statusParam);
+    }
+
+    if (viewParam && ["list", "map"].includes(viewParam)) {
+      setViewMode(viewParam);
     }
   }, [location.search]);
   
@@ -66,11 +71,13 @@ const RequestList = () => {
       queryParams.delete("status");
     }
     
+    queryParams.set("view", viewMode);
+    
     const search = queryParams.toString();
     const newUrl = search ? `${location.pathname}?${search}` : location.pathname;
     
     navigate(newUrl, { replace: true });
-  }, [statusFilter, location.pathname, navigate]);
+  }, [statusFilter, viewMode, location.pathname, navigate]);
   
   // Fetch requests whenever filters change
   useEffect(() => {
