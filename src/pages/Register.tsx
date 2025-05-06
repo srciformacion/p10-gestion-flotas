@@ -5,12 +5,12 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/hooks/use-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { toast } from "@/components/ui/sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { UserRole } from "@/types";
+import { handleError } from "@/utils/errorHandler";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -18,10 +18,10 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<UserRole>("individual");
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  
   const { register } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,17 +33,26 @@ const Register = () => {
       return;
     }
     
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
       await register(name, email, password, role);
-      toast({
-        title: "Registro exitoso",
-        description: "Tu cuenta ha sido creada correctamente",
+      
+      toast.success("Registro exitoso", {
+        description: "Tu cuenta ha sido creada correctamente"
       });
+      
+      // En producción, podría redirigir a una página de verificación de email
+      // Aquí asumimos registro inmediato
       navigate("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Error al registrar la cuenta");
+    } catch (error: any) {
+      handleError(error);
+      setError(error.message || "Error al registrar el usuario");
     } finally {
       setIsLoading(false);
     }
@@ -58,26 +67,22 @@ const Register = () => {
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl">Crear cuenta</CardTitle>
               <CardDescription>
-                Regístrate para comenzar a utilizar AmbulLink
+                Introduce tus datos para registrarte en AmbulLink
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
                 <div className="space-y-2">
                   <Label htmlFor="name">Nombre completo</Label>
                   <Input
                     id="name"
-                    placeholder="Nombre completo"
+                    placeholder="Nombre y apellidos"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
                   />
                 </div>
+                
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -89,6 +94,7 @@ const Register = () => {
                     required
                   />
                 </div>
+                
                 <div className="space-y-2">
                   <Label htmlFor="password">Contraseña</Label>
                   <Input
@@ -100,6 +106,7 @@ const Register = () => {
                     required
                   />
                 </div>
+                
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
                   <Input
@@ -111,23 +118,40 @@ const Register = () => {
                     required
                   />
                 </div>
+                
                 <div className="space-y-2">
-                  <Label>Tipo de cuenta</Label>
-                  <RadioGroup value={role} onValueChange={(value) => setRole(value as UserRole)} className="flex flex-col space-y-2">
+                  <Label>Tipo de usuario</Label>
+                  <RadioGroup 
+                    value={role} 
+                    onValueChange={(value) => setRole(value as UserRole)}
+                    className="grid grid-cols-2 gap-2"
+                  >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="individual" id="individual" />
-                      <Label htmlFor="individual">Usuario particular</Label>
+                      <Label htmlFor="individual" className="cursor-pointer">Usuario particular</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="hospital" id="hospital" />
-                      <Label htmlFor="hospital">Centro sanitario</Label>
+                      <Label htmlFor="hospital" className="cursor-pointer">Centro sanitario</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="ambulance" id="ambulance" />
-                      <Label htmlFor="ambulance">Empresa de ambulancias</Label>
+                      <Label htmlFor="ambulance" className="cursor-pointer">Empresa de ambulancias</Label>
+                    </div>
+                    {/* Normalmente no permitiríamos registrarse como admin, pero lo mantenemos para testing */}
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="admin" id="admin" />
+                      <Label htmlFor="admin" className="cursor-pointer">Administrador</Label>
                     </div>
                   </RadioGroup>
                 </div>
+                
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600">
+                    {error}
+                  </div>
+                )}
+                
                 <Button
                   type="submit"
                   className="w-full"
@@ -137,8 +161,8 @@ const Register = () => {
                 </Button>
               </form>
             </CardContent>
-            <CardFooter>
-              <div className="text-center w-full text-sm">
+            <CardFooter className="flex justify-center">
+              <div className="text-sm text-center">
                 ¿Ya tienes una cuenta?{" "}
                 <Link to="/login" className="font-medium text-primary-blue hover:underline">
                   Iniciar sesión

@@ -1,68 +1,108 @@
 
 import { User, UserRole } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
 
 export const authApi = {
   login: async (email: string, password: string): Promise<User> => {
-    // Simular verificación de credenciales
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // Define test users with appropriate roles
-    const mockUsers: Record<string, User> = {
-      'admin@ambulink.com': {
-        id: '1',
-        email: 'admin@ambulink.com',
-        name: 'Administrador',
-        role: 'admin'
-      },
-      'hospital@ambulink.com': {
-        id: '2',
-        email: 'hospital@ambulink.com',
-        name: 'Hospital San Pedro',
-        role: 'hospital'
-      },
-      'usuario@ambulink.com': {
-        id: '3',
-        email: 'usuario@ambulink.com',
-        name: 'Juan Paciente',
-        role: 'individual'
-      },
-      'ambulancia@ambulink.com': {
-        id: '4',
-        email: 'ambulancia@ambulink.com',
-        name: 'Ambulancias Express',
-        role: 'ambulance'
+    // Esta función ya no necesita simular la verificación de credenciales
+    // ya que usamos la autenticación real de Supabase
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) throw error;
+      
+      if (!data.user) {
+        throw new Error('Usuario no encontrado');
       }
-    };
-    
-    // Get the user by email or return admin as fallback
-    const user = mockUsers[email] || mockUsers['admin@ambulink.com'];
-    
-    localStorage.setItem('user', JSON.stringify(user));
-    return user;
+
+      // Obtener el perfil completo del usuario
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, full_name')
+        .eq('id', data.user.id)
+        .single();
+      
+      if (profileError) throw profileError;
+      
+      const user: User = {
+        id: data.user.id,
+        email: data.user.email || '',
+        name: profile?.full_name || '',
+        role: profile?.role as UserRole
+      };
+      
+      return user;
+    } catch (error) {
+      console.error('Error en login:', error);
+      throw error;
+    }
   },
 
   logout: async (): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    localStorage.removeItem('user');
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
   },
 
   getCurrentUser: async (): Promise<User | null> => {
-    const stored = localStorage.getItem('user');
-    return stored ? JSON.parse(stored) : null;
+    try {
+      const { data } = await supabase.auth.getSession();
+      
+      if (!data.session?.user) {
+        return null;
+      }
+      
+      // Obtener el perfil del usuario
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('role, full_name')
+        .eq('id', data.session.user.id)
+        .single();
+      
+      if (error) throw error;
+      
+      return {
+        id: data.session.user.id,
+        email: data.session.user.email || '',
+        name: profile?.full_name || '',
+        role: profile?.role as UserRole
+      };
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      return null;
+    }
   },
 
   register: async (name: string, email: string, password: string, role: UserRole): Promise<User> => {
-    // Simulate registration process
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser: User = {
-      id: Math.random().toString(36).substring(2, 9),
-      email,
-      name,
-      role
-    };
-    
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    return mockUser;
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+            role,
+          }
+        }
+      });
+      
+      if (error) throw error;
+      if (!data.user) throw new Error('Error al crear usuario');
+      
+      // En un ambiente de producción, es posible que necesites esperar a que el usuario confirme su email
+      // En este caso, asumimos que se crea el perfil inmediatamente gracias al trigger en la base de datos
+      
+      return {
+        id: data.user.id,
+        email: data.user.email || '',
+        name,
+        role
+      };
+    } catch (error) {
+      console.error('Error en registro:', error);
+      throw error;
+    }
   }
 };

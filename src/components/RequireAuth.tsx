@@ -11,8 +11,13 @@ interface RequireAuthProps {
 }
 
 export const RequireAuth = ({ children, allowedRoles }: RequireAuthProps) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
+
+  // Mostrar un estado de carga mientras verificamos la autenticación
+  if (loading) {
+    return <div className="flex h-screen items-center justify-center">Cargando...</div>;
+  }
 
   // Handle unauthenticated users
   if (!user) {
