@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, SUPABASE_CONFIG } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,10 +39,16 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
     try {
       console.log(`Intento de login #${loginAttemptCount + 1} para: ${email}`);
       
-      // Intento de login mejorado con Supabase
+      // Asegurar que no hay espacios en blanco al inicio o final
+      const cleanEmail = email.trim();
+      const cleanPassword = password.trim();
+      
+      console.log("Intentando login con:", { email: cleanEmail });
+      
+      // Intento de login optimizado con Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(), 
-        password: password.trim()
+        email: cleanEmail,
+        password: cleanPassword
       });
       
       if (error) {
@@ -89,7 +95,7 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
     setInfoMessage(`Cuenta de prueba seleccionada: ${testEmail}. Haz clic en "Iniciar sesión" para continuar.`);
   };
 
-  // Test de conexión directo - versión mejorada
+  // Test de conexión directo - versión optimizada
   const testDirectConnection = async () => {
     setIsLoading(true);
     setErrorMessage(null);
@@ -97,10 +103,7 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
     
     try {
       // Verificar la configuración del cliente de Supabase
-      console.log("Configuración del cliente Supabase:", {
-        url: supabase.supabaseUrl,
-        hasAnon: !!supabase.supabaseKey
-      });
+      console.log("Configuración del cliente Supabase:", SUPABASE_CONFIG);
       
       // 1. Probar ping básico
       const { data: pingData, error: pingError } = await supabase.from('profiles').select('count').limit(1);
@@ -112,7 +115,7 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
         console.log("Ping exitoso:", pingData);
         setInfoMessage("Conexión a Supabase establecida correctamente. Intentando autenticación de prueba...");
         
-        // 2. Probar autenticación
+        // 2. Probar autenticación con cuenta de prueba
         const { data, error } = await supabase.auth.signInWithPassword({
           email: "admin@ambulink.com",
           password: "123456"
@@ -122,8 +125,16 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
         
         if (error) {
           setErrorMessage(`Error en test de autenticación: ${error.message} (código: ${error.name})`);
+          
+          // Verificar si hay problemas con la URL de redirección
+          if (error.message.includes("invalid")) {
+            setInfoMessage("Posible problema con URLs de redirección en la configuración de Supabase. Verifica la configuración en el panel de Supabase.");
+          }
         } else if (data.user) {
           setInfoMessage(`Test exitoso! Usuario autenticado: ${data.user.email}`);
+          
+          // Cerrar sesión después de la prueba exitosa
+          await supabase.auth.signOut();
         } else {
           setErrorMessage("Test de autenticación falló: No se devolvió usuario");
         }
