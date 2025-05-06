@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRequests } from "@/context/requests";
 import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
 import { useMapData } from "./hooks/useMapData";
 import { useLeafletMap } from "./hooks/useLeafletMap";
