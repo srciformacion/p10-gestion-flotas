@@ -107,10 +107,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       return;
     } catch (error: any) {
-      toast.error("Error al iniciar sesión", {
-        description: error.message || "Compruebe sus credenciales e inténtelo de nuevo"
-      });
-      throw error;
+      console.error("Error al iniciar sesión:", error);
+      throw error; // Propagamos el error para manejarlo en el componente Login
     }
   };
 

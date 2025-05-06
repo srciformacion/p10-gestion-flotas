@@ -4,8 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const authApi = {
   login: async (email: string, password: string): Promise<User> => {
-    // Esta función ya no necesita simular la verificación de credenciales
-    // ya que usamos la autenticación real de Supabase
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -61,7 +59,10 @@ export const authApi = {
         .eq('id', data.session.user.id)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error obteniendo perfil:', error);
+        throw error;
+      }
       
       return {
         id: data.session.user.id,

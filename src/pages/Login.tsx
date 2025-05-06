@@ -9,13 +9,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/sonner";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, AlertTriangle } from "lucide-react";
 import { handleError } from "@/utils/errorHandler";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { login, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,14 +33,26 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null);
     
     try {
       await login(email, password);
       toast.success("Inicio de sesión exitoso", {
         description: "Bienvenido de nuevo a AmbulLink"
       });
-    } catch (error) {
-      handleError(error);
+    } catch (error: any) {
+      console.error("Error de inicio de sesión:", error);
+      let message = "Error al iniciar sesión. Verifica tus credenciales e inténtalo nuevamente.";
+      
+      // Mensajes de error más específicos según el código de error
+      if (error.message?.includes("Invalid login credentials")) {
+        message = "Credenciales inválidas. Por favor verifica tu email y contraseña.";
+      } else if (error.message?.includes("Email not confirmed")) {
+        message = "Tu email no ha sido confirmado. Verifica tu bandeja de entrada.";
+      }
+      
+      setErrorMessage(message);
+      // No usamos handleError aquí para mostrar el error en la interfaz misma
     } finally {
       setIsLoading(false);
     }
@@ -65,6 +78,12 @@ const Login = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {errorMessage && (
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>{errorMessage}</AlertDescription>
+                </Alert>
+              )}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
