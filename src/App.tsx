@@ -10,6 +10,7 @@ import Index from './pages/Index';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import RecoverPassword from './pages/RecoverPassword';
+import UpdatePassword from './pages/UpdatePassword';
 import Dashboard from './pages/Dashboard';
 import NewRequest from './pages/NewRequest';
 import NewAdvancedRequest from './pages/NewAdvancedRequest';
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/registro" element={<Register />} />
                 <Route path="/recuperar-password" element={<RecoverPassword />} />
+                <Route path="/actualizar-password" element={<UpdatePassword />} />
                 
                 {/* Dashboard and user routes */}
                 <Route path="/dashboard" element={<Dashboard />} />
