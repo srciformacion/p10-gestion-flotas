@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/sonner";
-import { ArrowRight, AlertTriangle, Info } from "lucide-react";
+import { AlertTriangle, Info } from "lucide-react";
 import { TestAccountsSection } from "./TestAccountsSection";
 
 interface LoginFormProps {
@@ -38,10 +39,10 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
     try {
       console.log(`Intento de login #${loginAttemptCount + 1} para: ${email}`);
       
-      // Intento de login directo con Supabase
+      // Intento de login mejorado con Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
-        email, 
-        password
+        email: email.trim(), 
+        password: password.trim()
       });
       
       if (error) {
@@ -88,19 +89,27 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
     setInfoMessage(`Cuenta de prueba seleccionada: ${testEmail}. Haz clic en "Iniciar sesión" para continuar.`);
   };
 
-  // Test de conexión directo
+  // Test de conexión directo - versión mejorada
   const testDirectConnection = async () => {
     setIsLoading(true);
     setErrorMessage(null);
     setInfoMessage("Probando conexión directa a Supabase...");
     
     try {
+      // Verificar la configuración del cliente de Supabase
+      console.log("Configuración del cliente Supabase:", {
+        url: supabase.supabaseUrl,
+        hasAnon: !!supabase.supabaseKey
+      });
+      
       // 1. Probar ping básico
       const { data: pingData, error: pingError } = await supabase.from('profiles').select('count').limit(1);
       
       if (pingError) {
+        console.error("Error de ping:", pingError);
         setInfoMessage(`Error de conexión: ${pingError.message}`);
       } else {
+        console.log("Ping exitoso:", pingData);
         setInfoMessage("Conexión a Supabase establecida correctamente. Intentando autenticación de prueba...");
         
         // 2. Probar autenticación
@@ -109,8 +118,10 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
           password: "123456"
         });
         
+        console.log("Resultado de autenticación:", { data, error });
+        
         if (error) {
-          setErrorMessage(`Error en test de autenticación: ${error.message}`);
+          setErrorMessage(`Error en test de autenticación: ${error.message} (código: ${error.name})`);
         } else if (data.user) {
           setInfoMessage(`Test exitoso! Usuario autenticado: ${data.user.email}`);
         } else {
@@ -118,6 +129,7 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
         }
       }
     } catch (error: any) {
+      console.error("Error en test de conexión:", error);
       setErrorMessage(`Error en test: ${error.message || "Desconocido"}`);
     } finally {
       setIsLoading(false);
