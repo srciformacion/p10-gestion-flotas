@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/sonner";
 import { ArrowRight, AlertTriangle, Info } from "lucide-react";
+import { TestAccountsSection } from "./TestAccountsSection";
 
 interface LoginFormProps {
   from?: string;
