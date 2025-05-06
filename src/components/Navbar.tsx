@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -9,7 +8,6 @@ import {
   NavigationMenuList 
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
