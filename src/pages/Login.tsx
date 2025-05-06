@@ -1,11 +1,12 @@
 
 import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 const Login = () => {
   const { user } = useAuth();
@@ -52,7 +53,11 @@ const Login = () => {
               <LoginForm from={from} />
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              {/* TestAccountsSection is now included in the LoginForm */}
+              <Link to="/demo-accounts" className="w-full">
+                <Button variant="secondary" className="w-full">
+                  Ver cuentas de demostración
+                </Button>
+              </Link>
             </CardFooter>
           </Card>
         </div>

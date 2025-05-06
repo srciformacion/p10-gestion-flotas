@@ -19,8 +19,11 @@ const Index = () => {
           <Link to="/registro">
             <Button variant="outline">Crear Cuenta</Button>
           </Link>
+          <Link to="/demo-accounts">
+            <Button variant="secondary">Probar Usuarios Demo</Button>
+          </Link>
           <Link to="/demo">
-            <Button variant="secondary">Ver Demostración</Button>
+            <Button variant="outline">Ver Demostración</Button>
           </Link>
         </div>
       </div>

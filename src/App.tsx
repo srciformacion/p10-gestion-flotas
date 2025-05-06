@@ -23,6 +23,7 @@ import AccessDenied from './pages/AccessDenied';
 import Profile from './pages/Profile';
 import ChatPage from './pages/messages/ChatPage';
 import Demo from './pages/Demo';
+import DemoAccounts from './pages/DemoAccounts';
 
 // Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -50,6 +51,7 @@ function App() {
                 <Route path="/recuperar-password" element={<RecoverPassword />} />
                 <Route path="/actualizar-password" element={<UpdatePassword />} />
                 <Route path="/demo" element={<Demo />} />
+                <Route path="/demo-accounts" element={<DemoAccounts />} />
                 
                 {/* Dashboard and user routes */}
                 <Route path="/dashboard" element={<Dashboard />} />
