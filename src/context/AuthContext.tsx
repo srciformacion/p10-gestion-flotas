@@ -1,9 +1,9 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
 import { UserRole, User } from '@/types';
 import { toast } from "@/components/ui/sonner";
+import { authApi } from '@/services/api/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -119,22 +119,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string) => {
     try {
       console.log('Intentando login para:', email);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        console.error('Error de autenticación en login:', error);
-        throw error;
-      }
-      
-      if (!data.user) {
-        console.error('Usuario no encontrado en respuesta de login');
-        throw new Error('Usuario no encontrado');
-      }
-
-      console.log('Login exitoso para:', data.user.email);
+      await authApi.login(email, password);
+      // La sesión y el usuario se actualizarán automáticamente con el listener onAuthStateChange
       return;
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);
@@ -145,19 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Función para registrar un nuevo usuario
   const register = async (name: string, email: string, password: string, role: UserRole) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: name,
-            role: role,
-          }
-        }
-      });
-
-      if (error) throw error;
-
+      await authApi.register(name, email, password, role);
       return;
     } catch (error: any) {
       toast.error("Error al registrarse", {
@@ -170,9 +144,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Función para cerrar sesión
   const logout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
+      await authApi.logout();
       // La sesión y el usuario se actualizarán automáticamente con el listener onAuthStateChange
     } catch (error: any) {
       console.error("Error al cerrar sesión:", error);

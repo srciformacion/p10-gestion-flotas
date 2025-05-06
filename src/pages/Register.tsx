@@ -11,6 +11,7 @@ import { toast } from "@/components/ui/sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { UserRole } from "@/types";
 import { handleError } from "@/utils/errorHandler";
+import { authApi } from "@/services/api/auth";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -41,11 +42,19 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      await register(name, email, password, role);
-      
-      toast.success("Registro exitoso", {
-        description: "Tu cuenta ha sido creada correctamente"
-      });
+      if (role === 'admin') {
+        // Para crear administradores, usamos la función específica
+        await authApi.createAdminUser(name, email, password);
+        toast.success("Administrador creado", {
+          description: "La cuenta de administrador ha sido creada correctamente"
+        });
+      } else {
+        // Para otros usuarios, usamos el registro normal
+        await register(name, email, password, role);
+        toast.success("Registro exitoso", {
+          description: "Tu cuenta ha sido creada correctamente"
+        });
+      }
       
       // En producción, podría redirigir a una página de verificación de email
       // Aquí asumimos registro inmediato
@@ -138,7 +147,6 @@ const Register = () => {
                       <RadioGroupItem value="ambulance" id="ambulance" />
                       <Label htmlFor="ambulance" className="cursor-pointer">Empresa de ambulancias</Label>
                     </div>
-                    {/* Normalmente no permitiríamos registrarse como admin, pero lo mantenemos para testing */}
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="admin" id="admin" />
                       <Label htmlFor="admin" className="cursor-pointer">Administrador</Label>

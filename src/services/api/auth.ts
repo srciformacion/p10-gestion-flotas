@@ -110,6 +110,7 @@ export const authApi = {
 
   register: async (name: string, email: string, password: string, role: UserRole): Promise<User> => {
     try {
+      console.log('[AUTH SERVICE] Registrando nuevo usuario:', email, 'con rol:', role);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -121,18 +122,38 @@ export const authApi = {
         }
       });
       
-      if (error) throw error;
-      if (!data.user) throw new Error('Error al crear usuario');
+      if (error) {
+        console.error('[AUTH SERVICE] Error en registro:', error);
+        throw error;
+      }
       
-      return {
+      if (!data.user) {
+        console.error('[AUTH SERVICE] Error al crear usuario');
+        throw new Error('Error al crear usuario');
+      }
+      
+      // Asegurarse de que el perfil se ha creado correctamente
+      // Aunque normalmente este proceso lo realiza la función de webhook handle_new_user
+      console.log('[AUTH SERVICE] Usuario creado con ID:', data.user.id);
+      
+      // Crear objeto de usuario para devolver
+      const user: User = {
         id: data.user.id,
         email: data.user.email || '',
         name,
         role
       };
+      
+      console.log('[AUTH SERVICE] Registro exitoso para usuario:', user);
+      return user;
     } catch (error) {
       console.error('[AUTH SERVICE] Error en registro:', error);
       throw error;
     }
+  },
+  
+  createAdminUser: async (name: string, email: string, password: string): Promise<User> => {
+    console.log('[AUTH SERVICE] Creando usuario administrador:', email);
+    return authApi.register(name, email, password, 'admin');
   }
 };
