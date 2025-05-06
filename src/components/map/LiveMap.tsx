@@ -7,8 +7,7 @@ import 'leaflet/dist/leaflet.css';
 
 import { useMapData } from "./hooks/useMapData";
 import { useLeafletMap } from "./hooks/useLeafletMap";
-import { MapLegend } from "./components/MapLegend";
-import { MapCounters } from "./components/MapCounters";
+import { MapLegend, MapCounters } from "./MapControls";
 import { createVehicleMarker } from "./components/VehicleMarker";
 import { createDestinationMarker } from "./components/DestinationMarker";
 
