@@ -36,11 +36,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setTimeout(async () => {
             try {
               // Obtener el perfil del usuario de la tabla profiles
+              // Corregimos la consulta para evitar error de tipo
               const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('role, full_name')
                 .eq('id', currentSession.user.id)
-                .single();
+                .maybeSingle(); // Usamos maybeSingle en lugar de single
               
               if (error) {
                 console.error('Error al cargar el perfil:', error);
@@ -56,7 +57,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 id: currentSession.user.id,
                 email: currentSession.user.email || '',
                 name: profile?.full_name || '',
-                role: profile?.role as UserRole
+                role: (profile?.role as UserRole) || 'individual' // Valor predeterminado si no hay rol
               });
             } catch (error) {
               console.error('Error al cargar el perfil:', error);
@@ -78,11 +79,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Si hay sesión, cargar datos del perfil
         if (currentSession?.user) {
           console.log('Sesión encontrada para:', currentSession.user.email);
+          // Corregimos la consulta para evitar error de tipo
           const { data: profile, error } = await supabase
             .from('profiles')
             .select('role, full_name')
             .eq('id', currentSession.user.id)
-            .single();
+            .maybeSingle(); // Usamos maybeSingle en lugar de single
           
           if (error) {
             console.error('Error al cargar perfil inicial:', error);
@@ -94,7 +96,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             id: currentSession.user.id,
             email: currentSession.user.email || '',
             name: profile?.full_name || '',
-            role: profile?.role as UserRole
+            role: (profile?.role as UserRole) || 'individual' // Valor predeterminado si no hay rol
           });
         } else {
           console.log('No se encontró sesión activa');

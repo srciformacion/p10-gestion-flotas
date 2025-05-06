@@ -23,8 +23,9 @@ export const supabase = createClient<Database>(
         'Content-Type': 'application/json'
       }
     },
+    // Quitamos persistSession de aquí ya que no es una propiedad válida en RealtimeClientOptions
     realtime: {
-      persistSession: true
+      // Sin persistSession aquí
     }
   }
 );

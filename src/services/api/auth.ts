@@ -1,3 +1,4 @@
+
 import { User, UserRole } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -25,11 +26,12 @@ export const authApi = {
       
       // Obtener el perfil completo del usuario
       console.log('[AUTH SERVICE] Obteniendo perfil para:', data.user.id);
+      // Corregimos la consulta para evitar error de tipo
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('role, full_name')
         .eq('id', data.user.id)
-        .single();
+        .maybeSingle(); // Usamos maybeSingle en lugar de single
       
       if (profileError) {
         console.error('[AUTH SERVICE] Error obteniendo perfil:', profileError);
@@ -45,7 +47,7 @@ export const authApi = {
         id: data.user.id,
         email: data.user.email || '',
         name: profile?.full_name || '',
-        role: profile?.role as UserRole
+        role: (profile?.role as UserRole) || 'individual' // Valor predeterminado si no hay rol
       };
       
       console.log('[AUTH SERVICE] Login exitoso para usuario:', user);
@@ -82,11 +84,12 @@ export const authApi = {
       
       // Obtener el perfil del usuario
       console.log('Obteniendo perfil para usuario activo:', data.session.user.id);
+      // Corregimos la consulta para evitar error de tipo
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('role, full_name')
         .eq('id', data.session.user.id)
-        .single();
+        .maybeSingle(); // Usamos maybeSingle en lugar de single
       
       if (error) {
         console.error('Error obteniendo perfil:', error);
@@ -97,7 +100,7 @@ export const authApi = {
         id: data.session.user.id,
         email: data.session.user.email || '',
         name: profile?.full_name || '',
-        role: profile?.role as UserRole
+        role: (profile?.role as UserRole) || 'individual' // Valor predeterminado si no hay rol
       };
     } catch (error) {
       console.error('Error getting current user:', error);
