@@ -46,7 +46,7 @@ export const handleLogin = async (
   email: string,
   password: string,
   loginAttemptCount: number,
-  setLoginAttemptCount: (count: number) => void,
+  setLoginAttemptCount: (count: number | ((prevCount: number) => number)) => void,
   setIsLoading: (loading: boolean) => void,
   setErrorMessage: (message: string | null) => void,
   setInfoMessage: (message: string | null) => void,
@@ -57,7 +57,7 @@ export const handleLogin = async (
   setIsLoading(true);
   setErrorMessage(null);
   setInfoMessage(null);
-  setLoginAttemptCount(prev => prev + 1);
+  setLoginAttemptCount(prevCount => prevCount + 1);
   
   if (!email || !password) {
     setErrorMessage("Por favor ingresa tu email y contraseña");
