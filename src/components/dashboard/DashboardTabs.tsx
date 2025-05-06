@@ -66,7 +66,7 @@ export const DashboardTabs = ({ user, requests, totalRequestsCount }: DashboardT
         <TabsTrigger value="overview">Resumen</TabsTrigger>
         <TabsTrigger value="requests">Solicitudes</TabsTrigger>
         {user.role === 'ambulance' && <TabsTrigger value="vehicles">Vehículos</TabsTrigger>}
-        {user.role === 'admin' && <TabsTrigger value="admin">Administración</TabsTrigger>}
+        {(user.role === 'admin' || user.role === 'ambulance') && <TabsTrigger value="admin">Administración</TabsTrigger>}
       </TabsList>
       
       <TabsContent value="overview" className="space-y-4">
@@ -93,7 +93,7 @@ export const DashboardTabs = ({ user, requests, totalRequestsCount }: DashboardT
         </TabsContent>
       )}
       
-      {user.role === 'admin' && (
+      {(user.role === 'admin' || user.role === 'ambulance') && (
         <TabsContent value="admin">
           <AdminTab />
         </TabsContent>
