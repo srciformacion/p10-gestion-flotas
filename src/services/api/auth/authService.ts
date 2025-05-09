@@ -1,7 +1,11 @@
 
 import { User, UserRole } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
+import { AuthResponse, LoginCredentials, RegisterData } from './types';
 
+/**
+ * Core authentication service for user login
+ */
 export const authApi = {
   login: async (email: string, password: string): Promise<User> => {
     try {
@@ -26,12 +30,11 @@ export const authApi = {
       
       // Obtener el perfil completo del usuario
       console.log('[AUTH SERVICE] Obteniendo perfil para:', data.user.id);
-      // Corregimos la consulta para evitar error de tipo
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('role, full_name')
         .eq('id', data.user.id)
-        .maybeSingle(); // Usamos maybeSingle en lugar de single
+        .maybeSingle();
       
       if (profileError) {
         console.error('[AUTH SERVICE] Error obteniendo perfil:', profileError);
@@ -84,12 +87,11 @@ export const authApi = {
       
       // Obtener el perfil del usuario
       console.log('Obteniendo perfil para usuario activo:', data.session.user.id);
-      // Corregimos la consulta para evitar error de tipo
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('role, full_name')
         .eq('id', data.session.user.id)
-        .maybeSingle(); // Usamos maybeSingle en lugar de single
+        .maybeSingle();
       
       if (error) {
         console.error('Error obteniendo perfil:', error);

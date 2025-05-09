@@ -1,6 +1,6 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/auth';
 import { RequestsProvider } from './context/requests';
 import { ChatProvider } from './context/ChatContext';
 import { NotificationsWrapper } from './components/notifications/NotificationsProvider';
