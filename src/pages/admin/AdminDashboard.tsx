@@ -1,11 +1,10 @@
-
 import { Navbar } from "@/components/Navbar";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Users, FileText, Settings, Ambulance, BarChart, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
 
 const AdminDashboard = () => {
   const { user } = useAuth();

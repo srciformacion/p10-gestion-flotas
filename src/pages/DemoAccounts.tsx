@@ -1,9 +1,8 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
 import { UserRole } from "@/types";
 import { toast } from "@/components/ui/sonner";
 

@@ -1,5 +1,4 @@
-
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
 import { Navigate, useLocation } from "react-router-dom";
 import { UserRole } from "@/types";
 import { toast } from "@/components/ui/sonner";
