@@ -1,12 +1,21 @@
 
-import { Ambulance } from "lucide-react";
-import { Link } from "react-router-dom";
+import React from "react";
 
-export const Logo = () => {
+interface LogoProps {
+  minimal?: boolean;
+}
+
+export const Logo: React.FC<LogoProps> = ({ minimal = false }) => {
   return (
-    <Link to="/" className="flex items-center gap-2 text-primary-blue">
-      <Ambulance className="h-6 w-6" />
-      <span className="font-heading font-bold text-lg text-justify">App-P10</span>
-    </Link>
+    <div className="flex items-center">
+      <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center text-white font-bold text-lg">
+        A
+      </div>
+      {!minimal && (
+        <span className="ml-2 text-lg font-medium text-gray-800">
+          AmbulLink
+        </span>
+      )}
+    </div>
   );
 };

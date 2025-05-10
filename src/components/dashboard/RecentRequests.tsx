@@ -5,9 +5,17 @@ import { RequestCard } from "@/components/requests/RequestCard";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { EmptyState } from "@/components/requests/EmptyState";
+import { TransportRequest } from "@/types";
 
-export const RecentRequests = () => {
-  const { requests } = useRequests();
+interface RecentRequestsProps {
+  requests?: TransportRequest[];
+}
+
+export const RecentRequests = ({ requests: propRequests }: RecentRequestsProps) => {
+  const { requests: contextRequests } = useRequests();
+  
+  // Use requests from props if provided, otherwise use from context
+  const requests = propRequests || contextRequests;
   
   // Obtener las solicitudes más recientes (últimas 3)
   const recentRequests = [...requests]

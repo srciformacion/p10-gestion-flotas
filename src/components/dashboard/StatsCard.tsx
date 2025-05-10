@@ -9,9 +9,10 @@ interface StatsCardProps {
   description: string;
   icon: LucideIcon;
   className?: string;
+  iconClassName?: string;
 }
 
-export const StatsCard = ({ title, value, description, icon: Icon, className }: StatsCardProps) => {
+export const StatsCard = ({ title, value, description, icon: Icon, className, iconClassName }: StatsCardProps) => {
   return (
     <Card className={cn("overflow-hidden", className)}>
       <CardContent className="p-6">
@@ -21,8 +22,8 @@ export const StatsCard = ({ title, value, description, icon: Icon, className }: 
             <h3 className="text-2xl font-bold mt-1">{value}</h3>
             <p className="text-xs text-muted-foreground mt-1">{description}</p>
           </div>
-          <div className="bg-primary/10 p-3 rounded-full">
-            <Icon className="h-6 w-6 text-primary" />
+          <div className={cn("bg-primary/10 p-3 rounded-full", iconClassName)}>
+            <Icon className={cn("h-6 w-6 text-primary", iconClassName ? "text-inherit" : "")} />
           </div>
         </div>
       </CardContent>
