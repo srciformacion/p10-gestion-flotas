@@ -72,6 +72,10 @@ export const simulateDemoLogin = (setUser: (user: User) => void, setSession: (se
       // @ts-ignore - Ignore type error for simulated session
       setSession(mockSession);
       
+      toast.success(`Sesión iniciada como ${role}`, {
+        description: "Acceso a demostración habilitado"
+      });
+      
       return;
     } catch (error) {
       console.error("Error simulating login:", error);

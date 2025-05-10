@@ -1,10 +1,13 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+
+import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth";
 import { UserRole } from "@/types";
 import { toast } from "@/components/ui/sonner";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { ArrowLeft } from "lucide-react";
 
 interface DemoAccount {
   email: string;
@@ -59,6 +62,8 @@ const DemoAccounts = () => {
       setTimeout(() => {
         if (account.role === "admin") {
           navigate("/admin/dashboard", { replace: true });
+        } else if (account.role === "individual") {
+          navigate("/solicitudes", { replace: true });
         } else {
           navigate("/dashboard", { replace: true });
         }
@@ -73,17 +78,20 @@ const DemoAccounts = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-white shadow-sm border-b py-4">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">AmbulLink Demo</h1>
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Navbar variant="default" />
       
       <main className="flex-grow p-4 md:p-6 container mx-auto max-w-4xl">
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Cuentas de demostración</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Cuentas de demostración</CardTitle>
+              <Button variant="ghost" size="icon" asChild className="rounded-full">
+                <Link to="/">
+                  <ArrowLeft className="h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
             <CardDescription>
               Selecciona un tipo de usuario para probar las diferentes funcionalidades del sistema
             </CardDescription>
@@ -126,16 +134,15 @@ const DemoAccounts = () => {
               ))}
             </div>
           </CardContent>
-          <CardFooter className="border-t pt-4 flex justify-between">
+          <CardFooter className="border-t pt-4 flex justify-center">
             <Button variant="outline" onClick={() => navigate("/")}>
               Volver al inicio
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/demo")}>
-              Ver demo sin iniciar sesión
             </Button>
           </CardFooter>
         </Card>
       </main>
+      
+      <Footer />
     </div>
   );
 };

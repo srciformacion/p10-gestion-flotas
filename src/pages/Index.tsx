@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { useAuth } from "@/context/auth";
 import { ArrowRight, LogIn, UserRound } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
@@ -15,7 +16,15 @@ const Index = () => {
     try {
       toast.info(`Iniciando sesión como ${role}...`);
       await simulateDemoLogin(role);
-      navigate("/dashboard", { replace: true });
+      
+      // Redirección según el rol
+      if (role === "admin") {
+        navigate("/admin/dashboard", { replace: true });
+      } else if (role === "individual") {
+        navigate("/solicitudes", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     } catch (error) {
       console.error("Error en la demostración:", error);
       toast.error("No se pudo iniciar la sesión de demostración");
@@ -38,7 +47,7 @@ const Index = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
             <div className="space-y-6">
               <Button 
-                className="w-full h-14 text-base justify-between font-medium"
+                className="w-full h-12 text-base justify-between font-medium"
                 onClick={() => navigate("/login")}
               >
                 <span className="flex items-center">
@@ -88,10 +97,18 @@ const Index = () => {
                   Ambulancias
                 </Button>
               </div>
+
+              <div className="text-center mt-4">
+                <Link to="/demo-accounts" className="text-sm text-primary hover:underline">
+                  Ver todas las cuentas de demostración
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 };

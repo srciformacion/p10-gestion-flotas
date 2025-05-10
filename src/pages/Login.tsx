@@ -3,10 +3,10 @@ import { useState } from "react";
 import { useAuth } from "@/context/auth";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/sonner";
 import { ArrowLeft } from "lucide-react";
 
 const Login = () => {
@@ -40,7 +40,7 @@ const Login = () => {
           </CardContent>
           
           <CardFooter className="flex flex-col space-y-4 border-t pt-4">
-            <Link to="/demo-accounts" className="text-center text-sm text-muted-foreground hover:underline">
+            <Link to="/demo-accounts" className="text-center text-sm text-primary hover:underline">
               Ver todas las cuentas de demostración
             </Link>
             
@@ -55,6 +55,7 @@ const Login = () => {
           </CardFooter>
         </Card>
       </main>
+      <Footer />
     </div>
   );
 };
