@@ -27,32 +27,27 @@ export const AppSidebarV2 = () => {
   if (!mounted || !user) return null;
 
   return (
-    <Sidebar className="bg-white border-r">
+    <Sidebar className="bg-white border-r shadow-sm">
       <SidebarHeader className="border-b py-3">
         <div className={cn(
-          "flex items-center px-2", 
+          "flex items-center px-4", 
           collapsed ? "justify-center" : "justify-start"
         )}>
           <Logo minimal={collapsed} />
-          {!collapsed && (
-            <span className="ml-2 text-lg font-medium text-gray-800">
-              AmbulLink
-            </span>
-          )}
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="px-3 py-4">
+      <SidebarContent className="px-3 py-6">
         <MainNavigation collapsed={collapsed} />
       </SidebarContent>
       
-      <SidebarFooter className="border-t py-3 px-3">
+      <SidebarFooter className="border-t py-3 px-3 mt-auto">
         <Button 
           variant="ghost" 
           onClick={logout} 
           className={cn(
             "w-full flex items-center text-red-600 hover:text-red-700 hover:bg-red-50",
-            collapsed ? "justify-center" : "justify-start"
+            collapsed ? "justify-center px-2" : "justify-start"
           )}
         >
           <LogOut className="h-5 w-5" />

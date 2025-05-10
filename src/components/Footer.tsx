@@ -1,45 +1,76 @@
 
+import React from "react";
+import { Link } from "react-router-dom";
 import { Logo } from "./Logo";
 
-export const Footer = () => {
+export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="bg-white border-t border-gray-200">
-      <div className="container mx-auto py-8 px-4 md:px-6">
+    <footer className="bg-gray-50 border-t">
+      <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center mb-4">
+            <Link to="/" className="inline-block mb-4">
               <Logo />
-              <span className="ml-2 text-lg font-medium text-gray-800">
-                AmbulLink
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground max-w-md">
-              Sistema integral para la gestión eficiente de traslados sanitarios, conectando hospitales, pacientes y servicios de ambulancias.
+            </Link>
+            <p className="text-gray-600 mb-4 max-w-md">
+              AmbulLink es la plataforma integral para la gestión de traslados sanitarios, conectando centros médicos con servicios de ambulancias.
             </p>
-            <p className="text-sm text-muted-foreground mt-4">
-              © {currentYear} AmbulLink - Todos los derechos reservados
+            <p className="text-sm text-gray-500">
+              © {currentYear} AmbulLink. Todos los derechos reservados.
             </p>
           </div>
           
           <div>
-            <h3 className="font-medium text-gray-900 mb-4">Navegación</h3>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Enlaces rápidos</h3>
             <ul className="space-y-2">
-              <li><a href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">Inicio</a></li>
-              <li><a href="/login" className="text-sm text-muted-foreground hover:text-primary transition-colors">Iniciar Sesión</a></li>
-              <li><a href="/registro" className="text-sm text-muted-foreground hover:text-primary transition-colors">Registrarse</a></li>
-              <li><a href="/demo" className="text-sm text-muted-foreground hover:text-primary transition-colors">Demostración</a></li>
+              <li>
+                <Link to="/" className="text-gray-600 hover:text-primary">
+                  Inicio
+                </Link>
+              </li>
+              <li>
+                <Link to="/solicitudes" className="text-gray-600 hover:text-primary">
+                  Solicitudes
+                </Link>
+              </li>
+              <li>
+                <Link to="/solicitud" className="text-gray-600 hover:text-primary">
+                  Nueva solicitud
+                </Link>
+              </li>
+              <li>
+                <Link to="/perfil" className="text-gray-600 hover:text-primary">
+                  Mi perfil
+                </Link>
+              </li>
             </ul>
           </div>
           
           <div>
-            <h3 className="font-medium text-gray-900 mb-4">Legal</h3>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Recursos</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Términos y Condiciones</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Política de Privacidad</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Aviso Legal</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contacto</a></li>
+              <li>
+                <Link to="/demo-accounts" className="text-gray-600 hover:text-primary">
+                  Cuentas de demostración
+                </Link>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-primary">
+                  Documentación
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-primary">
+                  Soporte técnico
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-primary">
+                  Política de privacidad
+                </a>
+              </li>
             </ul>
           </div>
         </div>

@@ -1,96 +1,259 @@
 
-import React from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import { useAuth } from "@/context/auth";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   FileText, 
-  Ambulance, 
-  MapPin, 
   Users, 
-  Settings,
-  Building, 
-  PlusCircle
+  Ambulance, 
+  Settings, 
+  User,
+  MessageSquare,
+  Bell,
+  Plus
 } from "lucide-react";
-
 import { cn } from "@/lib/utils";
-import { SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem
+} from "@/components/ui/sidebar";
+import { useAuth } from "@/context/auth";
 
-interface NavItemProps {
-  to: string;
-  icon: React.ElementType;
-  label: string;
-  collapsed?: boolean;
-  end?: boolean;
-}
-
-const NavItem = ({ to, icon: Icon, label, collapsed = false, end = false }: NavItemProps) => {
+export const MainNavigation = ({ collapsed }: { collapsed: boolean }) => {
   const location = useLocation();
-  const isActive = end 
-    ? location.pathname === to 
-    : location.pathname.startsWith(to);
-
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        asChild
-        isActive={isActive}
-      >
-        <NavLink 
-          to={to} 
-          className={cn(
-            "flex items-center gap-2 w-full",
-            isActive ? "font-medium" : "text-muted-foreground"
-          )}
-        >
-          <Icon className="w-5 h-5" />
-          {!collapsed && <span>{label}</span>}
-        </NavLink>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  );
-};
-
-interface MainNavigationProps {
-  collapsed?: boolean;
-}
-
-export const MainNavigation = ({ collapsed = false }: MainNavigationProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   
+  // No render if no user
   if (!user) return null;
   
-  const isAdmin = user.role === "admin";
-  const isAmbulance = user.role === "ambulance";
-  const isHospital = user.role === "hospital";
-  const isIndividual = user.role === "individual";
-  const canCreateRequest = isHospital || isIndividual;
+  // Generate path checking function
+  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
+
+  // Role-based access control for menu items
+  const isAdmin = user.role === 'admin';
+  const isHospital = user.role === 'hospital';
+  const isIndividual = user.role === 'individual';
+  const isAmbulance = user.role === 'ambulance';
+  const canCreateRequest = isHospital || isIndividual || isAdmin;
+  const canCreateAdvancedRequest = isHospital || isAdmin;
 
   return (
-    <div className="flex flex-col gap-1">
-      <NavItem to="/dashboard" icon={LayoutDashboard} label="Panel principal" collapsed={collapsed} end />
-      
+    <SidebarMenu>
+      {/* Dashboard */}
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild 
+          isActive={isActive('/dashboard')}
+          tooltip={collapsed ? "Dashboard" : undefined}
+        >
+          <Link to="/dashboard" className={cn(
+            "flex items-center",
+            isActive('/dashboard') ? "text-primary font-medium" : "text-gray-600"
+          )}>
+            <LayoutDashboard className="h-5 w-5" />
+            {!collapsed && <span className="ml-3">Dashboard</span>}
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+
+      {/* Solicitudes */}
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild 
+          isActive={isActive('/solicitudes')}
+          tooltip={collapsed ? "Solicitudes" : undefined}
+        >
+          <Link to="/solicitudes" className={cn(
+            "flex items-center",
+            isActive('/solicitudes') ? "text-primary font-medium" : "text-gray-600"
+          )}>
+            <FileText className="h-5 w-5" />
+            {!collapsed && <span className="ml-3">Solicitudes</span>}
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+
+      {/* Nueva Solicitud - Solo para hospital, individual y admin */}
       {canCreateRequest && (
-        <NavItem to="/solicitud" icon={PlusCircle} label="Nueva solicitud" collapsed={collapsed} />
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            asChild 
+            isActive={isActive('/solicitud')}
+            tooltip={collapsed ? "Nueva Solicitud" : undefined}
+          >
+            <Link to="/solicitud" className={cn(
+              "flex items-center",
+              isActive('/solicitud') ? "text-primary font-medium" : "text-gray-600"
+            )}>
+              <Plus className="h-5 w-5" />
+              {!collapsed && <span className="ml-3">Nueva Solicitud</span>}
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       )}
-      
-      <NavItem to="/solicitudes" icon={FileText} label="Solicitudes" collapsed={collapsed} />
-      
-      {isAmbulance && (
-        <NavItem to="/ambulance-tracking" icon={MapPin} label="Seguimiento" collapsed={collapsed} />
+
+      {/* Solicitud Avanzada - Solo para hospital y admin */}
+      {canCreateAdvancedRequest && (
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            asChild 
+            isActive={isActive('/solicitud-avanzada')}
+            tooltip={collapsed ? "Solicitud Avanzada" : undefined}
+          >
+            <Link to="/solicitud-avanzada" className={cn(
+              "flex items-center",
+              isActive('/solicitud-avanzada') ? "text-primary font-medium" : "text-gray-600"
+            )}>
+              <Plus className="h-5 w-5" />
+              {!collapsed && <span className="ml-3">Solicitud Avanzada</span>}
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       )}
-      
-      {isAdmin && (
+
+      {/* Mensajes */}
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild 
+          isActive={isActive('/mensajes')}
+          tooltip={collapsed ? "Mensajes" : undefined}
+        >
+          <Link to="/mensajes" className={cn(
+            "flex items-center",
+            isActive('/mensajes') ? "text-primary font-medium" : "text-gray-600"
+          )}>
+            <MessageSquare className="h-5 w-5" />
+            {!collapsed && <span className="ml-3">Mensajes</span>}
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+
+      {/* Sección de Administración - Solo para admin y empresas de ambulancias */}
+      {(isAdmin || isAmbulance) && (
         <>
-          <NavItem to="/admin/dashboard" icon={LayoutDashboard} label="Panel admin" collapsed={collapsed} />
-          <NavItem to="/admin/empresas" icon={Building} label="Empresas" collapsed={collapsed} />
-          <NavItem to="/admin/usuarios" icon={Users} label="Usuarios" collapsed={collapsed} />
-          <NavItem to="/admin/solicitudes" icon={FileText} label="Solicitudes" collapsed={collapsed} />
-          <NavItem to="/admin/vehiculos" icon={Ambulance} label="Vehículos" collapsed={collapsed} />
-          <NavItem to="/admin/tracking" icon={MapPin} label="Seguimiento GPS" collapsed={collapsed} />
-          <NavItem to="/admin/configuracion" icon={Settings} label="Configuración" collapsed={collapsed} />
+          <div className="mt-6 mb-2 px-3">
+            {!collapsed && (
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                Administración
+              </h3>
+            )}
+            {collapsed && <hr className="border-t border-gray-200" />}
+          </div>
+
+          {/* Admin Dashboard */}
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton 
+                asChild 
+                isActive={isActive('/admin/dashboard')}
+                tooltip={collapsed ? "Panel de Admin" : undefined}
+              >
+                <Link to="/admin/dashboard" className={cn(
+                  "flex items-center",
+                  isActive('/admin/dashboard') ? "text-primary font-medium" : "text-gray-600"
+                )}>
+                  <LayoutDashboard className="h-5 w-5" />
+                  {!collapsed && <span className="ml-3">Panel de Admin</span>}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+
+          {/* Gestión de Usuarios - Solo admin */}
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton 
+                asChild 
+                isActive={isActive('/admin/usuarios')}
+                tooltip={collapsed ? "Usuarios" : undefined}
+              >
+                <Link to="/admin/usuarios" className={cn(
+                  "flex items-center",
+                  isActive('/admin/usuarios') ? "text-primary font-medium" : "text-gray-600"
+                )}>
+                  <Users className="h-5 w-5" />
+                  {!collapsed && <span className="ml-3">Usuarios</span>}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+
+          {/* Vehículos - Admin y empresas de ambulancias */}
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              isActive={isActive('/admin/vehiculos') || isActive('/vehiculos')}
+              tooltip={collapsed ? "Vehículos" : undefined}
+            >
+              <Link to={isAdmin ? "/admin/vehiculos" : "/vehiculos"} className={cn(
+                "flex items-center",
+                (isActive('/admin/vehiculos') || isActive('/vehiculos')) ? "text-primary font-medium" : "text-gray-600"
+              )}>
+                <Ambulance className="h-5 w-5" />
+                {!collapsed && <span className="ml-3">Vehículos</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {/* Seguimiento - Admin y empresas de ambulancias */}
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              isActive={isActive('/admin/tracking') || isActive('/seguimiento')}
+              tooltip={collapsed ? "Seguimiento" : undefined}
+            >
+              <Link to={isAdmin ? "/admin/tracking" : "/seguimiento"} className={cn(
+                "flex items-center",
+                (isActive('/admin/tracking') || isActive('/seguimiento')) ? "text-primary font-medium" : "text-gray-600"
+              )}>
+                <Bell className="h-5 w-5" />
+                {!collapsed && <span className="ml-3">Seguimiento</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </>
       )}
-    </div>
+
+      {/* Perfil de usuario */}
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild 
+          isActive={isActive('/perfil')}
+          tooltip={collapsed ? "Mi Perfil" : undefined}
+        >
+          <Link to="/perfil" className={cn(
+            "flex items-center",
+            isActive('/perfil') ? "text-primary font-medium" : "text-gray-600"
+          )}>
+            <User className="h-5 w-5" />
+            {!collapsed && <span className="ml-3">Mi Perfil</span>}
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      
+      {/* Configuración - Solo admin */}
+      {isAdmin && (
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            asChild 
+            isActive={isActive('/admin/configuracion')}
+            tooltip={collapsed ? "Configuración" : undefined}
+          >
+            <Link to="/admin/configuracion" className={cn(
+              "flex items-center",
+              isActive('/admin/configuracion') ? "text-primary font-medium" : "text-gray-600"
+            )}>
+              <Settings className="h-5 w-5" />
+              {!collapsed && <span className="ml-3">Configuración</span>}
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      )}
+    </SidebarMenu>
   );
 };

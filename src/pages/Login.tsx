@@ -13,7 +13,8 @@ import {
   Building, 
   UserCircle, 
   Ambulance,
-  LogIn
+  LogIn,
+  ArrowRight
 } from "lucide-react";
 
 const Login = () => {
@@ -62,65 +63,77 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
-      <main className="flex-grow flex">
-        <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-corporate-green to-corporate-green-dark items-center justify-center p-12">
-          <div className="max-w-md text-white">
+      <main className="flex-grow flex flex-col md:flex-row">
+        <div className="flex flex-col justify-center p-6 md:p-12 md:w-1/2 bg-gradient-to-br from-[#78BE20] to-[#62A01A]">
+          <div className="max-w-md mx-auto text-white">
             <h1 className="text-3xl font-bold mb-6">Bienvenido a AmbulLink</h1>
-            <p className="text-lg mb-8">La plataforma de gestión de traslados sanitarios para profesionales del sector.</p>
+            <p className="text-lg mb-8">La plataforma de gestión de traslados sanitarios diseñada para profesionales del sector.</p>
             
-            <div className="border border-white/30 bg-white/10 backdrop-blur-sm rounded-lg p-6 space-y-6">
-              <h2 className="text-xl font-medium">Acceso rápido en modo demo</h2>
-              <p className="text-sm opacity-80">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 space-y-6">
+              <h2 className="text-xl font-medium">Acceso rápido</h2>
+              <p className="text-sm opacity-90">
                 Prueba la plataforma con nuestras cuentas de demostración para conocer todas las funcionalidades.
               </p>
               
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-3">
                 <Button 
-                  variant="secondary"
-                  className="flex items-center justify-center gap-2 bg-white text-corporate-green hover:bg-gray-100"
+                  variant="outline"
+                  className="w-full flex items-center justify-between gap-2 bg-white text-emerald-700 hover:bg-gray-100 border-transparent"
                   onClick={() => handleQuickLogin("admin")}
                   disabled={isLoading}
                 >
-                  <User className="h-4 w-4" />
-                  <span>Admin</span>
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    <span className="font-medium">Administrador</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 opacity-70" />
                 </Button>
                 <Button 
-                  variant="secondary"
-                  className="flex items-center justify-center gap-2 bg-white text-corporate-green hover:bg-gray-100"
+                  variant="outline"
+                  className="w-full flex items-center justify-between gap-2 bg-white text-blue-700 hover:bg-gray-100 border-transparent"
                   onClick={() => handleQuickLogin("hospital")}
                   disabled={isLoading}
                 >
-                  <Building className="h-4 w-4" />
-                  <span>Hospital</span>
+                  <div className="flex items-center gap-2">
+                    <Building className="h-4 w-4" />
+                    <span className="font-medium">Centro médico</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 opacity-70" />
                 </Button>
                 <Button 
-                  variant="secondary"
-                  className="flex items-center justify-center gap-2 bg-white text-corporate-green hover:bg-gray-100"
+                  variant="outline"
+                  className="w-full flex items-center justify-between gap-2 bg-white text-indigo-700 hover:bg-gray-100 border-transparent"
                   onClick={() => handleQuickLogin("individual")}
                   disabled={isLoading}
                 >
-                  <UserCircle className="h-4 w-4" />
-                  <span>Paciente</span>
+                  <div className="flex items-center gap-2">
+                    <UserCircle className="h-4 w-4" />
+                    <span className="font-medium">Paciente</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 opacity-70" />
                 </Button>
                 <Button 
-                  variant="secondary"
-                  className="flex items-center justify-center gap-2 bg-white text-corporate-green hover:bg-gray-100"
+                  variant="outline"
+                  className="w-full flex items-center justify-between gap-2 bg-white text-orange-700 hover:bg-gray-100 border-transparent"
                   onClick={() => handleQuickLogin("ambulance")}
                   disabled={isLoading}
                 >
-                  <Ambulance className="h-4 w-4" />
-                  <span>Ambulancia</span>
+                  <div className="flex items-center gap-2">
+                    <Ambulance className="h-4 w-4" />
+                    <span className="font-medium">Servicio de ambulancias</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 opacity-70" />
                 </Button>
               </div>
             </div>
           </div>
         </div>
         
-        <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-12">
-          <Card className="w-full max-w-md">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center">Iniciar sesión</CardTitle>
-              <CardDescription className="text-center">
+        <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-12 bg-white">
+          <Card className="w-full max-w-md border shadow-md">
+            <CardHeader className="space-y-1 text-center">
+              <CardTitle className="text-2xl">Iniciar sesión</CardTitle>
+              <CardDescription>
                 Ingresa tus credenciales para acceder a AmbulLink
               </CardDescription>
             </CardHeader>

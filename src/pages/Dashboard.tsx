@@ -9,6 +9,7 @@ import { useRequests } from "@/context/requests";
 import { Welcome } from "@/components/dashboard/Welcome";
 import { RecentRequests } from "@/components/dashboard/RecentRequests";
 import { Layout } from "@/components/Layout";
+import { DashboardActions } from "@/components/dashboard/DashboardActions";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -26,11 +27,20 @@ const Dashboard = () => {
   return (
     <RequireAuth>
       <Layout>
-        <div className="p-4 md:p-6 bg-gray-50">
-          <div className="max-w-7xl mx-auto">
+        <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
+          <div className="max-w-7xl mx-auto space-y-6">
             <Welcome name={user.name} />
             <DashboardCards user={user} requests={requests} />
-            <RecentRequests requests={requests} />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <RecentRequests requests={requests} />
+              </div>
+              <div className="lg:col-span-1">
+                <DashboardActions user={user} />
+              </div>
+            </div>
+            
             <DashboardTabs 
               user={user} 
               requests={requests} 
