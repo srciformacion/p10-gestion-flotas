@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { ServiceType, TripType, TransportType } from "@/types";
+import { useAuth } from "@/context/auth";
+import { ServiceType, TripType, TransportType } from '@/types';
 import { useCreateRequest } from "@/hooks/useCreateRequest";
 
 export const useRequestForm = () => {

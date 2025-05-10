@@ -1,4 +1,8 @@
-
+import React from 'react';
+import { Navbar } from "@/components/Navbar";
+import { LandingHero } from "@/components/LandingHero";
+import { Footer } from "@/components/Footer";
+import { useAuth } from "@/context/auth";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 

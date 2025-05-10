@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useChat } from '@/context/ChatContext';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth';
 import { ChatMessage } from './ChatMessage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

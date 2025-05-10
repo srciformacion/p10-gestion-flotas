@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
+import { DashboardCards } from "@/components/dashboard/DashboardCards";
+import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
+import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/context/auth";
 import { useRequests } from "@/context/requests";
-import { useNavigate } from "react-router-dom";
-import { RequireAuth } from "@/components/RequireAuth";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
+import { Welcome } from "@/components/dashboard/Welcome";
+import { RecentRequests } from "@/components/dashboard/RecentRequests";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -26,7 +27,9 @@ const Dashboard = () => {
         <Navbar />
         <main className="flex-grow p-4 md:p-6">
           <div className="max-w-7xl mx-auto">
-            <DashboardHeader user={user} />
+            <Welcome name={user.name} />
+            <DashboardCards user={user} requests={requests} />
+            <RecentRequests requests={requests} />
             <DashboardTabs 
               user={user} 
               requests={requests} 

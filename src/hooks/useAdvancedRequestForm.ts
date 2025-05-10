@@ -1,7 +1,6 @@
-
 import { useState, useEffect, useCallback } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { ServiceType, TripType, TransportType, RecurrenceType } from "@/types";
+import { useAuth } from "@/context/auth";
+import { ServiceType, TripType, TransportType, RecurrenceType } from '@/types';
 import { useRequests } from "@/context/requests";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
