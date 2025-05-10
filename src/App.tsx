@@ -6,6 +6,7 @@ import { ChatProvider } from './context/ChatContext';
 import { NotificationsWrapper } from './components/notifications/NotificationsProvider';
 import { ChatInterface } from './components/ChatInterface';
 import { Toaster } from './components/ui/toaster';
+import { Layout } from './components/Layout';
 
 import Index from './pages/Index';
 import Login from './pages/Login';
@@ -38,6 +39,14 @@ import VehicleTracking from './pages/admin/VehicleTracking';
 import './App.css';
 
 function App() {
+  const renderWithLayout = (component: React.ReactNode, showSidebar = true, showFooter = true) => {
+    return (
+      <Layout showSidebar={showSidebar} showFooter={showFooter}>
+        {component}
+      </Layout>
+    );
+  };
+
   return (
     <BrowserRouter>
       <AuthProvider>
@@ -45,6 +54,7 @@ function App() {
           <RequestsProvider>
             <ChatProvider>
               <Routes>
+                {/* Public routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/registro" element={<Register />} />
@@ -53,28 +63,28 @@ function App() {
                 <Route path="/demo" element={<Demo />} />
                 <Route path="/demo-accounts" element={<DemoAccounts />} />
                 
-                {/* Dashboard and user routes */}
+                {/* User routes with layout */}
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/solicitud" element={<NewRequest />} />
-                <Route path="/solicitud-avanzada" element={<NewAdvancedRequest />} />
-                <Route path="/solicitudes" element={<RequestList />} />
-                <Route path="/solicitudes/:id" element={<RequestDetail />} />
-                <Route path="/seguimiento/:requestId" element={<AmbulanceTracking />} />
-                <Route path="/ambulance-tracking/:requestId" element={<AmbulanceTracking />} /> {/* Add this alias route */}
-                <Route path="/perfil" element={<Profile />} />
-                <Route path="/mensajes" element={<ChatPage />} />
-                <Route path="/mensajes/:id" element={<ChatPage />} />
+                <Route path="/solicitud" element={renderWithLayout(<NewRequest />)} />
+                <Route path="/solicitud-avanzada" element={renderWithLayout(<NewAdvancedRequest />)} />
+                <Route path="/solicitudes" element={renderWithLayout(<RequestList />)} />
+                <Route path="/solicitudes/:id" element={renderWithLayout(<RequestDetail />)} />
+                <Route path="/seguimiento/:requestId" element={renderWithLayout(<AmbulanceTracking />)} />
+                <Route path="/ambulance-tracking/:requestId" element={renderWithLayout(<AmbulanceTracking />)} />
+                <Route path="/perfil" element={renderWithLayout(<Profile />)} />
+                <Route path="/mensajes" element={renderWithLayout(<ChatPage />)} />
+                <Route path="/mensajes/:id" element={renderWithLayout(<ChatPage />)} />
                 
-                {/* Admin routes */}
+                {/* Admin routes with layout */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/empresas" element={<AdminCompanies />} />
-                <Route path="/admin/usuarios" element={<AdminUsers />} />
-                <Route path="/admin/solicitudes" element={<AdminRequests />} />
-                <Route path="/admin/vehiculos" element={<AdminVehicles />} />
-                <Route path="/admin/tracking" element={<VehicleTracking />} />
-                <Route path="/admin/bi" element={<BiDashboard />} />
-                <Route path="/admin/configuracion" element={<AdminSettings />} />
+                <Route path="/admin/dashboard" element={renderWithLayout(<AdminDashboard />)} />
+                <Route path="/admin/empresas" element={renderWithLayout(<AdminCompanies />)} />
+                <Route path="/admin/usuarios" element={renderWithLayout(<AdminUsers />)} />
+                <Route path="/admin/solicitudes" element={renderWithLayout(<AdminRequests />)} />
+                <Route path="/admin/vehiculos" element={renderWithLayout(<AdminVehicles />)} />
+                <Route path="/admin/tracking" element={renderWithLayout(<VehicleTracking />)} />
+                <Route path="/admin/bi" element={renderWithLayout(<BiDashboard />)} />
+                <Route path="/admin/configuracion" element={renderWithLayout(<AdminSettings />)} />
                 
                 <Route path="/acceso-denegado" element={<AccessDenied />} />
                 <Route path="*" element={<NotFound />} />
