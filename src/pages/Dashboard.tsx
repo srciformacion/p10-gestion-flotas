@@ -26,7 +26,7 @@ const Dashboard = () => {
   return (
     <RequireAuth>
       <Layout>
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 bg-gray-50">
           <div className="max-w-7xl mx-auto">
             <Welcome name={user.name} />
             <DashboardCards user={user} requests={requests} />

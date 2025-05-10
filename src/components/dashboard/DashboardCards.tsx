@@ -22,7 +22,7 @@ export const DashboardCards = ({ user, requests }: DashboardCardsProps) => {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
       <StatsCard 
         title="Solicitudes Pendientes" 
-        value={pendingRequestsCount.toString()} 
+        value={pendingRequestsCount} 
         description="En espera de asignación"
         icon={Calendar}
         className="bg-white border-l-4 border-status-pending"
@@ -30,7 +30,7 @@ export const DashboardCards = ({ user, requests }: DashboardCardsProps) => {
       
       <StatsCard 
         title="Asignadas" 
-        value={assignedRequestsCount.toString()} 
+        value={assignedRequestsCount} 
         description="Vehículos asignados"
         icon={Ambulance}
         className="bg-white border-l-4 border-status-assigned"
@@ -38,7 +38,7 @@ export const DashboardCards = ({ user, requests }: DashboardCardsProps) => {
       
       <StatsCard 
         title="En Ruta" 
-        value={inProgressRequestsCount.toString()} 
+        value={inProgressRequestsCount} 
         description="Traslados en curso"
         icon={FileCheck}
         className="bg-white border-l-4 border-status-inRoute"
@@ -46,7 +46,7 @@ export const DashboardCards = ({ user, requests }: DashboardCardsProps) => {
       
       <StatsCard 
         title="Completadas" 
-        value={completedRequestsCount.toString()} 
+        value={completedRequestsCount} 
         description="Traslados finalizados"
         icon={UserCheck}
         className="bg-white border-l-4 border-status-completed"

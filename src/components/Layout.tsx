@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { useAuth } from "@/context/auth";
-import { AppSidebar } from "./AppSidebar";
+import { AppSidebarV2 } from "./AppSidebarV2";
 import { SidebarProvider, SidebarInset, useSidebar } from "@/components/ui/sidebar";
 
 interface LayoutProps {
@@ -25,7 +25,7 @@ export const Layout = ({ children, showSidebar = true, showFooter = true }: Layo
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full">
-        {showSidebar && user && <AppSidebar />}
+        {showSidebar && user && <AppSidebarV2 />}
         <SidebarInset>
           <div className="min-h-screen flex flex-col">
             <Navbar />
