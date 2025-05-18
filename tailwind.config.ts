@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -20,82 +19,57 @@ export default {
     },
     extend: {
       colors: {
-        // Corporate Colors
-        corporate: {
-          green: {
-            light: '#8ED833',    // Lighter shade of corporate green
-            DEFAULT: '#78BE20',  // Corporate green (Pantone 368 C)
-            dark: '#62A01A'      // Darker shade of corporate green
-          },
-          gray: {
-            light: '#5A6B76',    // Lighter shade of corporate gray
-            DEFAULT: '#3D4952',  // Corporate gray (Pantone 7546 C)
-            dark: '#2B353C'      // Darker shade of corporate gray
-          }
-        },
-        // Secondary Colors
-        complementary: {
-          green: {
-            light: '#E8F5D9',    // Very light green
-            DEFAULT: '#BADF94',  // Medium green
-            dark: '#9BC06B'      // Dark green
-          },
-          gray: {
-            light: '#F5F7F8',    // Very light green
-            DEFAULT: '#CDD5DA',  // Medium gray
-            dark: '#8B979F'      // Dark gray
-          }
-        },
-        // Off-white colors
-        offwhite: {
-          warm: '#F9F7F4',      // Warm off-white (beige tint)
-          cool: '#F5F7F8'       // Cool off-white (gray tint)
-        },
-        // Status Colors
-        'status-pending': '#FF9800',     // Orange
-        'status-assigned': '#3B82F6',    // Blue
-        'status-inRoute': '#78BE20',     // Corporate green
-        'status-completed': '#10B981',   // Green
-        'status-cancelled': '#EF4444',   // Red
-        // System colors mapping
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        // Nuevos colores institucionales y de estado
+        'status-open': '#76BC21',
+        'status-evaluation': '#e2e61c',
+        'status-closed': '#B0B0B0',
+        'status-suitable': '#28A745',
+        'status-rejected': '#DC3545',
+        'status-document-pending': '#FFA500',
+        
+        // Colores base para shadcn/ui y tema general
+        border: "hsl(var(--border))", // Se definirá en CSS :root
+        input: "hsl(var(--input))",   // Se definirá en CSS :root
+        ring: "hsl(var(--ring))",     // Se definirá en CSS :root
+        background: "hsl(var(--background))", // #FFFFFF
+        foreground: "hsl(var(--foreground))", // #2A2A2A
         primary: {
-          DEFAULT: '#78BE20',
-          foreground: '#FFFFFF',
+          DEFAULT: '#76BC21', // colorPrimarioVerde
+          foreground: '#FFFFFF', // colorBlanco
+          hover: '#5a921a', // Hover más oscuro para botones
         },
         secondary: {
-          DEFAULT: '#3D4952',
-          foreground: '#FFFFFF',
+          DEFAULT: '#243746', // colorFondoAzulOscuro
+          foreground: '#FFFFFF', // colorBlanco
         },
         destructive: {
-          DEFAULT: '#EF4444',
+          DEFAULT: '#DC3545', // status-rejected (rojo para destructivo)
           foreground: '#FFFFFF',
         },
         muted: {
-          DEFAULT: '#F5F7F8',
-          foreground: '#3D4952',
+          DEFAULT: "hsl(var(--muted))", // #E5E5E5 (colorGrisSuave)
+          foreground: "hsl(var(--muted-foreground))", // Un gris más oscuro para texto sobre muted
         },
         accent: {
-          DEFAULT: '#E8F5D9',
-          foreground: '#3D4952',
+          DEFAULT: "hsl(var(--accent))", // Un color de acento, podría ser un derivado del primario
+          foreground: "hsl(var(--accent-foreground))",
         },
         card: {
-          DEFAULT: '#FFFFFF',
-          foreground: '#3D4952',
+          DEFAULT: "hsl(var(--card))", // #FFFFFF
+          foreground: "hsl(var(--card-foreground))", // #243746 (texto oscuro de tarjeta)
         },
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        heading: ['Poppins', 'sans-serif']
+        sans: ['Roboto', 'Open Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['Merriweather', 'Georgia', 'Source Serif Pro', 'serif'], // Renombrado a 'serif' para uso genérico
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "var(--radius)", // Será 12px (0.75rem)
+        md: "calc(var(--radius) - 2px)", // 10px
+        sm: "calc(var(--radius) - 4px)", // 8px
+      },
+      boxShadow: {
+        'tarjeta-shadow': '0px 2px 8px rgba(0,0,0,0.1)',
       },
       keyframes: {
         "accordion-down": {
