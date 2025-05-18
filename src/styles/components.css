@@ -81,3 +81,13 @@
 .form-input {
   @apply w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition-all duration-200; 
 }
+
+/* Asegurar que los elementos con fondo oscuro tengan texto blanco */
+.bg-secondary, [class*="bg-secondary"] {
+  @apply text-white;
+}
+
+/* Asegurar que los elementos con fondo blanco tengan texto oscuro */
+.bg-white, .bg-background, [class*="bg-white"] {
+  @apply text-gray-900;
+}

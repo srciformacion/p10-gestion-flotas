@@ -105,7 +105,7 @@ const DemoAccounts = () => {
               {demoAccounts.map((account) => (
                 <Card key={account.email} className="overflow-hidden border-2 hover:border-primary transition-colors">
                   <CardHeader className="bg-gray-50 pb-3">
-                    <CardTitle className="text-lg">{account.role === "individual" ? "Usuario particular" : 
+                    <CardTitle className="text-lg text-gray-900">{account.role === "individual" ? "Usuario particular" : 
                       account.role === "admin" ? "Administrador" : 
                       account.role === "hospital" ? "Centro sanitario" : 
                       "Empresa de ambulancias"}</CardTitle>

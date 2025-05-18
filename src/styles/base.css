@@ -14,4 +14,15 @@
   a {
     @apply transition-colors duration-200 text-primary hover:text-primary/80; /* Usar colores primarios de Tailwind */
   }
+  
+  /* Asegurar texto en blanco sobre fondos oscuros */
+  .bg-secondary, .bg-primary, .bg-status-completed, 
+  .bg-status-cancelled, .bg-status-assigned, .bg-status-inRoute {
+    @apply text-white;
+  }
+  
+  /* Asegurar texto oscuro sobre fondos claros */
+  .bg-white, .bg-status-pending, .bg-status-evaluation {
+    @apply text-gray-900;
+  }
 }

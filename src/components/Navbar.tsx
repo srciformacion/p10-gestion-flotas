@@ -31,10 +31,10 @@ export const Navbar = ({ variant = "default" }: NavbarProps) => {
   return (
     <header className={cn(
       "border-b z-50 sticky top-0 shadow-sm",
-      variant === "transparent" ? "bg-transparent border-transparent" : "bg-secondary text-secondary-foreground" // Navbar por defecto usa colorFondoAzulOscuro
+      variant === "transparent" ? "bg-transparent border-transparent" : "bg-secondary text-white" // Texto blanco explícito sobre fondo oscuro
     )}>
       <div className="container flex h-16 items-center px-4 md:px-6">
-        {user && <SidebarTrigger className="mr-4 md:hidden" />}
+        {user && <SidebarTrigger className="mr-4 md:hidden text-white" />}
         
         <Link to="/" className="mr-6">
           <Logo />
@@ -45,8 +45,7 @@ export const Navbar = ({ variant = "default" }: NavbarProps) => {
           {user && <UserMenu user={user} logout={logout} />}
           {!user && location.pathname !== "/" && (
             <Link to="/login">
-              {/* El botón usará el nuevo estilo de outline, que debe contrastar con bg-secondary si variant es default */}
-              <Button variant="outline" className={cn(variant === "default" ? "border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10" : "")}>
+              <Button variant="outline" className={cn(variant === "default" ? "border-white text-white hover:bg-white/10" : "")}>
                 Iniciar Sesión
               </Button>
             </Link>
