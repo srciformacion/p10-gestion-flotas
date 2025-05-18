@@ -1,10 +1,10 @@
 
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/auth";
 import { LoginAlerts } from "./LoginAlerts";
 import { LoginFormFields } from "./LoginFormFields";
-import { TestAccountsSection } from "./TestAccountsSection";
+// TestAccountsSection ya no se importa
 import { handleLogin, testDirectConnection } from "./utils/authUtils";
 
 interface LoginFormProps {
@@ -37,12 +37,8 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
     );
   };
 
-  const fillTestAccount = (testEmail: string) => {
-    setEmail(testEmail);
-    setPassword("123456");
-    setErrorMessage(null);
-    setInfoMessage(`Cuenta de prueba seleccionada: ${testEmail}. Haz clic en "Iniciar sesión" para continuar.`);
-  };
+  // La función fillTestAccount ya no es necesaria
+  // const fillTestAccount = (testEmail: string) => { ... }
 
   const handleTestConnection = async () => {
     await testDirectConnection(setIsLoading, setErrorMessage, setInfoMessage);
@@ -65,7 +61,8 @@ export const LoginForm = ({ from = "/dashboard" }: LoginFormProps) => {
         onTestConnection={handleTestConnection}
       />
       
-      <TestAccountsSection onSelectAccount={fillTestAccount} />
+      {/* TestAccountsSection ya no se renderiza aquí */}
+      {/* <TestAccountsSection onSelectAccount={fillTestAccount} /> */}
     </>
   );
 };
