@@ -18,40 +18,37 @@ export const RequestStatusBadge = React.memo(({ status }: RequestStatusBadgeProp
   const statusInfo = useMemo(() => ({
     pending: {
       label: 'Pendiente',
-      variant: 'warning',
       icon: Clock,
-      className: 'bg-status-pending text-white'
+      className: 'bg-status-pending text-neutral-800' // Amarillo con texto oscuro
     },
     assigned: {
       label: 'Asignada',
-      variant: 'info',
       icon: Calendar,
-      className: 'bg-status-assigned text-white'
+      className: 'bg-status-assigned text-white' // Verde primario con texto blanco
     },
     inRoute: {
       label: 'En camino',
-      variant: 'primary',
       icon: MapPin,
-      className: 'bg-status-inRoute text-white'
+      className: 'bg-status-inRoute text-white' // Verde primario con texto blanco
     },
     completed: {
       label: 'Completada',
-      variant: 'success',
       icon: CheckCircle,
-      className: 'bg-status-completed text-white'
+      className: 'bg-status-completed text-white' // Verde oscuro con texto blanco
     },
     cancelled: {
       label: 'Cancelada',
-      variant: 'destructive',
       icon: AlertTriangle,
-      className: 'bg-status-cancelled text-white'
+      className: 'bg-status-cancelled text-white' // Rojo con texto blanco
     }
   }), []);
 
-  const { label, className, icon: Icon } = statusInfo[status];
+  // Asegurarse de que status siempre sea una clave válida, por si acaso.
+  const currentStatusInfo = statusInfo[status] || statusInfo.pending;
+  const { label, className, icon: Icon } = currentStatusInfo;
 
   return (
-    <Badge className={`flex items-center gap-1.5 font-medium ${className} px-3 py-1`} variant="outline">
+    <Badge className={`flex items-center gap-1.5 font-medium ${className} px-3 py-1 border-transparent`} variant="outline">
       <Icon className="h-3.5 w-3.5" />
       {label}
     </Badge>

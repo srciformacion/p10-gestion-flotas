@@ -20,53 +20,60 @@ export default {
     extend: {
       colors: {
         // Nuevos colores institucionales y de estado
-        'status-open': '#76BC21',
-        'status-evaluation': '#e2e61c',
-        'status-closed': '#B0B0B0',
-        'status-suitable': '#28A745',
-        'status-rejected': '#DC3545',
-        'status-document-pending': '#FFA500',
+        'status-open': '#76BC21', // Verde (Oferta abierta)
+        'status-evaluation': '#e2e61c', // Amarillo (En evaluación)
+        'status-closed': '#B0B0B0', // Gris (Cerrada)
+        'status-suitable': '#28A745', // Verde oscuro (Apto / Contratado)
+        'status-rejected': '#DC3545', // Rojo (No apto / Rechazado)
+        'status-document-pending': '#FFA500', // Naranja (Documento pendiente)
+
+        // Colores de estado para la lógica de la aplicación (TransportRequest status)
+        'status-pending': '#e2e61c',      // Amarillo (En evaluación)
+        'status-assigned': '#76BC21',     // Verde primario (Asignada)
+        'status-inRoute': '#76BC21',      // Verde primario (En Ruta - puede ajustarse si se necesita diferenciación)
+        'status-completed': '#28A745',    // Verde oscuro (Completada)
+        'status-cancelled': '#DC3545',    // Rojo (Cancelada)
         
         // Colores base para shadcn/ui y tema general
-        border: "hsl(var(--border))", // Se definirá en CSS :root
-        input: "hsl(var(--input))",   // Se definirá en CSS :root
-        ring: "hsl(var(--ring))",     // Se definirá en CSS :root
-        background: "hsl(var(--background))", // #FFFFFF
-        foreground: "hsl(var(--foreground))", // #2A2A2A
+        border: "hsl(var(--border))", 
+        input: "hsl(var(--input))",   
+        ring: "hsl(var(--ring))",     
+        background: "hsl(var(--background))", 
+        foreground: "hsl(var(--foreground))", 
         primary: {
-          DEFAULT: '#76BC21', // colorPrimarioVerde
-          foreground: '#FFFFFF', // colorBlanco
-          hover: '#5a921a', // Hover más oscuro para botones
+          DEFAULT: '#76BC21', 
+          foreground: '#FFFFFF', 
+          hover: '#5a921a', 
         },
         secondary: {
-          DEFAULT: '#243746', // colorFondoAzulOscuro
-          foreground: '#FFFFFF', // colorBlanco
+          DEFAULT: '#243746', 
+          foreground: '#FFFFFF', 
         },
         destructive: {
-          DEFAULT: '#DC3545', // status-rejected (rojo para destructivo)
+          DEFAULT: '#DC3545', 
           foreground: '#FFFFFF',
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))", // #E5E5E5 (colorGrisSuave)
-          foreground: "hsl(var(--muted-foreground))", // Un gris más oscuro para texto sobre muted
+          DEFAULT: "hsl(var(--muted))", 
+          foreground: "hsl(var(--muted-foreground))", 
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))", // Un color de acento, podría ser un derivado del primario
+          DEFAULT: "hsl(var(--accent))", 
           foreground: "hsl(var(--accent-foreground))",
         },
         card: {
-          DEFAULT: "hsl(var(--card))", // #FFFFFF
-          foreground: "hsl(var(--card-foreground))", // #243746 (texto oscuro de tarjeta)
+          DEFAULT: "hsl(var(--card))", 
+          foreground: "hsl(var(--card-foreground))", 
         },
       },
       fontFamily: {
         sans: ['Roboto', 'Open Sans', 'system-ui', '-apple-system', 'sans-serif'],
-        serif: ['Merriweather', 'Georgia', 'Source Serif Pro', 'serif'], // Renombrado a 'serif' para uso genérico
+        serif: ['Merriweather', 'Georgia', 'Source Serif Pro', 'serif'],
       },
       borderRadius: {
-        lg: "var(--radius)", // Será 12px (0.75rem)
-        md: "calc(var(--radius) - 2px)", // 10px
-        sm: "calc(var(--radius) - 4px)", // 8px
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
         'tarjeta-shadow': '0px 2px 8px rgba(0,0,0,0.1)',

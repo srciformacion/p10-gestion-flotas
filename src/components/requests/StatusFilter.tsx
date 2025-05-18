@@ -14,6 +14,38 @@ export const StatusFilter = React.memo(({ currentStatus, onStatusChange }: Statu
     onStatusChange(status);
   }, [onStatusChange]);
 
+  const getButtonClass = (status: RequestStatus) => {
+    let activeClass = "";
+    let hoverClass = "";
+
+    switch (status) {
+      case "pending": // Amarillo
+        activeClass = "bg-status-pending text-neutral-800 border-status-pending hover:bg-status-pending/90 hover:text-neutral-800";
+        hoverClass = "hover:border-status-pending hover:text-status-pending";
+        break;
+      case "assigned": // Verde primario
+        activeClass = "bg-status-assigned text-white border-status-assigned hover:bg-status-assigned/90";
+        hoverClass = "hover:border-status-assigned hover:text-status-assigned";
+        break;
+      case "inRoute": // Verde primario
+        activeClass = "bg-status-inRoute text-white border-status-inRoute hover:bg-status-inRoute/90";
+        hoverClass = "hover:border-status-inRoute hover:text-status-inRoute";
+        break;
+      case "completed": // Verde oscuro
+        activeClass = "bg-status-completed text-white border-status-completed hover:bg-status-completed/90";
+        hoverClass = "hover:border-status-completed hover:text-status-completed";
+        break;
+      case "cancelled": // Rojo
+        activeClass = "bg-status-cancelled text-white border-status-cancelled hover:bg-status-cancelled/90";
+        hoverClass = "hover:border-status-cancelled hover:text-status-cancelled";
+        break;
+      default:
+        break;
+    }
+    return currentStatus === status ? activeClass : hoverClass;
+  };
+
+
   return (
     <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
       <Button
@@ -27,7 +59,7 @@ export const StatusFilter = React.memo(({ currentStatus, onStatusChange }: Statu
         variant={currentStatus === "pending" ? "default" : "outline"}
         size="sm"
         onClick={() => handleStatusChange("pending")}
-        className={`flex items-center gap-1 ${currentStatus === "pending" ? "bg-status-pending text-white border-status-pending" : "hover:border-status-pending hover:text-status-pending"}`}
+        className={`flex items-center gap-1 ${getButtonClass("pending")}`}
       >
         <Clock className="h-3 w-3" /> Pendientes
       </Button>
@@ -35,7 +67,7 @@ export const StatusFilter = React.memo(({ currentStatus, onStatusChange }: Statu
         variant={currentStatus === "assigned" ? "default" : "outline"}
         size="sm"
         onClick={() => handleStatusChange("assigned")}
-        className={`flex items-center gap-1 ${currentStatus === "assigned" ? "bg-status-assigned text-white border-status-assigned" : "hover:border-status-assigned hover:text-status-assigned"}`}
+        className={`flex items-center gap-1 ${getButtonClass("assigned")}`}
       >
         <Calendar className="h-3 w-3" /> Asignadas
       </Button>
@@ -43,7 +75,7 @@ export const StatusFilter = React.memo(({ currentStatus, onStatusChange }: Statu
         variant={currentStatus === "inRoute" ? "default" : "outline"}
         size="sm"
         onClick={() => handleStatusChange("inRoute")}
-        className={`flex items-center gap-1 ${currentStatus === "inRoute" ? "bg-status-inRoute text-white border-status-inRoute" : "hover:border-status-inRoute hover:text-status-inRoute"}`}
+        className={`flex items-center gap-1 ${getButtonClass("inRoute")}`}
       >
         <Ambulance className="h-3 w-3" /> En ruta
       </Button>
@@ -51,7 +83,7 @@ export const StatusFilter = React.memo(({ currentStatus, onStatusChange }: Statu
         variant={currentStatus === "completed" ? "default" : "outline"}
         size="sm"
         onClick={() => handleStatusChange("completed")}
-        className={`flex items-center gap-1 ${currentStatus === "completed" ? "bg-status-completed text-white border-status-completed" : "hover:border-status-completed hover:text-status-completed"}`}
+        className={`flex items-center gap-1 ${getButtonClass("completed")}`}
       >
         <CheckCircle className="h-3 w-3" /> Completadas
       </Button>
@@ -59,7 +91,7 @@ export const StatusFilter = React.memo(({ currentStatus, onStatusChange }: Statu
         variant={currentStatus === "cancelled" ? "default" : "outline"}
         size="sm"
         onClick={() => handleStatusChange("cancelled")}
-        className={`flex items-center gap-1 ${currentStatus === "cancelled" ? "bg-status-cancelled text-white border-status-cancelled" : "hover:border-status-cancelled hover:text-status-cancelled"}`}
+        className={`flex items-center gap-1 ${getButtonClass("cancelled")}`}
       >
         <AlertTriangle className="h-3 w-3" /> Canceladas
       </Button>

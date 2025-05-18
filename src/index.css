@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -16,23 +15,32 @@
   --color-accent-bg: #E8F5D9; /* Un verde muy claro como acento */
   --color-accent-fg: #3D4952; /* Texto sobre acento */
 
-  /* Colores de estado */
+  /* Colores de estado (según nueva paleta) */
   --color-status-open: #76BC21;
   --color-status-evaluation: #e2e61c;
   --color-status-closed: #B0B0B0;
-  --color-status-suitable: #28A745;
-  --color-status-rejected: #DC3545;
-  --color-status-document-pending: #FFA500;
+  --color-status-suitable: #28A745; /* Mapea a 'completed' */
+  --color-status-rejected: #DC3545; /* Mapea a 'cancelled' */
+  --color-status-document-pending: #FFA500; 
+  
+  /* Colores para estados de la aplicación (RequestStatus) */
+  /* Estos se definen en tailwind.config.js y se usan directamente con clases de Tailwind */
+  /* --color-status-pending: #e2e61c; */ /* Amarillo (En evaluación) */
+  /* --color-status-assigned: #76BC21; */ /* Verde primario (Asignada) */
+  /* --color-status-inRoute: #76BC21; */ /* Verde primario (En Ruta) */
+  /* --color-status-completed: #28A745; */ /* Verde oscuro (Completada) */
+  /* --color-status-cancelled: #DC3545; */ /* Rojo (Cancelada) */
+
 
   /* Variables para shadcn/ui */
   --background: 0 0% 100%; /* #FFFFFF */
-  --foreground: 222.2 47.4% 11.2%; /* Corresponde a un color oscuro como #2A2A2A, ajustar HSL si es necesario */
+  --foreground: 0 0% 16.5%; /* #2A2A2A (colorTextoOscuro) */
   
   --card: 0 0% 100%; /* #FFFFFF */
-  --card-foreground: 204 10% 24%; /* Corresponde a #243746 */
+  --card-foreground: 204 28% 21%; /* #243746 (colorFondoAzulOscuro como texto de tarjeta) */
   
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 47.4% 11.2%;
+  --popover-foreground: 0 0% 16.5%; /* #2A2A2A */
   
   --primary: 80 69% 42%; /* #76BC21 */
   --primary-foreground: 0 0% 100%; /* #FFFFFF */
@@ -40,18 +48,18 @@
   --secondary: 204 28% 21%; /* #243746 */
   --secondary-foreground: 0 0% 100%; /* #FFFFFF */
   
-  --muted: 210 40% 96.1%; /* #E5E5E5 - Muted background */
-  --muted-foreground: 215 28% 17%; /* Muted foreground text (e.g. #3D4952) */
+  --muted: 0 0% 89.8%; /* #E5E5E5 (colorGrisSuave) */
+  --muted-foreground: 205 15% 28%; /* #3D4952 (Un gris más oscuro para texto sobre muted) */
   
-  --accent: 210 40% 96.1%; /* Similar a muted, puede ser un verde claro #E8F5D9 */
-  --accent-foreground: 215 28% 17%; /* Texto sobre accent */
+  --accent: 80 69% 90%; /* #E8F5D9 (Un verde muy claro como acento) */
+  --accent-foreground: 205 15% 28%; /* #3D4952 (Texto sobre acento) */
   
-  --destructive: 0 84.2% 60.2%; /* Rojo, ej: #DC3545 */
-  --destructive-foreground: 0 0% 98%; /* Blanco */
+  --destructive: 354 70% 50%; /* #DC3545 (status-rejected) */
+  --destructive-foreground: 0 0% 100%; /* #FFFFFF */
   
-  --border: 214.3 31.8% 91.4%; /* Un gris claro para bordes */
-  --input: 214.3 31.8% 91.4%; /* Un gris claro para inputs */
-  --ring: 80 69% 42%; /* Color primario para anillos de foco */
+  --border: 210 20% 85%; /* Un gris claro para bordes, ej: #D1D5DB */
+  --input: 210 20% 85%; /* Un gris claro para inputs, ej: #D1D5DB */
+  --ring: 80 69% 42%; /* Color primario para anillos de foco #76BC21 */
   
   --radius: 0.75rem; /* 12px */
 }
@@ -61,13 +69,11 @@
   body {
     @apply font-sans antialiased;
     color: var(--color-text-general); /* Texto general #2A2A2A */
-    /* font-family: 'Roboto', 'Open Sans', system-ui, -apple-system, sans-serif; */ /* Tailwind lo aplicará desde config */
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif font-medium tracking-tight;
     color: var(--color-text-general); /* Texto general para encabezados */
-    /* font-family: 'Merriweather', 'Georgia', 'Source Serif Pro', serif; */ /* Tailwind lo aplicará desde config */
   }
 
   a {
@@ -113,38 +119,86 @@
   }
 }
 
-/* Estilos para el status badge - Actualizado para usar nuevas variables y nombres */
+/* Estilos para el status badge - Usan variables CSS para colores directos */
 .status-badge {
   @apply inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium text-white;
 }
 
-.status-open {
+.status-open { /* Verde */
   background-color: var(--color-status-open);
 }
 
-.status-evaluation {
+.status-evaluation { /* Amarillo */
   background-color: var(--color-status-evaluation);
-  /* El texto podría necesitar ser oscuro para este amarillo si es muy claro */
-  /* color: var(--color-text-general); */
+  color: var(--color-text-general); /* Texto oscuro sobre amarillo */
 }
 
-.status-closed {
+.status-closed { /* Gris */
   background-color: var(--color-status-closed);
 }
 
-.status-suitable {
+.status-suitable { /* Verde oscuro */
   background-color: var(--color-status-suitable);
 }
 
-.status-rejected {
+.status-rejected { /* Rojo */
   background-color: var(--color-status-rejected);
 }
 
-.status-document-pending {
+.status-document-pending { /* Naranja */
   background-color: var(--color-status-document-pending);
+  /* Considerar texto oscuro si el naranja es muy claro para texto blanco */
+  /* color: var(--color-text-general); */
 }
 
-/* ... keep existing code (Estilos para leaflet map, state-indicator, state-transition, responsive adjustments, gradient backgrounds, form elements) */
+/* Estilos para elementos con estado - para botones, bordes, etc */
+/* Estos utilizan clases de Tailwind que toman colores de tailwind.config.ts */
+.state-indicator {
+  @apply transition-all duration-200;
+}
+
+.state-indicator-open {
+  @apply border-l-4 border-status-open; /* Usa 'status-open' de Tailwind config */
+}
+
+.state-indicator-evaluation {
+  @apply border-l-4 border-status-evaluation; /* Usa 'status-evaluation' de Tailwind config */
+}
+
+.state-indicator-closed {
+  @apply border-l-4 border-status-closed; /* Usa 'status-closed' de Tailwind config */
+}
+
+.state-indicator-suitable {
+  @apply border-l-4 border-status-suitable; /* Usa 'status-suitable' de Tailwind config */
+}
+
+.state-indicator-rejected {
+  @apply border-l-4 border-status-rejected; /* Usa 'status-rejected' de Tailwind config */
+}
+
+.state-indicator-document-pending {
+  @apply border-l-4 border-status-document-pending; /* Usa 'status-document-pending' de Tailwind config */
+}
+
+/* Estados de RequestStatus */
+.state-indicator-pending {
+  @apply border-l-4 border-status-pending; /* Usa 'status-pending' de Tailwind config (amarillo) */
+}
+.state-indicator-assigned {
+  @apply border-l-4 border-status-assigned; /* Usa 'status-assigned' de Tailwind config (verde primario) */
+}
+.state-indicator-inRoute {
+  @apply border-l-4 border-status-inRoute; /* Usa 'status-inRoute' de Tailwind config (verde primario) */
+}
+.state-indicator-completed {
+  @apply border-l-4 border-status-completed; /* Usa 'status-completed' de Tailwind config (verde oscuro) */
+}
+.state-indicator-cancelled {
+  @apply border-l-4 border-status-cancelled; /* Usa 'status-cancelled' de Tailwind config (rojo) */
+}
+
+/* ... keep existing code (Estilos para leaflet map, state-transition, responsive adjustments, gradient backgrounds, form elements) */
 /* Estilos para leaflet map */
 .highlighted {
   z-index: 1000 !important;
@@ -171,44 +225,6 @@
   }
 }
 
-/* Estilos para elementos con estado - para botones, bordes, etc */
-/* Estos también deberían actualizarse para usar los nuevos nombres de estado si aplican a bordes */
-.state-indicator {
-  @apply transition-all duration-200;
-}
-
-.state-indicator-open { /* Actualizado de pending */
-  @apply border-l-4 border-status-open;
-}
-
-.state-indicator-evaluation { /* Nuevo o mapeado */
-  @apply border-l-4 border-status-evaluation;
-}
-
-.state-indicator-closed {  /* Nuevo o mapeado */
-  @apply border-l-4 border-status-closed;
-}
-
-.state-indicator-suitable { /* Actualizado de completed */
-  @apply border-l-4 border-status-suitable;
-}
-
-.state-indicator-rejected { /* Actualizado de cancelled */
-  @apply border-l-4 border-status-rejected;
-}
-
-.state-indicator-document-pending { /* Nuevo o mapeado */
-  @apply border-l-4 border-status-document-pending;
-}
-/* Mantener los que aún se usen y no tengan mapeo directo si es necesario */
-.state-indicator-assigned { /* Si aún se usa, considerar su color */
-  @apply border-l-4 border-blue-500; /* Ejemplo, definir --color-status-assigned si es necesario */
-}
-.state-indicator-inRoute {  /* Si aún se usa, considerar su color */
-  @apply border-l-4 border-purple-500; /* Ejemplo, definir --color-status-inRoute si es necesario */
-}
-
-
 /* Animación suave para elementos que cambian de estado */
 .state-transition {
   @apply transition-all duration-300;
@@ -223,11 +239,11 @@
 
 /* Gradient backgrounds */
 .bg-gradient-primary {
-  @apply bg-gradient-to-r from-[#76BC21] to-[#5a921a]; /* Usando primary y primary-hover */
+  @apply bg-gradient-to-r from-[#76BC21] to-[#5a921a]; 
 }
 
 .bg-gradient-secondary {
-  @apply bg-gradient-to-r from-[#243746] to-[#3D4952]; /* Usando secondary y un gris más claro */
+  @apply bg-gradient-to-r from-[#243746] to-[#3D4952]; 
 }
 
 /* Form elements styling */
@@ -236,9 +252,9 @@
 }
 
 .form-label {
-  @apply block text-sm font-medium text-gray-700 mb-1; /* Ajustar color si es necesario */
+  @apply block text-sm font-medium text-gray-700 mb-1; 
 }
 
 .form-input {
-  @apply w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition-all duration-200; /* Usará el nuevo --border y --primary */
+  @apply w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition-all duration-200; 
 }
