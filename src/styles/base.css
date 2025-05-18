@@ -1,0 +1,17 @@
+
+/* Base styles */
+@layer base {
+  body {
+    @apply font-sans antialiased;
+    color: var(--color-text-general); /* Texto general #2A2A2A */
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-medium tracking-tight;
+    color: var(--color-text-general); /* Texto general para encabezados */
+  }
+
+  a {
+    @apply transition-colors duration-200 text-primary hover:text-primary/80; /* Usar colores primarios de Tailwind */
+  }
+}
