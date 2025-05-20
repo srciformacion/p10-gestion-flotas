@@ -14,22 +14,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   
-  // Get user profile data based on the Supabase user
   const user = useProfileData(supUser);
 
   useEffect(() => {
     console.log('Initializing AuthContext');
     
-    // Set up the auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
-        console.log('Auth event:', event);
+        console.log('Auth event:', event, currentSession);
         setSession(currentSession);
         setSupUser(currentSession?.user || null);
       }
     );
 
-    // Check for an existing session on load
     const checkSession = async () => {
       try {
         console.log('Checking for existing session');
@@ -60,13 +57,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
+    // Clear supUser and session immediately for demo users
+    if (supUser?.id?.startsWith('demo-')) {
+      setSupUser(null);
+      setSession(null);
+      // Optionally, call the actual logoutUser if it clears other necessary states
+      // await logoutUser(); 
+      return;
+    }
     return logoutUser();
   };
 
   // Demo login functionality
   const handleSimulateDemoLogin = simulateDemoLogin(
-    (demoUser: User) => user !== demoUser && setSupUser({ id: demoUser.id, email: demoUser.email } as SupabaseUser),
-    setSession
+    (demoUserFromAuthFunctions: User) => { // This is the User object with id, email, name, role
+      const demoSupabaseUser: SupabaseUser = {
+        id: demoUserFromAuthFunctions.id,
+        email: demoUserFromAuthFunctions.email,
+        user_metadata: {
+          // Store the necessary profile fields here
+          _isDemo: true, // Flag to identify demo user
+          name: demoUserFromAuthFunctions.name,
+          role: demoUserFromAuthFunctions.role,
+        },
+        // Mock other required fields for SupabaseUser type compatibility
+        app_metadata: { provider: 'email', providers: ['email'] },
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+        // Add other fields if they are accessed or cause type errors
+        // identities: [], // Example if needed
+        // phone: '', // Example if needed
+      };
+      // console.log('Setting demo SupabaseUser:', demoSupabaseUser);
+      setSupUser(demoSupabaseUser);
+    },
+    setSession // This sets a mock session object
   );
 
   return (
@@ -91,3 +116,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
