@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/auth';
 import { RequestsProvider } from './context/requests';
@@ -66,7 +65,7 @@ function App() {
                   <Route path="/demo-accounts" element={<DemoAccounts />} />
                   
                   {/* User routes with layout */}
-                  <Route path="/dashboard" element={<Dashboard />} /> {/* Uses renderWithLayout (or should) which has its own provider */}
+                  <Route path="/dashboard" element={renderWithLayout(<Dashboard />)} /> {/* Updated this line */}
                   <Route path="/solicitud" element={renderWithLayout(<NewRequest />)} />
                   <Route path="/solicitud-avanzada" element={renderWithLayout(<NewAdvancedRequest />)} />
                   <Route path="/solicitudes" element={renderWithLayout(<RequestList />)} />
@@ -107,4 +106,3 @@ function App() {
 }
 
 export default App;
-

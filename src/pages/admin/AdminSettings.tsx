@@ -1,5 +1,5 @@
 
-import { Navbar } from "@/components/Navbar";
+// Navbar import removed
 import { RequireAuth } from "@/components/RequireAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ const AdminSettings = () => {
   return (
     <RequireAuth allowedRoles={["admin"]}>
       <div className="min-h-screen flex flex-col">
-        <Navbar />
+        {/* Navbar component removed from here, it's handled by the Layout */}
         <main className="flex-grow p-4 md:p-6">
           <div className="max-w-7xl mx-auto">
             <h1 className="text-2xl md:text-3xl font-bold mb-6">Configuración del Sistema</h1>
