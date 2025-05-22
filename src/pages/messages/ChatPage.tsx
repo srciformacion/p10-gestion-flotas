@@ -1,5 +1,4 @@
 
-import { Navbar } from "@/components/Navbar";
 import { useChat } from "@/context/ChatContext";
 import { ConversationList } from "@/components/chat/ConversationList";
 import { ChatWindow } from "@/components/chat/ChatWindow";
@@ -9,7 +8,7 @@ const ChatPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      {/* Navbar component removed from here, it's handled by the Layout */}
       <main className="flex-grow p-4 md:p-6">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-2xl md:text-3xl font-bold mb-6">Mensajes</h1>
