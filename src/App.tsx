@@ -7,6 +7,7 @@ import { NotificationsWrapper } from './components/notifications/NotificationsPr
 import { ChatInterface } from './components/ChatInterface';
 import { Toaster } from './components/ui/toaster';
 import { Layout } from './components/Layout';
+import { SidebarProvider } from "@/components/ui/sidebar"; // Import SidebarProvider
 
 import Index from './pages/Index';
 import Login from './pages/Login';
@@ -53,48 +54,50 @@ function App() {
         <NotificationsWrapper>
           <RequestsProvider>
             <ChatProvider>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/registro" element={<Register />} />
-                <Route path="/recuperar-password" element={<RecoverPassword />} />
-                <Route path="/actualizar-password" element={<UpdatePassword />} />
-                <Route path="/demo" element={<Demo />} />
-                <Route path="/demo-accounts" element={<DemoAccounts />} />
+              <SidebarProvider> {/* Wrap relevant parts with SidebarProvider */}
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/registro" element={<Register />} />
+                  <Route path="/recuperar-password" element={<RecoverPassword />} />
+                  <Route path="/actualizar-password" element={<UpdatePassword />} />
+                  <Route path="/demo" element={<Demo />} />
+                  <Route path="/demo-accounts" element={<DemoAccounts />} />
+                  
+                  {/* User routes with layout */}
+                  <Route path="/dashboard" element={<Dashboard />} /> {/* Uses renderWithLayout (or should) which has its own provider */}
+                  <Route path="/solicitud" element={renderWithLayout(<NewRequest />)} />
+                  <Route path="/solicitud-avanzada" element={renderWithLayout(<NewAdvancedRequest />)} />
+                  <Route path="/solicitudes" element={renderWithLayout(<RequestList />)} />
+                  <Route path="/solicitudes/:id" element={renderWithLayout(<RequestDetail />)} />
+                  <Route path="/seguimiento/:requestId" element={renderWithLayout(<AmbulanceTracking />)} />
+                  <Route path="/ambulance-tracking/:requestId" element={renderWithLayout(<AmbulanceTracking />)} />
+                  <Route path="/perfil" element={renderWithLayout(<Profile />)} />
+                  <Route path="/mensajes" element={renderWithLayout(<ChatPage />)} />
+                  <Route path="/mensajes/:id" element={renderWithLayout(<ChatPage />)} />
+                  
+                  {/* Admin routes with layout */}
+                  <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+                  <Route path="/admin/dashboard" element={renderWithLayout(<AdminDashboard />)} />
+                  <Route path="/admin/empresas" element={renderWithLayout(<AdminCompanies />)} />
+                  <Route path="/admin/usuarios" element={renderWithLayout(<AdminUsers />)} />
+                  <Route path="/admin/solicitudes" element={renderWithLayout(<AdminRequests />)} />
+                  <Route path="/admin/vehiculos" element={renderWithLayout(<AdminVehicles />)} />
+                  <Route path="/admin/tracking" element={renderWithLayout(<VehicleTracking />)} />
+                  <Route path="/admin/bi" element={renderWithLayout(<BiDashboard />)} />
+                  <Route path="/admin/configuracion" element={renderWithLayout(<AdminSettings />)} />
+                  
+                  <Route path="/acceso-denegado" element={<AccessDenied />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
                 
-                {/* User routes with layout */}
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/solicitud" element={renderWithLayout(<NewRequest />)} />
-                <Route path="/solicitud-avanzada" element={renderWithLayout(<NewAdvancedRequest />)} />
-                <Route path="/solicitudes" element={renderWithLayout(<RequestList />)} />
-                <Route path="/solicitudes/:id" element={renderWithLayout(<RequestDetail />)} />
-                <Route path="/seguimiento/:requestId" element={renderWithLayout(<AmbulanceTracking />)} />
-                <Route path="/ambulance-tracking/:requestId" element={renderWithLayout(<AmbulanceTracking />)} />
-                <Route path="/perfil" element={renderWithLayout(<Profile />)} />
-                <Route path="/mensajes" element={renderWithLayout(<ChatPage />)} />
-                <Route path="/mensajes/:id" element={renderWithLayout(<ChatPage />)} />
+                {/* Floating chat interface available on all pages */}
+                <ChatInterface />
                 
-                {/* Admin routes with layout */}
-                <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-                <Route path="/admin/dashboard" element={renderWithLayout(<AdminDashboard />)} />
-                <Route path="/admin/empresas" element={renderWithLayout(<AdminCompanies />)} />
-                <Route path="/admin/usuarios" element={renderWithLayout(<AdminUsers />)} />
-                <Route path="/admin/solicitudes" element={renderWithLayout(<AdminRequests />)} />
-                <Route path="/admin/vehiculos" element={renderWithLayout(<AdminVehicles />)} />
-                <Route path="/admin/tracking" element={renderWithLayout(<VehicleTracking />)} />
-                <Route path="/admin/bi" element={renderWithLayout(<BiDashboard />)} />
-                <Route path="/admin/configuracion" element={renderWithLayout(<AdminSettings />)} />
-                
-                <Route path="/acceso-denegado" element={<AccessDenied />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              
-              {/* Floating chat interface available on all pages */}
-              <ChatInterface />
-              
-              {/* Toast notifications */}
-              <Toaster />
+                {/* Toast notifications */}
+                <Toaster />
+              </SidebarProvider> {/* Close SidebarProvider */}
             </ChatProvider>
           </RequestsProvider>
         </NotificationsWrapper>
@@ -104,3 +107,4 @@ function App() {
 }
 
 export default App;
+
