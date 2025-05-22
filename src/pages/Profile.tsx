@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Navbar } from "@/components/Navbar";
+// Navbar import removed
 import { useAuth } from "@/context/auth";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,7 +91,7 @@ const Profile = () => {
   return (
     <RequireAuth>
       <div className="min-h-screen flex flex-col bg-gray-50">
-        <Navbar />
+        {/* Navbar component removed from here */}
         <main className="flex-grow p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-2xl md:text-3xl font-bold mb-6">
