@@ -1,4 +1,3 @@
-
 import { User, UserRole } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthResponse, LoginCredentials, RegisterData } from './types';
@@ -28,11 +27,10 @@ export const authApi = {
 
       console.log('[AUTH SERVICE] Sesión creada correctamente:', data.session);
       
-      // Obtener el perfil completo del usuario
       console.log('[AUTH SERVICE] Obteniendo perfil para:', data.user.id);
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('role, full_name')
+        .select('role, full_name, vehicle_id') // Added vehicle_id
         .eq('id', data.user.id)
         .maybeSingle();
       
@@ -50,7 +48,8 @@ export const authApi = {
         id: data.user.id,
         email: data.user.email || '',
         name: profile?.full_name || '',
-        role: (profile?.role as UserRole) || 'individual' // Valor predeterminado si no hay rol
+        role: (profile?.role as UserRole) || 'individual',
+        vehicle_id: profile?.vehicle_id || undefined, // Added vehicle_id
       };
       
       console.log('[AUTH SERVICE] Login exitoso para usuario:', user);
@@ -85,11 +84,10 @@ export const authApi = {
         return null;
       }
       
-      // Obtener el perfil del usuario
       console.log('Obteniendo perfil para usuario activo:', data.session.user.id);
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('role, full_name')
+        .select('role, full_name, vehicle_id') // Added vehicle_id
         .eq('id', data.session.user.id)
         .maybeSingle();
       
@@ -102,7 +100,8 @@ export const authApi = {
         id: data.session.user.id,
         email: data.session.user.email || '',
         name: profile?.full_name || '',
-        role: (profile?.role as UserRole) || 'individual' // Valor predeterminado si no hay rol
+        role: (profile?.role as UserRole) || 'individual',
+        vehicle_id: profile?.vehicle_id || undefined, // Added vehicle_id
       };
     } catch (error) {
       console.error('Error getting current user:', error);
@@ -120,6 +119,7 @@ export const authApi = {
           data: {
             full_name: name,
             role,
+            // vehicle_id is not typically set at registration unless explicitly provided
           }
         }
       });
@@ -134,16 +134,14 @@ export const authApi = {
         throw new Error('Error al crear usuario');
       }
       
-      // Asegurarse de que el perfil se ha creado correctamente
-      // Aunque normalmente este proceso lo realiza la función de webhook handle_new_user
       console.log('[AUTH SERVICE] Usuario creado con ID:', data.user.id);
       
-      // Crear objeto de usuario para devolver
       const user: User = {
         id: data.user.id,
         email: data.user.email || '',
         name,
         role
+        // vehicle_id will be undefined here, to be set later if needed
       };
       
       console.log('[AUTH SERVICE] Registro exitoso para usuario:', user);

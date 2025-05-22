@@ -8,7 +8,6 @@ import { useAuth } from "@/context/auth";
 import { useRequests } from "@/context/requests";
 import { Welcome } from "@/components/dashboard/Welcome";
 import { RecentRequests } from "@/components/dashboard/RecentRequests";
-// Layout import removed
 import { DashboardActions } from "@/components/dashboard/DashboardActions";
 
 const Dashboard = () => {
@@ -20,13 +19,18 @@ const Dashboard = () => {
     if (user?.role === 'individual') {
       navigate('/solicitudes');
     }
+    // Redirect ambulance role to their specific dashboard
+    if (user?.role === 'ambulance') {
+      navigate('/vehicle-dashboard');
+    }
   }, [user, navigate]);
 
-  if (!user || user.role === 'individual') return null;
+  // If user is individual or ambulance, they will be redirected, so this content won't show.
+  // Only show dashboard content for other roles (admin, hospital)
+  if (!user || user.role === 'individual' || user.role === 'ambulance') return null;
   
   return (
     <RequireAuth>
-      {/* Layout component removed from here */}
       <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
         <div className="max-w-7xl mx-auto space-y-6">
           <Welcome name={user.name} />

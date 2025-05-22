@@ -6,7 +6,7 @@ import { NotificationsWrapper } from './components/notifications/NotificationsPr
 import { ChatInterface } from './components/ChatInterface';
 import { Toaster } from './components/ui/toaster';
 import { Layout } from './components/Layout';
-import { SidebarProvider } from "@/components/ui/sidebar"; // Import SidebarProvider
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 import Index from './pages/Index';
 import Login from './pages/Login';
@@ -19,6 +19,7 @@ import NewAdvancedRequest from './pages/NewAdvancedRequest';
 import RequestList from './pages/RequestList';
 import RequestDetail from './pages/RequestDetail';
 import AmbulanceTracking from './pages/AmbulanceTracking';
+import VehicleDashboard from './pages/VehicleDashboard';
 import NotFound from './pages/NotFound';
 import AccessDenied from './pages/AccessDenied';
 import Profile from './pages/Profile';
@@ -53,7 +54,7 @@ function App() {
         <NotificationsWrapper>
           <RequestsProvider>
             <ChatProvider>
-              <SidebarProvider> {/* Wrap relevant parts with SidebarProvider */}
+              <SidebarProvider>
                 <Routes>
                   {/* Public routes */}
                   <Route path="/" element={<Index />} />
@@ -65,7 +66,8 @@ function App() {
                   <Route path="/demo-accounts" element={<DemoAccounts />} />
                   
                   {/* User routes with layout */}
-                  <Route path="/dashboard" element={renderWithLayout(<Dashboard />)} /> {/* Updated this line */}
+                  <Route path="/dashboard" element={renderWithLayout(<Dashboard />)} />
+                  <Route path="/vehicle-dashboard" element={renderWithLayout(<VehicleDashboard />)} />
                   <Route path="/solicitud" element={renderWithLayout(<NewRequest />)} />
                   <Route path="/solicitud-avanzada" element={renderWithLayout(<NewAdvancedRequest />)} />
                   <Route path="/solicitudes" element={renderWithLayout(<RequestList />)} />
@@ -91,12 +93,9 @@ function App() {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 
-                {/* Floating chat interface available on all pages */}
                 <ChatInterface />
-                
-                {/* Toast notifications */}
                 <Toaster />
-              </SidebarProvider> {/* Close SidebarProvider */}
+              </SidebarProvider>
             </ChatProvider>
           </RequestsProvider>
         </NotificationsWrapper>

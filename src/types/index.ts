@@ -5,6 +5,7 @@ export interface User {
   email: string;
   name: string;
   role: UserRole;
+  vehicle_id?: string; // Added vehicle_id
 }
 
 export type RequestStatus = 'pending' | 'assigned' | 'inRoute' | 'completed' | 'cancelled';
@@ -180,6 +181,7 @@ export interface Profile {
   created_at: string;
   updated_at: string;
   avatar_url?: string;
+  vehicle_id?: string; // Added vehicle_id
 }
 
 export interface Notification {

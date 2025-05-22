@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { User as SupabaseUser } from '@supabase/supabase-js'; // Session removed as not used
+import { User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
 import { UserRole, User } from '@/types';
 
@@ -14,62 +14,58 @@ export const useProfileData = (supUser: SupabaseUser | null) => {
         return;
       }
       
-      // Check if this is a demo user based on the metadata flag
       if (supUser.user_metadata?._isDemo) {
-        // console.log('Detected demo user in useProfileData:', supUser);
         setUser({
           id: supUser.id,
           email: supUser.email || '',
           name: supUser.user_metadata.name as string,
           role: supUser.user_metadata.role as UserRole,
+          vehicle_id: supUser.user_metadata.vehicle_id as string | undefined, // Added for demo user
         });
-        return; // Skip database call for demo users
+        return;
       }
       
-      // Proceed with database query for real users
       try {
-        // Obtain the profile of the user from the table profiles
-        // console.log('Fetching profile for real user:', supUser.id);
         const { data: profile, error } = await supabase
           .from('profiles')
-          .select('role, full_name')
+          .select('role, full_name, vehicle_id') // Added vehicle_id
           .eq('id', supUser.id)
           .maybeSingle();
         
         if (error) {
           console.error('Error loading profile:', error);
-          // Set user to null or a minimal user object if profile fetch fails
           setUser({
             id: supUser.id,
             email: supUser.email || '',
-            name: 'Error Profile', // Indicate profile loading error
-            role: 'individual' // Default or fallback role
+            name: 'Error Profile',
+            role: 'individual',
+            vehicle_id: undefined, // Ensure vehicle_id is part of the object
           });
           return;
         }
         
         if (!profile) {
           console.warn('Profile not found for user:', supUser.id);
-          // Handle case where profile doesn't exist for a supposedly real user
            setUser({
             id: supUser.id,
             email: supUser.email || '',
-            name: supUser.email || 'Usuario sin perfil', // Default name
-            role: 'individual' // Default role
+            name: supUser.email || 'Usuario sin perfil',
+            role: 'individual',
+            vehicle_id: undefined, // Ensure vehicle_id is part of the object
           });
           return;
         }
         
-        // Combine user data with their role and name to create a User-compatible object
         setUser({
           id: supUser.id,
           email: supUser.email || '',
           name: profile.full_name || '',
-          role: (profile.role as UserRole) || 'individual'
+          role: (profile.role as UserRole) || 'individual',
+          vehicle_id: profile.vehicle_id || undefined, // Added vehicle_id
         });
       } catch (error) {
         console.error('Error loading profile (catch block):', error);
-        setUser(null); // Fallback to null on unexpected error
+        setUser(null);
       }
     };
 
@@ -78,4 +74,3 @@ export const useProfileData = (supUser: SupabaseUser | null) => {
 
   return user;
 };
-
