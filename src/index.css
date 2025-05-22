@@ -1,72 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definición de variables de colores corporativos y de estado */
-:root {
-  /* Colores principales */
-  --color-primary: #76BC21; /* colorPrimarioVerde */
-  --color-secondary: #243746; /* colorFondoAzulOscuro */
-  --color-text-general: #2A2A2A; /* colorTextoOscuro */
-  --color-text-card: #243746; /* Texto dentro de las tarjetas */
-  --color-background-main: #FFFFFF; /* colorBlanco */
-  --color-muted-bg: #E5E5E5; /* colorGrisSuave */
-  --color-muted-fg: #3D4952; /* Un gris estándar para texto sobre muted */
-  --color-accent-bg: #E8F5D9; /* Un verde muy claro como acento */
-  --color-accent-fg: #3D4952; /* Texto sobre acento */
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
 
-  /* Colores de estado (según nueva paleta) */
-  --color-status-open: #76BC21;
-  --color-status-evaluation: #e2e61c;
-  --color-status-closed: #B0B0B0;
-  --color-status-suitable: #28A745; /* Mapea a 'completed' */
-  --color-status-rejected: #DC3545; /* Mapea a 'cancelled' */
-  --color-status-document-pending: #FFA500; 
-  
-  /* Colores para estados de la aplicación (RequestStatus) */
-  /* Estos se definen en tailwind.config.js y se usan directamente con clases de Tailwind */
-  /* --color-status-pending: #e2e61c; */ /* Amarillo (En evaluación) */
-  /* --color-status-assigned: #76BC21; */ /* Verde primario (Asignada) */
-  /* --color-status-inRoute: #76BC21; */ /* Verde primario (En Ruta) */
-  /* --color-status-completed: #28A745; */ /* Verde oscuro (Completada) */
-  /* --color-status-cancelled: #DC3545; */ /* Rojo (Cancelada) */
+    --primary: 210 79% 46%;
+    --primary-foreground: 210 40% 98%;
 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-  /* Variables para shadcn/ui */
-  --background: 0 0% 100%; /* #FFFFFF */
-  --foreground: 0 0% 16.5%; /* #2A2A2A (colorTextoOscuro) */
-  
-  --card: 0 0% 100%; /* #FFFFFF */
-  --card-foreground: 204 28% 21%; /* #243746 (colorFondoAzulOscuro como texto de tarjeta) */
-  
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 16.5%; /* #2A2A2A */
-  
-  --primary: 80 69% 42%; /* #76BC21 */
-  --primary-foreground: 0 0% 100%; /* #FFFFFF */
-  
-  --secondary: 204 28% 21%; /* #243746 */
-  --secondary-foreground: 0 0% 100%; /* #FFFFFF */
-  
-  --muted: 0 0% 89.8%; /* #E5E5E5 (colorGrisSuave) */
-  --muted-foreground: 205 15% 28%; /* #3D4952 (Un gris más oscuro para texto sobre muted) */
-  
-  --accent: 80 69% 90%; /* #E8F5D9 (Un verde muy claro como acento) */
-  --accent-foreground: 205 15% 28%; /* #3D4952 (Texto sobre acento) */
-  
-  --destructive: 354 70% 50%; /* #DC3545 (status-rejected) */
-  --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-  
-  --border: 210 20% 85%; /* Un gris claro para bordes, ej: #D1D5DB */
-  --input: 210 20% 85%; /* Un gris claro para inputs, ej: #D1D5DB */
-  --ring: 80 69% 42%; /* Color primario para anillos de foco #76BC21 */
-  
-  --radius: 0.75rem; /* 12px */
+    --primary-blue-light: 210 80% 50%;
+    --primary-blue-default: 210 79% 46%;
+    --primary-blue-dark: 210 79% 30%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --primary-blue-light: 217.2 91.2% 65%;
+    --primary-blue-default: 217.2 91.2% 59.8%;
+    --primary-blue-dark: 217.2 91.2% 45%;
+  }
 }
 
-/* Import new CSS files */
-@import "./styles/base.css";
-@import "./styles/components.css";
-@import "./styles/utilities.css";
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-semibold;
+  }
+}
 
+@layer components {
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .status-pending {
+    @apply bg-status-pending bg-opacity-20 text-status-pending border border-status-pending;
+  }
+  
+  .status-assigned {
+    @apply bg-status-assigned bg-opacity-20 text-status-assigned border border-status-assigned;
+  }
+  
+  .status-inRoute {
+    @apply bg-status-inRoute bg-opacity-20 text-status-inRoute border border-status-inRoute;
+  }
+  
+  .status-completed {
+    @apply bg-status-completed bg-opacity-20 text-status-completed border border-status-completed;
+  }
+  
+  .status-cancelled {
+    @apply bg-status-cancelled bg-opacity-20 text-status-cancelled border border-status-cancelled;
+  }
+}

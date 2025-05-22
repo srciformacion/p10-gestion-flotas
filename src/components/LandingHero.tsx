@@ -1,7 +1,8 @@
+
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Ambulance, Calendar, CheckCircle } from "lucide-react";
-import { useAuth } from "@/context/auth";
+import { useAuth } from "@/context/AuthContext";
 
 export const LandingHero = () => {
   const { user } = useAuth();

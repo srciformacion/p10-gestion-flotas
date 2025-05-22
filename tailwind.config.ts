@@ -19,64 +19,57 @@ export default {
     },
     extend: {
       colors: {
-        // Nuevos colores institucionales y de estado
-        'status-open': '#76BC21', // Verde (Oferta abierta)
-        'status-evaluation': '#e2e61c', // Amarillo (En evaluación)
-        'status-closed': '#B0B0B0', // Gris (Cerrada)
-        'status-suitable': '#28A745', // Verde oscuro (Apto / Contratado)
-        'status-rejected': '#DC3545', // Rojo (No apto / Rechazado)
-        'status-document-pending': '#FFA500', // Naranja (Documento pendiente)
-
-        // Colores de estado para la lógica de la aplicación (TransportRequest status)
-        'status-pending': '#e2e61c',      // Amarillo (En evaluación)
-        'status-assigned': '#76BC21',     // Verde primario (Asignada)
-        'status-inRoute': '#76BC21',      // Verde primario (En Ruta - puede ajustarse si se necesita diferenciación)
-        'status-completed': '#28A745',    // Verde oscuro (Completada)
-        'status-cancelled': '#DC3545',    // Rojo (Cancelada)
-        
-        // Colores base para shadcn/ui y tema general
-        border: "hsl(var(--border))", 
-        input: "hsl(var(--input))",   
-        ring: "hsl(var(--ring))",     
-        background: "hsl(var(--background))", 
-        foreground: "hsl(var(--foreground))", 
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#76BC21', 
-          foreground: '#FFFFFF', 
-          hover: '#5a921a', 
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+          blue: {
+            light: '#1E88E5',   // Azul claro
+            DEFAULT: '#1976D2',  // Azul principal
+            dark: '#0D47A1'      // Azul oscuro
+          }
         },
         secondary: {
-          DEFAULT: '#243746', 
-          foreground: '#FFFFFF', 
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+          purple: {
+            light: '#7E57C2',   // Púrpura claro
+            DEFAULT: '#5E35B1',  // Púrpura principal
+            dark: '#3F3D56'      // Púrpura oscuro
+          }
         },
-        destructive: {
-          DEFAULT: '#DC3545', 
-          foreground: '#FFFFFF',
+        medical: {
+          blue: {
+            light: '#33C3F0',   // Azul médico claro
+            DEFAULT: '#1B6DC1',  // Azul médico principal
+            dark: '#0A4F7E'      // Azul médico oscuro
+          },
+          gray: {
+            light: '#8E9196',   // Gris claro
+            DEFAULT: '#403E43',  // Gris principal
+            dark: '#221F26'      // Gris oscuro
+          }
         },
-        muted: {
-          DEFAULT: "hsl(var(--muted))", 
-          foreground: "hsl(var(--muted-foreground))", 
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))", 
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))", 
-          foreground: "hsl(var(--card-foreground))", 
-        },
+        status: {
+          pending: '#FFC107',    // Amarillo
+          assigned: '#FF9800',   // Naranja
+          inRoute: '#4CAF50',    // Verde
+          completed: '#1B5E20',  // Verde oscuro
+          cancelled: '#F44336'   // Rojo
+        }
       },
       fontFamily: {
-        sans: ['Roboto', 'Open Sans', 'system-ui', '-apple-system', 'sans-serif'],
-        serif: ['Merriweather', 'Georgia', 'Source Serif Pro', 'serif'],
+        sans: ['Inter', 'sans-serif'],
+        heading: ['Poppins', 'sans-serif']
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-      },
-      boxShadow: {
-        'tarjeta-shadow': '0px 2px 8px rgba(0,0,0,0.1)',
       },
       keyframes: {
         "accordion-down": {

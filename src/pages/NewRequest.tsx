@@ -1,40 +1,90 @@
 
+import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
-import { RequireAuth } from "@/components/RequireAuth";
+import { useAuth } from "@/context/AuthContext";
+import { useRequests } from "@/context/RequestsContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "react-router-dom";
-import { FileCheck } from "lucide-react";
-import { PatientSection } from "@/components/requests/form/PatientSection";
-import { LocationSection } from "@/components/requests/form/LocationSection";
-import { TransportTypeSection } from "@/components/requests/form/TransportTypeSection";
-import { AdditionalInfoSection } from "@/components/requests/form/AdditionalInfoSection";
-import { useRequestForm } from "@/hooks/useRequestForm";
-import { TripTypeSection } from "@/components/requests/form/TripTypeSection";
-import { ServiceTypeSection } from "@/components/requests/form/ServiceTypeSection";
-import { EquipmentSection } from "@/components/requests/form/EquipmentSection";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
+import { RequireAuth } from "@/components/RequireAuth";
 
 const NewRequest = () => {
+  const { user } = useAuth();
+  const { addRequest } = useRequests();
   const navigate = useNavigate();
-  const {
-    formData,
-    error,
-    submitError,
-    isSubmitting,
-    uploadedFile,
-    handleChange,
-    handleRadioChange,
-    handleServiceTypeChange,
-    handleTripTypeChange,
-    handleEquipmentChange,
-    handleFileUpload,
-    handleSubmit,
-    user
-  } = useRequestForm();
-
+  const { toast } = useToast();
+  
+  const [formData, setFormData] = useState({
+    patientName: "",
+    patientId: "",
+    origin: "",
+    destination: "",
+    responsiblePerson: "",
+    dateTime: "",
+    transportType: "stretcher" as "stretcher" | "wheelchair" | "walking",
+    observations: "",
+    authorizationFile: ""
+  });
+  
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleRadioChange = (value: "stretcher" | "wheelchair" | "walking") => {
+    setFormData(prev => ({ ...prev, transportType: value }));
+  };
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+    
+    // Validación básica
+    if (!formData.patientName || !formData.patientId || !formData.origin || 
+        !formData.destination || !formData.dateTime || !formData.responsiblePerson) {
+      setError("Por favor, complete todos los campos obligatorios");
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // Validación específica para usuarios particulares
+    if (user?.role === 'individual' && !formData.authorizationFile) {
+      setError("Como usuario particular, debe adjuntar la autorización médica");
+      setIsSubmitting(false);
+      return;
+    }
+    
+    try {
+      // En una aplicación real, aquí subiríamos el archivo antes de guardar la solicitud
+      addRequest({
+        ...formData,
+        createdBy: user?.id || "",
+      });
+      
+      toast({
+        title: "Solicitud creada",
+        description: "Su solicitud de transporte ha sido registrada correctamente",
+      });
+      
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Error al crear la solicitud. Inténtelo de nuevo más tarde.");
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
   return (
     <RequireAuth allowedRoles={['admin', 'hospital', 'individual']}>
       <div className="min-h-screen flex flex-col">
@@ -53,118 +103,141 @@ const NewRequest = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {(error || submitError) && (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {error && (
                     <Alert variant="destructive">
-                      <AlertTitle>Error</AlertTitle>
-                      <AlertDescription>{error || submitError}</AlertDescription>
+                      <AlertDescription>{error}</AlertDescription>
                     </Alert>
                   )}
                   
-                  {/* Patient Information */}
-                  <PatientSection 
-                    patientName={formData.patientName}
-                    patientId={formData.patientId}
-                    responsiblePerson={formData.responsiblePerson}
-                    onChange={handleChange}
-                  />
-                  
-                  {/* Service Type */}
-                  <ServiceTypeSection
-                    serviceType={formData.serviceType}
-                    onValueChange={handleServiceTypeChange}
-                  />
-                  
-                  {/* Trip Type (One Way/Round Trip) */}
-                  <TripTypeSection
-                    tripType={formData.tripType}
-                    onValueChange={handleTripTypeChange}
-                  />
-                  
-                  {/* Location Information */}
-                  <LocationSection 
-                    origin={formData.origin}
-                    destination={formData.destination}
-                    onChange={handleChange}
-                  />
-                  
-                  {/* Date and Time */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="dateTime">Fecha y hora de ida *</Label>
+                      <Label htmlFor="patientName">Nombre del paciente *</Label>
                       <Input
-                        id="dateTime"
-                        name="dateTime"
-                        type="datetime-local"
-                        value={formData.dateTime}
+                        id="patientName"
+                        name="patientName"
+                        value={formData.patientName}
                         onChange={handleChange}
                         required
                       />
                     </div>
                     
-                    {formData.tripType === 'roundTrip' && (
-                      <div className="space-y-2">
-                        <Label htmlFor="returnDateTime">Fecha y hora de vuelta *</Label>
-                        <Input
-                          id="returnDateTime"
-                          name="returnDateTime"
-                          type="datetime-local"
-                          value={formData.returnDateTime}
-                          onChange={handleChange}
-                          required={formData.tripType === 'roundTrip'}
-                        />
-                      </div>
-                    )}
+                    <div className="space-y-2">
+                      <Label htmlFor="patientId">DNI/NIE o SS del paciente *</Label>
+                      <Input
+                        id="patientId"
+                        name="patientId"
+                        value={formData.patientId}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
                   </div>
                   
-                  {/* Transport Type */}
-                  <TransportTypeSection 
-                    transportType={formData.transportType}
-                    onValueChange={handleRadioChange}
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="responsiblePerson">Persona responsable del traslado *</Label>
+                    <Input
+                      id="responsiblePerson"
+                      name="responsiblePerson"
+                      placeholder="Médico, enfermero, etc."
+                      value={formData.responsiblePerson}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
                   
-                  {/* Required Equipment */}
-                  <EquipmentSection
-                    selectedEquipment={formData.requiredEquipment}
-                    onEquipmentChange={handleEquipmentChange}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="origin">Centro de origen *</Label>
+                      <Input
+                        id="origin"
+                        name="origin"
+                        value={formData.origin}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="destination">Destino *</Label>
+                      <Input
+                        id="destination"
+                        name="destination"
+                        value={formData.destination}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                  </div>
                   
-                  {/* Additional Information */}
-                  <AdditionalInfoSection 
-                    architecturalBarriers={formData.architecturalBarriers}
-                    specialAttention={formData.specialAttention}
-                    observations={formData.observations}
-                    onChange={handleChange}
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="dateTime">Fecha y hora deseada *</Label>
+                    <Input
+                      id="dateTime"
+                      name="dateTime"
+                      type="datetime-local"
+                      value={formData.dateTime}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
                   
-                  {/* Authorization File */}
-                  {(user?.role === 'individual' || user?.role === 'admin') && (
+                  <div className="space-y-2">
+                    <Label>Medio requerido *</Label>
+                    <RadioGroup 
+                      value={formData.transportType} 
+                      onValueChange={(value) => handleRadioChange(value as any)}
+                      className="flex flex-col space-y-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="stretcher" id="stretcher" />
+                        <Label htmlFor="stretcher">Camilla</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="wheelchair" id="wheelchair" />
+                        <Label htmlFor="wheelchair">Silla de ruedas</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="walking" id="walking" />
+                        <Label htmlFor="walking">Andando</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="observations">Observaciones médicas o necesidades especiales</Label>
+                    <Textarea
+                      id="observations"
+                      name="observations"
+                      placeholder="Indique cualquier información relevante para el traslado"
+                      value={formData.observations}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  
+                  {user?.role === 'individual' && (
                     <div className="space-y-2">
                       <Label htmlFor="authorizationFile">
-                        Autorización médica (PDF) {user?.role === 'individual' ? '*' : ''}
+                        Autorización médica (PDF) *
                       </Label>
-                      <div className="border rounded-md p-2">
-                        <Input
-                          id="authorizationFile"
-                          name="authorizationFile"
-                          type="file"
-                          accept=".pdf"
-                          onChange={handleFileUpload}
-                          className="mb-2"
-                          required={user?.role === 'individual'}
-                        />
-                        {uploadedFile && (
-                          <div className="flex items-center text-sm text-green-600 mt-2">
-                            <FileCheck className="h-4 w-4 mr-1" />
-                            Archivo subido: {uploadedFile.name}
-                          </div>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {user?.role === 'individual' 
-                            ? 'Para usuarios particulares, es obligatorio adjuntar la autorización médica del traslado en formato PDF.'
-                            : 'Adjunte la autorización médica si está disponible.'}
-                        </p>
-                      </div>
+                      <Input
+                        id="authorizationFile"
+                        name="authorizationFile"
+                        type="file"
+                        accept=".pdf"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setFormData(prev => ({ 
+                              ...prev, 
+                              authorizationFile: e.target.files ? e.target.files[0].name : "" 
+                            }));
+                          }
+                        }}
+                        required
+                      />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Para usuarios particulares, es obligatorio adjuntar la autorización médica del traslado en formato PDF.
+                      </p>
                     </div>
                   )}
                 </form>

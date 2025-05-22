@@ -1,38 +1,10 @@
-import { Link, useLocation } from "react-router-dom";
+
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
-import { ShieldAlert, Home } from "lucide-react";
-import { useAuth } from "@/context/auth";
+import { ShieldAlert } from "lucide-react";
 
 const AccessDenied = () => {
-  const { user } = useAuth();
-  const location = useLocation();
-  const state = location.state as { redirectPath?: string } | undefined;
-  
-  // Determine where to redirect the user based on role
-  const getRedirectPath = () => {
-    if (state?.redirectPath) {
-      return state.redirectPath;
-    }
-
-    if (!user) return "/";
-    
-    switch (user.role) {
-      case "admin":
-        return "/admin";
-      case "ambulance":
-        return "/solicitudes";
-      case "hospital":
-        return "/dashboard";
-      case "individual":
-        return "/solicitudes";
-      default:
-        return "/";
-    }
-  };
-
-  const redirectPath = getRedirectPath();
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -46,10 +18,7 @@ const AccessDenied = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild>
-              <Link to={redirectPath}>
-                <Home className="mr-2 h-4 w-4" />
-                Ir a mi página principal
-              </Link>
+              <Link to="/dashboard">Ir al Dashboard</Link>
             </Button>
             <Button variant="outline" asChild>
               <Link to="/">Volver al inicio</Link>
