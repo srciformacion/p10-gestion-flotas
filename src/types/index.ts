@@ -26,3 +26,20 @@ export interface TransportRequest {
   assignedVehicle?: string;
   estimatedArrival?: string;
 }
+
+// Chat related types
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  content: string;
+  timestamp: string;
+  read: boolean;
+}
+
+export interface Conversation {
+  id: string;
+  participantIds: string[];
+  messages: ChatMessage[];
+  lastMessageTimestamp: string;
+  unreadCount: number;
+}

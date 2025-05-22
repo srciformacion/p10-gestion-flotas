@@ -30,6 +30,8 @@ export const Navbar = () => {
       .substring(0, 2);
   };
 
+  const showDashboardLink = user && user.role !== 'individual';
+
   return (
     <nav className="bg-white dark:bg-gray-900 border-b sticky top-0 z-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -43,9 +45,11 @@ export const Navbar = () => {
             {user ? (
               <>
                 <div className="flex items-center space-x-4 mr-4">
-                  <Link to="/dashboard" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
-                    Dashboard
-                  </Link>
+                  {showDashboardLink && (
+                    <Link to="/dashboard" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
+                      Dashboard
+                    </Link>
+                  )}
                   
                   {(user.role === 'hospital' || user.role === 'individual') && (
                     <Link to="/nueva-solicitud" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
@@ -54,7 +58,7 @@ export const Navbar = () => {
                   )}
                   
                   <Link to="/solicitudes" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
-                    Solicitudes
+                    Mis Solicitudes
                   </Link>
                   
                   {user.role === 'admin' && (
@@ -113,13 +117,15 @@ export const Navbar = () => {
           <div className="space-y-1 px-2 pb-3 pt-2">
             {user ? (
               <>
-                <Link
-                  to="/dashboard"
-                  className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
-                  onClick={closeMenu}
-                >
-                  Dashboard
-                </Link>
+                {showDashboardLink && (
+                  <Link
+                    to="/dashboard"
+                    className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
+                    onClick={closeMenu}
+                  >
+                    Dashboard
+                  </Link>
+                )}
                 
                 {(user.role === 'hospital' || user.role === 'individual') && (
                   <Link
@@ -136,7 +142,7 @@ export const Navbar = () => {
                   className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
                   onClick={closeMenu}
                 >
-                  Solicitudes
+                  Mis Solicitudes
                 </Link>
                 
                 {user.role === 'admin' && (

@@ -1,34 +1,25 @@
-
-import { LandingHero } from "@/components/LandingHero";
-import { Navbar } from "@/components/Navbar";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-grow">
-        <LandingHero />
-      </main>
-      <footer className="bg-gray-800 text-white py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <p className="text-sm">&copy; 2025 AmbulLink. Todos los derechos reservados.</p>
-            </div>
-            <div className="flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-white">
-                Términos de uso
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white">
-                Privacidad
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white">
-                Contacto
-              </a>
-            </div>
-          </div>
+    <div className="grid h-screen place-items-center">
+      <div className="flex flex-col items-center gap-4">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+          Bienvenido a la App de Ambulancias
+        </h1>
+        <p className="text-muted-foreground">
+          La solución integral para la gestión eficiente de traslados sanitarios.
+        </p>
+        <div className="flex gap-4">
+          <Link to="/login">
+            <Button>Iniciar Sesión</Button>
+          </Link>
+          <Link to="/registro">
+            <Button variant="outline">Crear Cuenta</Button>
+          </Link>
         </div>
-      </footer>
+      </div>
     </div>
   );
 };
