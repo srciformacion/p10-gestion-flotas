@@ -1,5 +1,5 @@
 
-import { TransportRequest } from '@/types';
+import { TransportRequest } from '@/types/request';
 
 // Simulación de llamadas API que luego conectaremos al backend real
 export const requestsApi = {
@@ -18,12 +18,17 @@ export const requestsApi = {
     return requests.find(req => req.id === id) || null;
   },
 
-  create: async (request: Omit<TransportRequest, 'id' | 'status'>): Promise<TransportRequest> => {
+  create: async (request: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>): Promise<TransportRequest> => {
     await new Promise(resolve => setTimeout(resolve, 700));
     const newRequest: TransportRequest = {
       ...request,
       id: crypto.randomUUID(),
       status: 'pending',
+      type: 'simple',
+      priority: 'medium',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      observations: request.observations || ''
     };
     
     const stored = localStorage.getItem('requests');
@@ -47,6 +52,7 @@ export const requestsApi = {
     const updatedRequest = {
       ...requests[index],
       ...data,
+      updatedAt: new Date().toISOString()
     };
     
     requests[index] = updatedRequest;
@@ -63,4 +69,3 @@ export const requestsApi = {
     localStorage.setItem('requests', JSON.stringify(filtered));
   }
 };
-

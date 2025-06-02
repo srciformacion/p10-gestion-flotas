@@ -21,6 +21,7 @@ export interface TransportRequest {
   observations?: string;
   authorizationFile?: string;
   assignedAmbulance?: string;
+  assignedVehicle?: string;
   assignedRoute?: string;
   estimatedArrival?: string;
   actualArrival?: string;

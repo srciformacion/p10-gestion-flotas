@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRequests } from '@/context/RequestsContext';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { TransportRequest } from '@/types';
+import { TransportRequest } from '@/types/request';
 
 export const useCreateRequest = () => {
   const { addRequest } = useRequests();
@@ -12,7 +12,7 @@ export const useCreateRequest = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const createRequest = async (formData: Omit<TransportRequest, 'id' | 'status'>) => {
+  const createRequest = async (formData: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>) => {
     setError("");
     setIsSubmitting(true);
 

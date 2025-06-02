@@ -7,7 +7,7 @@ import { mockServices } from '@/services/api/mock-services';
 interface RequestsContextType {
   requests: TransportRequest[];
   filteredRequests: TransportRequest[];
-  addRequest: (request: Omit<TransportRequest, 'id' | 'status'>) => Promise<void>;
+  addRequest: (request: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>) => Promise<void>;
   updateRequestStatus: (id: string, status: TransportRequest['status'], data?: Partial<TransportRequest>) => Promise<void>;
   getRequestById: (id: string) => TransportRequest | undefined;
   isLoading: boolean;
@@ -27,8 +27,16 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
       setIsLoading(true);
       try {
         if (useMockData) {
-          // Use mock data
-          setRequests(mockServices);
+          // Use mock data - convert to the expected format
+          const mockData = mockServices.map(service => ({
+            ...service,
+            type: 'simple' as const,
+            priority: 'medium' as const,
+            createdAt: service.createdAt || new Date().toISOString(),
+            updatedAt: service.updatedAt || new Date().toISOString(),
+            observations: service.observations || ''
+          }));
+          setRequests(mockData);
         } else {
           // Use API data
           const data = await requestsApi.getAll();
@@ -44,13 +52,18 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
     loadRequests();
   }, [useMockData]);
 
-  const addRequest = async (requestData: Omit<TransportRequest, 'id' | 'status'>) => {
+  const addRequest = async (requestData: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>) => {
     if (useMockData) {
       // Add to mock data
       const newRequest: TransportRequest = {
         ...requestData,
         id: `srv-${Date.now()}`,
         status: 'pending',
+        type: 'simple',
+        priority: 'medium',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        observations: requestData.observations || ''
       };
       setRequests(prev => [newRequest, ...prev]);
     } else {
