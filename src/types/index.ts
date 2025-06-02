@@ -1,11 +1,21 @@
-
-export type UserRole = 'admin' | 'hospital' | 'individual' | 'ambulance';
+export type UserRole = 
+  | 'admin' 
+  | 'hospital' 
+  | 'individual' 
+  | 'ambulance'
+  | 'centroCoordinador'
+  | 'equipoMovil';
 
 export interface User {
   id: string;
   email: string;
   name: string;
   role: UserRole;
+  isActive?: boolean;
+  createdAt?: string;
+  lastLogin?: string;
+  phone?: string;
+  organization?: string;
 }
 
 export type RequestStatus = 'pending' | 'assigned' | 'inRoute' | 'completed' | 'cancelled';
