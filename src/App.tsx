@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +7,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { RequestsProvider } from "@/context/RequestsContext";
 import { ChatProvider } from "@/context/ChatContext";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -47,6 +47,7 @@ const App = () => (
           <ChatProvider>
             <Toaster />
             <Sonner />
+            <PWAInstallPrompt />
             <BrowserRouter>
               <AppLayout>
                 <Routes>
