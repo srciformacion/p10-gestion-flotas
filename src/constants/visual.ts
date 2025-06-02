@@ -141,7 +141,7 @@ export const USER_ROLES = {
   },
   ambulance: {
     label: 'Empresa de Ambulancias',
-    color: COLORS.status.warning,
+    color: COLORS.support.warning,
     bgColor: 'bg-yellow-100',
     textColor: 'text-yellow-800'
   },
