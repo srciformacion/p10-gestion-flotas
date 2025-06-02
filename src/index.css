@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,32 +8,43 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 215 25% 27%;
+    --foreground: 210 34% 21%;
     
-    --primary: 84 72% 43%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 90 70% 43%;           /* Verde Rioja */
+    --primary-foreground: 0 0% 100%; /* Blanco */
     
-    --secondary: 206 15% 27%;
+    --secondary: 210 34% 21%;        /* Azul Rioja */
     --secondary-foreground: 0 0% 100%;
 
     --muted: 210 30% 97%;
-    --muted-foreground: 215 25% 27%;
+    --muted-foreground: 210 34% 21%;
     
     --accent: 84 56% 91%;
-    --accent-foreground: 215 25% 27%;
+    --accent-foreground: 210 34% 21%;
+    
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 90 70% 43%;
+    
+    --radius: 0.5rem;
+    
+    /* Colores institucionales La Rioja */
+    --rioja-green: #76BC21;
+    --rioja-blue: #243746;
+    --rioja-white: #FFFFFF;
   }
 
   .dark {
-    --background: 215 25% 27%;
+    --background: 210 34% 21%;
     --foreground: 0 0% 100%;
     
-    --primary: 84 72% 43%;
+    --primary: 90 70% 43%;
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 206 15% 97%;
-    --secondary-foreground: 215 25% 27%;
+    --secondary: 210 30% 97%;
+    --secondary-foreground: 210 34% 21%;
 
-    --muted: 215 25% 32%;
+    --muted: 210 34% 26%;
     --muted-foreground: 0 0% 100%;
     
     --accent: 84 56% 20%;
@@ -54,6 +65,39 @@
 }
 
 @layer components {
+  /* Clases de texto principales */
+  .page-title {
+    @apply text-3xl md:text-4xl font-bold text-rioja-blue mb-6;
+  }
+  
+  .section-title {
+    @apply text-xl md:text-2xl font-semibold text-rioja-blue mb-4;
+  }
+  
+  /* Container principal */
+  .rioja-container {
+    @apply container mx-auto px-4 py-8 max-w-7xl;
+  }
+  
+  /* Botones principales */
+  .btn-primary {
+    @apply bg-rioja-green text-white hover:bg-rioja-green/90 px-4 py-2 rounded-md font-medium transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-rioja-blue text-white hover:bg-rioja-blue/90 px-4 py-2 rounded-md font-medium transition-colors;
+  }
+
+  .btn-outline {
+    @apply border border-rioja-blue text-rioja-blue hover:bg-rioja-blue/10 px-4 py-2 rounded-md font-medium transition-colors;
+  }
+  
+  /* Card de estadísticas */
+  .card-stats {
+    @apply bg-white rounded-lg shadow-md p-6 border-l-4 border-rioja-green;
+  }
+  
+  /* Status badges con colores institucionales */
   .status-badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
@@ -67,7 +111,7 @@
   }
   
   .status-inRoute {
-    @apply bg-status-inRoute bg-opacity-20 text-status-inRoute border border-status-inRoute;
+    @apply bg-rioja-green bg-opacity-20 text-rioja-green border border-rioja-green;
   }
   
   .status-completed {
@@ -76,5 +120,19 @@
   
   .status-cancelled {
     @apply bg-status-cancelled bg-opacity-20 text-status-cancelled border border-status-cancelled;
+  }
+  
+  /* Header y navegación */
+  .header-nav {
+    @apply bg-rioja-blue text-white shadow-md;
+  }
+  
+  .nav-link {
+    @apply hover:text-rioja-green transition-colors;
+  }
+  
+  /* Estados de focus */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-rioja-green focus:ring-offset-2;
   }
 }

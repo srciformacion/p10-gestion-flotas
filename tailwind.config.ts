@@ -20,55 +20,30 @@ export default {
     },
     extend: {
       colors: {
-        // Corporate Colors
-        corporate: {
-          green: {
-            light: '#8ED833',    // Lighter shade of corporate green
-            DEFAULT: '#78BE20',  // Corporate green (Pantone 368 C)
-            dark: '#62A01A'      // Darker shade of corporate green
-          },
-          gray: {
-            light: '#5A6B76',    // Lighter shade of corporate gray
-            DEFAULT: '#3D4952',  // Corporate gray (Pantone 7546 C)
-            dark: '#2B353C'      // Darker shade of corporate gray
-          }
-        },
-        // Secondary Colors
-        complementary: {
-          green: {
-            light: '#E8F5D9',    // Very light green
-            DEFAULT: '#BADF94',  // Medium green
-            dark: '#9BC06B'      // Dark green
-          },
-          gray: {
-            light: '#F5F7F8',    // Very light green
-            DEFAULT: '#CDD5DA',  // Medium gray
-            dark: '#8B979F'      // Dark gray
-          }
-        },
-        // Off-white colors
-        offwhite: {
-          warm: '#F9F7F4',      // Warm off-white (beige tint)
-          cool: '#F5F7F8'       // Cool off-white (gray tint)
-        },
-        // Status Colors
+        // Colores Institucionales de La Rioja
+        'rioja-green': '#76BC21',     // Verde institucional
+        'rioja-blue': '#243746',      // Azul institucional
+        'rioja-white': '#FFFFFF',     // Blanco institucional
+        
+        // Status Colors para ambulancias
         'status-pending': '#FF9800',     // Orange
         'status-assigned': '#3B82F6',    // Blue
-        'status-inRoute': '#78BE20',     // Corporate green
+        'status-inRoute': '#76BC21',     // Verde Rioja
         'status-completed': '#10B981',   // Green
         'status-cancelled': '#EF4444',   // Red
-        // System colors mapping
+        
+        // System colors mapping con colores de La Rioja
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: '#78BE20',
+          DEFAULT: '#76BC21',  // Verde Rioja
           foreground: '#FFFFFF',
         },
         secondary: {
-          DEFAULT: '#3D4952',
+          DEFAULT: '#243746',  // Azul Rioja
           foreground: '#FFFFFF',
         },
         destructive: {
@@ -77,20 +52,20 @@ export default {
         },
         muted: {
           DEFAULT: '#F5F7F8',
-          foreground: '#3D4952',
+          foreground: '#243746',
         },
         accent: {
           DEFAULT: '#E8F5D9',
-          foreground: '#3D4952',
+          foreground: '#243746',
         },
         card: {
           DEFAULT: '#FFFFFF',
-          foreground: '#3D4952',
+          foreground: '#243746',
         },
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        heading: ['Poppins', 'sans-serif']
+        sans: ['Georgia', 'Times New Roman', 'serif'],
+        heading: ['Georgia', 'Times New Roman', 'serif']
       },
       borderRadius: {
         lg: "var(--radius)",

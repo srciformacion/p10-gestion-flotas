@@ -38,16 +38,16 @@ export function AppHeader() {
   };
 
   return (
-    <header className="h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-4">
+    <header className="h-14 border-b bg-rioja-blue text-white shadow-md flex items-center justify-between px-4">
       <div className="flex items-center gap-2">
-        <SidebarTrigger />
+        <SidebarTrigger className="text-white hover:text-rioja-green transition-colors" />
         <h1 className="font-semibold text-lg">Sistema de Gestión de Ambulancias</h1>
       </div>
       
       <div className="flex items-center gap-2">
         {/* Notificaciones */}
         <Link to="/mensajes">
-          <Button variant="ghost" size="sm" className="relative">
+          <Button variant="ghost" size="sm" className="relative text-white hover:text-rioja-green hover:bg-white/10">
             <Bell className="h-4 w-4" />
             {totalUnread > 0 && (
               <Badge 
@@ -63,26 +63,26 @@ export function AppHeader() {
         {/* Menú de usuario */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-2">
+            <Button variant="ghost" className="flex items-center gap-2 text-white hover:text-rioja-green hover:bg-white/10">
               <Avatar className="h-8 w-8">
-                <AvatarFallback>
+                <AvatarFallback className="bg-rioja-green text-white">
                   {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="hidden md:flex flex-col items-start">
                 <span className="text-sm font-medium">{user?.name}</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs opacity-75">
                   {getRoleDisplayName(user?.role || '')}
                 </span>
               </div>
             </Button>
           </DropdownMenuTrigger>
           
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200">
             <div className="px-2 py-1.5">
-              <p className="text-sm font-medium">{user?.name}</p>
-              <p className="text-xs text-muted-foreground">{user?.email}</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm font-medium text-rioja-blue">{user?.name}</p>
+              <p className="text-xs text-gray-600">{user?.email}</p>
+              <p className="text-xs text-gray-600">
                 {getRoleDisplayName(user?.role || '')}
               </p>
             </div>
@@ -90,14 +90,14 @@ export function AppHeader() {
             <DropdownMenuSeparator />
             
             <Link to="/perfil">
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer text-rioja-blue hover:bg-rioja-green/10">
                 <User className="mr-2 h-4 w-4" />
                 Perfil
               </DropdownMenuItem>
             </Link>
             
             <Link to="/configuracion">
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer text-rioja-blue hover:bg-rioja-green/10">
                 <Settings className="mr-2 h-4 w-4" />
                 Configuración
               </DropdownMenuItem>
@@ -105,7 +105,7 @@ export function AppHeader() {
             
             <DropdownMenuSeparator />
             
-            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-rioja-blue hover:bg-red-50">
               <LogOut className="mr-2 h-4 w-4" />
               Cerrar sesión
             </DropdownMenuItem>
