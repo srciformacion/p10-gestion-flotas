@@ -47,7 +47,9 @@ const Login = () => {
     { email: "admin@ambulink.com", role: "Administrador" },
     { email: "hospital@ambulink.com", role: "Centro sanitario" },
     { email: "usuario@ambulink.com", role: "Usuario particular" },
-    { email: "ambulancia@ambulink.com", role: "Empresa de ambulancias" }
+    { email: "ambulancia@ambulink.com", role: "Empresa de ambulancias" },
+    { email: "coordinador@ambulink.com", role: "Centro Coordinador" },
+    { email: "equipo@ambulink.com", role: "Equipo Móvil" }
   ];
 
   return (
