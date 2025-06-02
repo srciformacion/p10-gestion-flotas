@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { 
   Home, 
@@ -9,7 +8,6 @@ import {
   MessageSquare, 
   Settings,
   MapPin,
-  Calendar,
   BarChart3,
   Route,
   Zap
@@ -23,11 +21,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/context/AuthContext";
-import { hasPermission } from "@/utils/permissions";
 
 const navigationItems = [
   {
@@ -93,7 +88,6 @@ const navigationItems = [
 ];
 
 export function AppSidebar() {
-  const { collapsed } = useSidebar();
   const { user } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -105,17 +99,13 @@ export function AppSidebar() {
   );
 
   const isActive = (path: string) => currentPath === path;
-  const getNavCls = (isActive: boolean) =>
-    isActive ? "bg-primary text-primary-foreground font-medium" : "hover:bg-muted/50";
 
   return (
-    <Sidebar className={collapsed ? "w-14" : "w-60"} collapsible>
-      <SidebarTrigger className="m-2 self-end" />
-      
+    <Sidebar>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>
-            {!collapsed && "Navegación Principal"}
+            Navegación Principal
           </SidebarGroupLabel>
           
           <SidebarGroupContent>
@@ -126,10 +116,12 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url} 
                       end 
-                      className={({ isActive }) => getNavCls(isActive)}
+                      className={({ isActive }) => 
+                        isActive ? "bg-primary text-primary-foreground font-medium" : "hover:bg-muted/50"
+                      }
                     >
                       <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

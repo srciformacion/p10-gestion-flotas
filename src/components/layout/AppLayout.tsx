@@ -1,6 +1,6 @@
 
 import { useAuth } from "@/context/AuthContext";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
 
@@ -16,7 +16,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   }
 
   return (
-    <SidebarProvider collapsedWidth={56}>
+    <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         

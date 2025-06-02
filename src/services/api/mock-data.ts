@@ -116,7 +116,7 @@ export const mockRequests: TransportRequest[] = [
   },
   {
     id: 'req-002',
-    type: 'emergency',
+    type: 'advanced',
     patientName: 'Pedro González',
     patientId: '87654321B',
     responsiblePerson: 'Emergencias 112',
