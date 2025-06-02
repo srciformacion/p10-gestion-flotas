@@ -33,6 +33,10 @@ import AnalyticsPage from "./pages/analytics/AnalyticsPage";
 import ConfigurationPage from "./pages/configuration/ConfigurationPage";
 import MobileTeamDashboard from "./pages/mobile/MobileTeamDashboard";
 
+// Driver specific pages
+import BatchViewPage from "./pages/driver/BatchViewPage";
+import RouteDetailsPage from "./pages/driver/RouteDetailsPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -64,6 +68,11 @@ const App = () => (
                   <Route path="/mensajes" element={<ChatPage />} />
                   <Route path="/configuracion" element={<ConfigurationPage />} />
                   <Route path="/equipo-movil" element={<MobileTeamDashboard />} />
+                  
+                  {/* Driver specific routes */}
+                  <Route path="/driver/batch-view/:loteId" element={<BatchViewPage />} />
+                  <Route path="/driver/route-details/:loteId" element={<RouteDetailsPage />} />
+                  
                   <Route path="/perfil" element={<Profile />} />
                   <Route path="/acceso-denegado" element={<AccessDenied />} />
                   <Route path="*" element={<NotFound />} />
