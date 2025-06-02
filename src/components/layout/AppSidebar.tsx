@@ -46,7 +46,7 @@ export function AppSidebar() {
       title: "Solicitudes",
       url: "/solicitudes",
       icon: FileText,
-      roles: ["admin", "centroCoordinador", "hospital", "individual", "equipoMovil", "ambulance"]
+      roles: ["admin", "centroCoordinador", "hospital", "individual", "ambulance"] // Removed equipoMovil
     },
     {
       title: "Ambulancias",
