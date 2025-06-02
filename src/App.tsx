@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { RequestsProvider } from "@/context/RequestsContext";
 import { ChatProvider } from "@/context/ChatContext";
-import { ChatInterface } from "@/components/chat/ChatInterface";
+import { AppLayout } from "@/components/layout/AppLayout";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -19,14 +19,19 @@ import RequestDetail from "./pages/RequestDetail";
 import Profile from "./pages/Profile";
 import AccessDenied from "./pages/AccessDenied";
 import NotFound from "./pages/NotFound";
-import AdminCompanies from "./pages/admin/AdminCompanies";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminRequests from "./pages/admin/AdminRequests";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminVehicles from "./pages/admin/AdminVehicles";
 import RecoverPassword from "./pages/RecoverPassword";
 import ChatPage from "./pages/messages/ChatPage";
+
+// Nuevas páginas para el sistema completo
+import AmbulanceList from "./pages/ambulances/AmbulanceList";
+import AmbulanceDetail from "./pages/ambulances/AmbulanceDetail";
+import UserManagement from "./pages/users/UserManagement";
+import RouteManagement from "./pages/routes/RouteManagement";
+import TrackingPage from "./pages/tracking/TrackingPage";
+import DispatchPage from "./pages/dispatch/DispatchPage";
+import AnalyticsPage from "./pages/analytics/AnalyticsPage";
+import ConfigurationPage from "./pages/configuration/ConfigurationPage";
+import MobileTeamDashboard from "./pages/mobile/MobileTeamDashboard";
 
 const queryClient = new QueryClient();
 
@@ -39,27 +44,31 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/registro" element={<Register />} />
-                <Route path="/recuperar-password" element={<RecoverPassword />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/nueva-solicitud" element={<NewRequest />} />
-                <Route path="/solicitudes" element={<RequestList />} />
-                <Route path="/solicitudes/:id" element={<RequestDetail />} />
-                <Route path="/perfil" element={<Profile />} />
-                <Route path="/mensajes" element={<ChatPage />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/empresas" element={<AdminCompanies />} />
-                <Route path="/admin/usuarios" element={<AdminUsers />} />
-                <Route path="/admin/solicitudes" element={<AdminRequests />} />
-                <Route path="/admin/vehiculos" element={<AdminVehicles />} />
-                <Route path="/admin/configuracion" element={<AdminSettings />} />
-                <Route path="/acceso-denegado" element={<AccessDenied />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <ChatInterface />
+              <AppLayout>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/registro" element={<Register />} />
+                  <Route path="/recuperar-password" element={<RecoverPassword />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/nueva-solicitud" element={<NewRequest />} />
+                  <Route path="/solicitudes" element={<RequestList />} />
+                  <Route path="/solicitudes/:id" element={<RequestDetail />} />
+                  <Route path="/ambulancias" element={<AmbulanceList />} />
+                  <Route path="/ambulancias/:id" element={<AmbulanceDetail />} />
+                  <Route path="/usuarios" element={<UserManagement />} />
+                  <Route path="/rutas" element={<RouteManagement />} />
+                  <Route path="/seguimiento" element={<TrackingPage />} />
+                  <Route path="/despacho" element={<DispatchPage />} />
+                  <Route path="/analiticas" element={<AnalyticsPage />} />
+                  <Route path="/mensajes" element={<ChatPage />} />
+                  <Route path="/configuracion" element={<ConfigurationPage />} />
+                  <Route path="/equipo-movil" element={<MobileTeamDashboard />} />
+                  <Route path="/perfil" element={<Profile />} />
+                  <Route path="/acceso-denegado" element={<AccessDenied />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </AppLayout>
             </BrowserRouter>
           </ChatProvider>
         </RequestsProvider>
