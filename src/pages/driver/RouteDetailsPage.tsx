@@ -1,11 +1,13 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Clock, User, Navigation, Phone } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Clock, Phone, Database } from "lucide-react";
 import { ParadaCard } from "@/components/driver/ParadaCard";
+import { mockServices } from "@/services/api/mock-services";
 
 interface Service {
   id: string;
@@ -33,125 +35,163 @@ interface RouteDetails {
 const RouteDetailsPage = () => {
   const { loteId } = useParams();
   const [routeDetails, setRouteDetails] = useState<RouteDetails | null>(null);
+  const [useMockData, setUseMockData] = useState(false);
 
   useEffect(() => {
-    // Mock data - in real app, fetch from API
-    setRouteDetails({
-      batchId: loteId || '',
-      batchName: 'Ruta Hospitales Centro',
-      currentServiceIndex: 3,
-      totalProgress: 37,
-      services: [
-        {
-          id: 'srv-001',
-          orderNumber: 1,
-          patientName: 'María García López',
-          origin: 'Hospital Clínico San Carlos, Planta 3ª',
-          destination: 'Hospital La Paz, Urgencias',
-          scheduledTime: '09:00',
-          estimatedPickup: '09:00',
-          estimatedArrival: '09:25',
-          transportType: 'stretcher',
-          observations: 'Paciente con movilidad reducida. Necesita oxígeno portátil.',
-          status: 'delivered',
-          contactPhone: '+34 666 123 456'
-        },
-        {
-          id: 'srv-002',
-          orderNumber: 2,
-          patientName: 'Juan Martínez Ruiz',
-          origin: 'Centro de Salud Arganzuela',
-          destination: 'Hospital Gregorio Marañón, Consultas',
-          scheduledTime: '09:45',
-          estimatedPickup: '09:45',
-          estimatedArrival: '10:10',
-          transportType: 'wheelchair',
-          observations: 'Cita de revisión cardiológica.',
-          status: 'delivered'
-        },
-        {
-          id: 'srv-003',
-          orderNumber: 3,
-          patientName: 'Ana Rodríguez Pérez',
-          origin: 'Hospital La Paz, Planta 2ª',
-          destination: 'Domicilio - Calle Mayor 15, 3º B',
-          scheduledTime: '10:30',
-          estimatedPickup: '10:30',
-          estimatedArrival: '10:55',
-          transportType: 'walking',
-          observations: 'Alta médica. Paciente puede caminar con ayuda.',
-          status: 'delivered'
-        },
-        {
-          id: 'srv-004',
-          orderNumber: 4,
-          patientName: 'Carlos López Fernández',
-          origin: 'Domicilio - Avenida de América 45',
-          destination: 'Hospital Ramón y Cajal, Urgencias',
-          scheduledTime: '11:15',
-          estimatedPickup: '11:15',
-          estimatedArrival: '11:40',
-          transportType: 'stretcher',
-          observations: 'Urgencia médica. Paciente con dolor abdominal severo.',
-          status: 'en_route_destination',
-          contactPhone: '+34 666 789 123'
-        },
-        {
-          id: 'srv-005',
-          orderNumber: 5,
-          patientName: 'Isabel Gómez Torres',
-          origin: 'Hospital Gregorio Marañón, Planta 5ª',
-          destination: 'Centro de Rehabilitación San Juan',
-          scheduledTime: '12:00',
-          estimatedPickup: '12:00',
-          estimatedArrival: '12:20',
-          transportType: 'wheelchair',
-          observations: 'Sesión de fisioterapia programada.',
-          status: 'pending'
-        },
-        {
-          id: 'srv-006',
-          orderNumber: 6,
-          patientName: 'Miguel Sánchez Díaz',
-          origin: 'Centro de Salud Retiro',
-          destination: 'Hospital Clínico San Carlos, Oncología',
-          scheduledTime: '12:45',
-          estimatedPickup: '12:45',
-          estimatedArrival: '13:10',
-          transportType: 'walking',
-          observations: 'Tratamiento de quimioterapia.',
-          status: 'pending'
-        },
-        {
-          id: 'srv-007',
-          orderNumber: 7,
-          patientName: 'Carmen Ruiz Moreno',
-          origin: 'Hospital La Paz, Urgencias',
-          destination: 'Domicilio - Plaza de España 8, 1º A',
-          scheduledTime: '13:30',
-          estimatedPickup: '13:30',
-          estimatedArrival: '13:55',
-          transportType: 'wheelchair',
-          observations: 'Alta de urgencias. Paciente estable.',
-          status: 'pending'
-        },
-        {
-          id: 'srv-008',
-          orderNumber: 8,
-          patientName: 'Francisco Torres Gil',
-          origin: 'Domicilio - Calle Alcalá 123, 2º C',
-          destination: 'Hospital Ramón y Cajal, Cardiología',
-          scheduledTime: '14:15',
-          estimatedPickup: '14:15',
-          estimatedArrival: '14:45',
-          transportType: 'stretcher',
-          observations: 'Revisión post-operatoria. Paciente con marcapasos.',
-          status: 'pending',
-          contactPhone: '+34 666 456 789'
-        }
-      ]
-    });
-  }, [loteId]);
+    if (useMockData) {
+      // Use mock data to generate route details
+      const selectedServices = mockServices.slice(0, 20).map((service, index) => ({
+        id: service.id,
+        orderNumber: index + 1,
+        patientName: service.patientName,
+        origin: service.origin,
+        destination: service.destination,
+        scheduledTime: new Date(service.dateTime).toLocaleTimeString('es-ES', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        }),
+        estimatedPickup: new Date(service.dateTime).toLocaleTimeString('es-ES', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        }),
+        estimatedArrival: new Date(Date.parse(service.dateTime) + 30 * 60000).toLocaleTimeString('es-ES', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        }),
+        transportType: service.transportType,
+        observations: service.observations || '',
+        status: index < 3 ? 'delivered' as const : 
+                index === 3 ? 'en_route_destination' as const : 
+                'pending' as const,
+        contactPhone: service.contactPhone
+      }));
+
+      setRouteDetails({
+        batchId: loteId || '',
+        batchName: 'Ruta Simulada con Datos Mock',
+        currentServiceIndex: 3,
+        totalProgress: Math.round((3 / selectedServices.length) * 100),
+        services: selectedServices
+      });
+    } else {
+      // Original mock data - keep existing code for compatibility
+      setRouteDetails({
+        batchId: loteId || '',
+        batchName: 'Ruta Hospitales Centro',
+        currentServiceIndex: 3,
+        totalProgress: 37,
+        services: [
+          {
+            id: 'srv-001',
+            orderNumber: 1,
+            patientName: 'María García López',
+            origin: 'Hospital Clínico San Carlos, Planta 3ª',
+            destination: 'Hospital La Paz, Urgencias',
+            scheduledTime: '09:00',
+            estimatedPickup: '09:00',
+            estimatedArrival: '09:25',
+            transportType: 'stretcher',
+            observations: 'Paciente con movilidad reducida. Necesita oxígeno portátil.',
+            status: 'delivered',
+            contactPhone: '+34 666 123 456'
+          },
+          {
+            id: 'srv-002',
+            orderNumber: 2,
+            patientName: 'Juan Martínez Ruiz',
+            origin: 'Centro de Salud Arganzuela',
+            destination: 'Hospital Gregorio Marañón, Consultas',
+            scheduledTime: '09:45',
+            estimatedPickup: '09:45',
+            estimatedArrival: '10:10',
+            transportType: 'wheelchair',
+            observations: 'Cita de revisión cardiológica.',
+            status: 'delivered'
+          },
+          {
+            id: 'srv-003',
+            orderNumber: 3,
+            patientName: 'Ana Rodríguez Pérez',
+            origin: 'Hospital La Paz, Planta 2ª',
+            destination: 'Domicilio - Calle Mayor 15, 3º B',
+            scheduledTime: '10:30',
+            estimatedPickup: '10:30',
+            estimatedArrival: '10:55',
+            transportType: 'walking',
+            observations: 'Alta médica. Paciente puede caminar con ayuda.',
+            status: 'delivered'
+          },
+          {
+            id: 'srv-004',
+            orderNumber: 4,
+            patientName: 'Carlos López Fernández',
+            origin: 'Domicilio - Avenida de América 45',
+            destination: 'Hospital Ramón y Cajal, Urgencias',
+            scheduledTime: '11:15',
+            estimatedPickup: '11:15',
+            estimatedArrival: '11:40',
+            transportType: 'stretcher',
+            observations: 'Urgencia médica. Paciente con dolor abdominal severo.',
+            status: 'en_route_destination',
+            contactPhone: '+34 666 789 123'
+          },
+          {
+            id: 'srv-005',
+            orderNumber: 5,
+            patientName: 'Isabel Gómez Torres',
+            origin: 'Hospital Gregorio Marañón, Planta 5ª',
+            destination: 'Centro de Rehabilitación San Juan',
+            scheduledTime: '12:00',
+            estimatedPickup: '12:00',
+            estimatedArrival: '12:20',
+            transportType: 'wheelchair',
+            observations: 'Sesión de fisioterapia programada.',
+            status: 'pending'
+          },
+          {
+            id: 'srv-006',
+            orderNumber: 6,
+            patientName: 'Miguel Sánchez Díaz',
+            origin: 'Centro de Salud Retiro',
+            destination: 'Hospital Clínico San Carlos, Oncología',
+            scheduledTime: '12:45',
+            estimatedPickup: '12:45',
+            estimatedArrival: '13:10',
+            transportType: 'walking',
+            observations: 'Tratamiento de quimioterapia.',
+            status: 'pending'
+          },
+          {
+            id: 'srv-007',
+            orderNumber: 7,
+            patientName: 'Carmen Ruiz Moreno',
+            origin: 'Hospital La Paz, Urgencias',
+            destination: 'Domicilio - Plaza de España 8, 1º A',
+            scheduledTime: '13:30',
+            estimatedPickup: '13:30',
+            estimatedArrival: '13:55',
+            transportType: 'wheelchair',
+            observations: 'Alta de urgencias. Paciente estable.',
+            status: 'pending'
+          },
+          {
+            id: 'srv-008',
+            orderNumber: 8,
+            patientName: 'Francisco Torres Gil',
+            origin: 'Domicilio - Calle Alcalá 123, 2º C',
+            destination: 'Hospital Ramón y Cajal, Cardiología',
+            scheduledTime: '14:15',
+            estimatedPickup: '14:15',
+            estimatedArrival: '14:45',
+            transportType: 'stretcher',
+            observations: 'Revisión post-operatoria. Paciente con marcapasos.',
+            status: 'pending',
+            contactPhone: '+34 666 456 789'
+          }
+        ]
+      });
+    }
+  }, [loteId, useMockData]);
 
   const updateServiceStatus = (serviceId: string, newStatus: Service['status']) => {
     if (!routeDetails) return;
@@ -205,6 +245,19 @@ const RouteDetailsPage = () => {
             <p className="text-muted-foreground">{routeDetails.batchName}</p>
           </div>
         </div>
+        
+        {/* Mock Data Toggle */}
+        <div className="flex items-center space-x-2 bg-muted p-3 rounded-lg">
+          <Database className="h-4 w-4" />
+          <Label htmlFor="mock-data-route" className="text-sm">
+            Datos simulados
+          </Label>
+          <Switch
+            id="mock-data-route"
+            checked={useMockData}
+            onCheckedChange={setUseMockData}
+          />
+        </div>
       </div>
 
       {/* Progress Overview */}
@@ -250,7 +303,7 @@ const RouteDetailsPage = () => {
 
       {/* Services List */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Paradas del Día</h2>
+        <h2 className="text-xl font-semibold">Paradas del Día ({routeDetails.services.length} servicios)</h2>
         {routeDetails.services.map((service, index) => (
           <ParadaCard
             key={service.id}

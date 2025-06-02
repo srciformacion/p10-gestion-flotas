@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { TransportRequest } from '@/types';
 import { requestsApi } from '@/services/api/requests';
+import { mockServices } from '@/services/api/mock-services';
 
 interface RequestsContextType {
   requests: TransportRequest[];
@@ -10,6 +11,8 @@ interface RequestsContextType {
   updateRequestStatus: (id: string, status: TransportRequest['status'], data?: Partial<TransportRequest>) => Promise<void>;
   getRequestById: (id: string) => TransportRequest | undefined;
   isLoading: boolean;
+  useMockData: boolean;
+  setUseMockData: (use: boolean) => void;
 }
 
 const RequestsContext = createContext<RequestsContextType | undefined>(undefined);
@@ -17,12 +20,20 @@ const RequestsContext = createContext<RequestsContextType | undefined>(undefined
 export const RequestsProvider = ({ children }: { children: React.ReactNode }) => {
   const [requests, setRequests] = useState<TransportRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [useMockData, setUseMockData] = useState(false);
 
   useEffect(() => {
     const loadRequests = async () => {
+      setIsLoading(true);
       try {
-        const data = await requestsApi.getAll();
-        setRequests(data);
+        if (useMockData) {
+          // Use mock data
+          setRequests(mockServices);
+        } else {
+          // Use API data
+          const data = await requestsApi.getAll();
+          setRequests(data);
+        }
       } catch (error) {
         console.error('Error loading requests:', error);
       } finally {
@@ -31,11 +42,22 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
     };
 
     loadRequests();
-  }, []);
+  }, [useMockData]);
 
   const addRequest = async (requestData: Omit<TransportRequest, 'id' | 'status'>) => {
-    const newRequest = await requestsApi.create(requestData);
-    setRequests(prev => [...prev, newRequest]);
+    if (useMockData) {
+      // Add to mock data
+      const newRequest: TransportRequest = {
+        ...requestData,
+        id: `srv-${Date.now()}`,
+        status: 'pending',
+      };
+      setRequests(prev => [newRequest, ...prev]);
+    } else {
+      // Use API
+      const newRequest = await requestsApi.create(requestData);
+      setRequests(prev => [...prev, newRequest]);
+    }
   };
 
   const updateRequestStatus = async (
@@ -43,8 +65,18 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
     status: TransportRequest['status'], 
     data?: Partial<TransportRequest>
   ) => {
-    const updatedRequest = await requestsApi.update(id, { status, ...data });
-    setRequests(prev => prev.map(req => req.id === id ? updatedRequest : req));
+    if (useMockData) {
+      // Update mock data
+      setRequests(prev => prev.map(req => 
+        req.id === id 
+          ? { ...req, status, ...data, updatedAt: new Date().toISOString() }
+          : req
+      ));
+    } else {
+      // Use API
+      const updatedRequest = await requestsApi.update(id, { status, ...data });
+      setRequests(prev => prev.map(req => req.id === id ? updatedRequest : req));
+    }
   };
 
   const getRequestById = (id: string) => {
@@ -63,7 +95,9 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
         addRequest, 
         updateRequestStatus, 
         getRequestById,
-        isLoading 
+        isLoading,
+        useMockData,
+        setUseMockData
       }}
     >
       {children}
