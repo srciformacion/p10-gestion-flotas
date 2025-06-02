@@ -31,6 +31,7 @@ export const Navbar = () => {
   };
 
   const showDashboardLink = user && user.role !== 'individual';
+  const showAdminLink = user && (user.role === 'admin' || user.role === 'ambulance');
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b sticky top-0 z-50">
@@ -61,7 +62,7 @@ export const Navbar = () => {
                     Mis Solicitudes
                   </Link>
                   
-                  {user.role === 'admin' && (
+                  {showAdminLink && (
                     <Link to="/admin" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
                       Administración
                     </Link>
@@ -145,7 +146,7 @@ export const Navbar = () => {
                   Mis Solicitudes
                 </Link>
                 
-                {user.role === 'admin' && (
+                {showAdminLink && (
                   <Link
                     to="/admin"
                     className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"

@@ -16,8 +16,8 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
   // Definimos las acciones disponibles según el rol del usuario
   const canCreateRequest = user?.role === 'hospital' || user?.role === 'individual' || user?.role === 'admin';
   const canManageRequests = user?.role === 'admin';
-  const canManageUsers = user?.role === 'admin';
-  const canManageVehicles = user?.role === 'admin';
+  const canManageUsers = user?.role === 'admin' || user?.role === 'ambulance'; // Ambulancias pueden gestionar usuarios
+  const canManageVehicles = user?.role === 'admin' || user?.role === 'ambulance'; // Ambulancias pueden gestionar vehículos
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -78,7 +78,7 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-4">
-            Comunícate con {user?.role === 'admin' ? 'los usuarios' : 'la administración'}
+            Comunícate con {user?.role === 'admin' || user?.role === 'ambulance' ? 'los usuarios' : 'la administración'}
           </p>
           <Link to="/mensajes" className="w-full">
             <Button variant="outline" className="w-full">
@@ -88,7 +88,7 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
         </CardContent>
       </Card>
 
-      {/* Acción: Gestionar usuarios (solo admin) */}
+      {/* Acción: Gestionar usuarios (admin y ambulancias) */}
       {canManageUsers && (
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
@@ -101,7 +101,7 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
             <p className="text-muted-foreground mb-4">
               Gestionar los usuarios del sistema
             </p>
-            <Link to="/admin/usuarios" className="w-full">
+            <Link to="/usuarios" className="w-full">
               <Button variant="outline" className="w-full">
                 Gestionar Usuarios
               </Button>
@@ -110,22 +110,22 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
         </Card>
       )}
 
-      {/* Acción: Gestionar vehículos (solo admin) */}
+      {/* Acción: Gestionar vehículos (admin y ambulancias) */}
       {canManageVehicles && (
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Ambulance className="h-5 w-5 text-green-500" />
-              Vehículos
+              Ambulancias
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
               Gestionar la flota de vehículos disponibles
             </p>
-            <Link to="/admin/vehiculos" className="w-full">
+            <Link to="/ambulancias" className="w-full">
               <Button variant="outline" className="w-full">
-                Gestionar Vehículos
+                Gestionar Ambulancias
               </Button>
             </Link>
           </CardContent>

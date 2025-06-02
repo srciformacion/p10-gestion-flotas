@@ -40,43 +40,43 @@ export function AppSidebar() {
       title: "Dashboard",
       url: "/dashboard",
       icon: LayoutDashboard,
-      roles: ["admin", "centroCoordinador", "hospital", "equipoMovil"]
+      roles: ["admin", "centroCoordinador", "hospital", "equipoMovil", "ambulance"]
     },
     {
       title: "Solicitudes",
       url: "/solicitudes",
       icon: FileText,
-      roles: ["admin", "centroCoordinador", "hospital", "individual", "equipoMovil"]
+      roles: ["admin", "centroCoordinador", "hospital", "individual", "equipoMovil", "ambulance"]
     },
     {
       title: "Ambulancias",
       url: "/ambulancias",
       icon: Ambulance,
-      roles: ["admin", "centroCoordinador"]
+      roles: ["admin", "centroCoordinador", "ambulance"]
     },
     {
       title: "Usuarios",
       url: "/usuarios",
       icon: Users,
-      roles: ["admin"]
+      roles: ["admin", "ambulance"]
     },
     {
       title: "Rutas",
       url: "/rutas",
       icon: Route,
-      roles: ["admin", "centroCoordinador"]
+      roles: ["admin", "centroCoordinador", "ambulance"]
     },
     {
       title: "Seguimiento",
       url: "/seguimiento",
       icon: MapPin,
-      roles: ["admin", "centroCoordinador", "hospital"]
+      roles: ["admin", "centroCoordinador", "hospital", "ambulance"]
     },
     {
       title: "Despacho IA",
       url: "/despacho",
       icon: Brain,
-      roles: ["admin", "centroCoordinador"]
+      roles: ["admin", "centroCoordinador", "ambulance"]
     },
     {
       title: "Equipo Móvil",
@@ -88,19 +88,19 @@ export function AppSidebar() {
       title: "Analíticas",
       url: "/analiticas",
       icon: BarChart3,
-      roles: ["admin", "centroCoordinador"]
+      roles: ["admin", "centroCoordinador"] // Solo admin y centroCoordinador, NO ambulance
     },
     {
       title: "Mensajes",
       url: "/mensajes",
       icon: MessageSquare,
-      roles: ["admin", "centroCoordinador", "hospital", "individual", "equipoMovil"]
+      roles: ["admin", "centroCoordinador", "hospital", "individual", "equipoMovil", "ambulance"]
     },
     {
       title: "Configuración",
       url: "/configuracion",
       icon: Settings,
-      roles: ["admin", "centroCoordinador"]
+      roles: ["admin", "centroCoordinador", "ambulance"]
     }
   ];
 
