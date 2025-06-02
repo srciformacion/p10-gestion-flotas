@@ -1,6 +1,6 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { TransportRequest } from '@/types';
+import { TransportRequest } from '@/types/request';
 import { requestsApi } from '@/services/api/requests';
 import { mockServices } from '@/services/api/mock-services';
 

@@ -25,51 +25,58 @@ const patientNames = [
   'Encarnación López Serrano', 'Salvador Martínez Cano', 'Purificación Rodríguez Mesa', 'Jesús Torres Romero'
 ];
 
-// Origins and destinations
+// Locations in La Rioja
 const locations = [
-  'Hospital Clínico San Carlos', 'Hospital La Paz', 'Hospital Gregorio Marañón',
-  'Hospital Ramón y Cajal', 'Hospital 12 de Octubre', 'Hospital Puerta de Hierro',
-  'Centro de Salud Arganzuela', 'Centro de Salud Retiro', 'Centro de Salud Chamberí',
-  'Centro de Rehabilitación San Juan', 'Clínica Ruber', 'Clínica Delfos',
-  'Residencia Los Olivos', 'Residencia Virgen del Carmen', 'Domicilio - Calle Mayor 15',
-  'Domicilio - Avenida de América 45', 'Domicilio - Plaza de España 8', 'Domicilio - Calle Alcalá 123',
-  'Domicilio - Gran Vía 28', 'Domicilio - Paseo de la Castellana 95', 'Hospital Infantil Niño Jesús',
-  'Hospital Universitario La Princesa', 'Hospital Clínico Universitario', 'Centro Médico Teknon',
-  'Hospital Quirónsalud Madrid', 'Hospital HM Montepríncipe', 'Hospital Sanitas La Zarzuela'
+  'Hospital San Pedro - Logroño', 'Hospital de la Rioja - Logroño', 'Centro de Salud Cascajos - Logroño',
+  'Centro de Salud Espartero - Logroño', 'Centro de Salud Rodríguez Paterna - Logroño',
+  'Centro de Salud Siete Infantes de Lara - Logroño', 'Centro de Salud Gonzalo de Berceo - Logroño',
+  'Hospital de Calahorra', 'Centro de Salud Calahorra', 'Centro de Salud Arnedo',
+  'Hospital de Haro', 'Centro de Salud Haro', 'Centro de Salud Santo Domingo de la Calzada',
+  'Centro de Salud Nájera', 'Centro de Salud Alfaro', 'Centro de Salud Cervera del Río Alhama',
+  'Residencia de Mayores Los Royales - Logroño', 'Residencia San Bernabé - Logroño',
+  'Centro de Día La Estrella - Logroño', 'Domicilio - Calle Bretón de los Herreros 25, Logroño',
+  'Domicilio - Avenida de la Paz 45, Logroño', 'Domicilio - Calle Portales 8, Logroño',
+  'Domicilio - Gran Vía 28, Logroño', 'Domicilio - Calle Sagasta 95, Logroño',
+  'Clínica Vistahermosa - Logroño', 'Clínica San José - Logroño', 'Centro Médico La Rioja',
+  'Hospital Reina Sofía - Tudela (Navarra)', 'Clínica Universidad de Navarra - Pamplona',
+  'Hospital Universitario de Burgos', 'Hospital Santiago Apóstol - Miranda de Ebro',
+  'Domicilio - Calle Mayor 15, Haro', 'Domicilio - Plaza España 3, Calahorra',
+  'Domicilio - Avenida Numancia 12, Soria', 'Centro de Salud Pradejón',
+  'Centro de Salud Rincón de Soto', 'Centro de Salud Villamediana de Iregua'
 ];
 
 const observations = [
   'Paciente con movilidad reducida. Necesita oxígeno portátil.',
-  'Cita de revisión cardiológica.',
+  'Cita de revisión cardiológica en Hospital San Pedro.',
   'Alta médica. Paciente puede caminar con ayuda.',
   'Urgencia médica. Paciente con dolor abdominal severo.',
-  'Sesión de fisioterapia programada.',
-  'Tratamiento de quimioterapia.',
-  'Alta de urgencias. Paciente estable.',
+  'Sesión de fisioterapia programada en centro especializado.',
+  'Tratamiento de quimioterapia en Hospital de la Rioja.',
+  'Alta de urgencias. Paciente estable para traslado.',
   'Revisión post-operatoria. Paciente con marcapasos.',
   'Control de diabetes. Paciente insulinodependiente.',
   'Rehabilitación tras cirugía de rodilla.',
-  'Consulta de oftalmología. Paciente con problemas de visión.',
-  'Sesión de diálisis programada.',
+  'Consulta de oftalmología especializada.',
+  'Sesión de diálisis programada en Hospital San Pedro.',
   'Control de embarazo de alto riesgo.',
-  'Revisión neurológica tras accidente.',
+  'Revisión neurológica tras accidente de tráfico.',
   'Terapia ocupacional post-ictus.',
   'Control de hipertensión arterial.',
-  'Consulta de dermatología.',
-  'Revisión de marcapasos.',
-  'Control post-quirúrgico.',
-  'Sesión de radioterapia.',
-  'Consulta de endocrinología.',
-  'Control de anticoagulación.',
-  'Revisión de prótesis.',
-  'Consulta de psiquiatría.',
-  'Control de dolor crónico.'
+  'Consulta de dermatología en Hospital de la Rioja.',
+  'Revisión de marcapasos en unidad especializada.',
+  'Control post-quirúrgico tras cirugía abdominal.',
+  'Sesión de radioterapia programada.',
+  'Consulta de endocrinología pediátrica.',
+  'Control de anticoagulación oral.',
+  'Revisión de prótesis de cadera.',
+  'Consulta de psiquiatría infantil.',
+  'Control de dolor crónico en unidad especializada.'
 ];
 
 const phoneNumbers = [
-  '+34 666 123 456', '+34 666 234 567', '+34 666 345 678', '+34 666 456 789',
-  '+34 666 567 890', '+34 666 678 901', '+34 666 789 012', '+34 666 890 123',
-  '+34 677 123 456', '+34 677 234 567', '+34 688 345 678', '+34 699 456 789'
+  '+34 641 123 456', '+34 641 234 567', '+34 641 345 678', '+34 641 456 789',
+  '+34 641 567 890', '+34 641 678 901', '+34 641 789 012', '+34 641 890 123',
+  '+34 696 123 456', '+34 696 234 567', '+34 698 345 678', '+34 699 456 789'
 ];
 
 const statuses: Array<'pending' | 'assigned' | 'inRoute' | 'completed' | 'cancelled'> = [
@@ -89,19 +96,21 @@ const requestTypes: Array<'simple' | 'scheduled' | 'advanced'> = [
 ];
 
 const responsiblePersons = [
-  'Dr. José Rodríguez', 'Dra. Carmen Martínez', 'Dr. Luis García', 'Dra. Ana Fernández',
-  'Dr. Miguel Santos', 'Dra. Isabel López', 'Dr. Francisco Ruiz', 'Dra. Teresa Gómez',
-  'Emergencias 112', 'Centro Coordinador', 'Familia del paciente', 'Trabajador Social',
-  'Dr. Pedro Jiménez', 'Dra. Laura Morales', 'Dr. Antonio Vega', 'Dra. Rosa Delgado'
+  'Dr. José Rodríguez García', 'Dra. Carmen Martínez López', 'Dr. Luis García Ruiz', 'Dra. Ana Fernández Sanz',
+  'Dr. Miguel Santos Pérez', 'Dra. Isabel López Torres', 'Dr. Francisco Ruiz Jiménez', 'Dra. Teresa Gómez Morales',
+  'Emergencias 112 La Rioja', 'Centro Coordinador Sanitario', 'Familia del paciente', 'Trabajador Social',
+  'Dr. Pedro Jiménez Vega', 'Dra. Laura Morales Castro', 'Dr. Antonio Vega Herrera', 'Dra. Rosa Delgado Ramos',
+  'Dr. Rafael Guerrero (Hospital San Pedro)', 'Dra. Lucía Peña (Hospital de la Rioja)', 'Dr. Manuel Aguilar (Haro)',
+  'Dra. Carmen Vázquez (Calahorra)'
 ];
 
 // Generate mock services
 export const generateMockServices = (count: number = 300): TransportRequest[] => {
   const services: TransportRequest[] = [];
   const startDate = new Date();
-  startDate.setDate(startDate.getDate() - 30); // 30 days ago
+  startDate.setDate(startDate.getDate() - 15); // 15 days ago
   const endDate = new Date();
-  endDate.setDate(endDate.getDate() + 30); // 30 days from now
+  endDate.setDate(endDate.getDate() + 45); // 45 days from now
 
   for (let i = 1; i <= count; i++) {
     const dateTime = getRandomDate(startDate, endDate);
@@ -109,6 +118,7 @@ export const generateMockServices = (count: number = 300): TransportRequest[] =>
     const transportType = getRandomElement(transportTypes);
     const priority = getRandomElement(priorities);
     const requestType = getRandomElement(requestTypes);
+    const origin = getRandomElement(locations);
     
     // Generate DNI-like ID
     const patientId = `${String(Math.floor(Math.random() * 100000000)).padStart(8, '0')}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`;
@@ -119,8 +129,8 @@ export const generateMockServices = (count: number = 300): TransportRequest[] =>
       patientName: getRandomElement(patientNames),
       patientId,
       responsiblePerson: getRandomElement(responsiblePersons),
-      origin: getRandomElement(locations),
-      destination: getRandomElement(locations.filter(loc => loc !== service?.origin)),
+      origin,
+      destination: getRandomElement(locations.filter(loc => loc !== origin)),
       dateTime: dateTime.toISOString(),
       transportType,
       status,
@@ -135,7 +145,7 @@ export const generateMockServices = (count: number = 300): TransportRequest[] =>
       
       // Add additional fields based on status
       ...(status === 'assigned' || status === 'inRoute' || status === 'completed' ? {
-        assignedAmbulance: `amb-${String(Math.floor(Math.random() * 20) + 1).padStart(3, '0')}`,
+        assignedAmbulance: `AMB-${String(Math.floor(Math.random() * 20) + 1).padStart(2, '0')}-LR`,
         estimatedArrival: new Date(dateTime.getTime() + Math.random() * 2 * 60 * 60 * 1000).toISOString()
       } : {}),
       
@@ -147,28 +157,31 @@ export const generateMockServices = (count: number = 300): TransportRequest[] =>
       ...(Math.random() > 0.7 ? {
         medicalCondition: getRandomElement([
           'Diabetes', 'Hipertensión', 'Cardiopatía', 'EPOC', 'Artritis', 'Osteoporosis',
-          'Insuficiencia renal', 'Epilepsia', 'Parkinson', 'Alzheimer'
+          'Insuficiencia renal', 'Epilepsia', 'Parkinson', 'Alzheimer', 'Fractura de cadera',
+          'Ictus', 'Insuficiencia cardíaca', 'Cáncer', 'Demencia'
         ])
       } : {}),
       
       ...(Math.random() > 0.8 ? {
         specialRequirements: getRandomElement([
           'Oxígeno portátil', 'Silla de ruedas especial', 'Asistencia médica continua',
-          'Medicación específica', 'Dieta especial', 'Acompañante necesario'
+          'Medicación específica', 'Dieta especial', 'Acompañante necesario',
+          'Monitor cardíaco', 'Desfibrilador', 'Bomba de insulina'
         ])
       } : {}),
       
       ...(Math.random() > 0.9 ? {
         architecturalBarriers: getRandomElement([
           'Sin ascensor', 'Escalones en entrada', 'Puerta estrecha',
-          'Sin rampa de acceso', 'Escalera caracol'
+          'Sin rampa de acceso', 'Escalera caracol', 'Edificio sin accesibilidad'
         ])
       } : {}),
       
       ...(Math.random() > 0.85 ? {
         specialAttention: getRandomElement([
           'Paciente agresivo', 'Claustrofobia', 'Ansiedad severa',
-          'No habla español', 'Problemas de audición', 'Demencia'
+          'No habla español', 'Problemas de audición', 'Demencia avanzada',
+          'Riesgo de caídas', 'Alergia a medicamentos'
         ])
       } : {})
     };
