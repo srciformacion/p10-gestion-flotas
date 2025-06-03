@@ -2,7 +2,11 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useCreateRequest } from "@/hooks/useCreateRequest";
-import { useFormValidation, commonValidationRules } from "@/hooks/useFormValidation";
+import { 
+  useFormValidation, 
+  commonValidationRules, 
+  createCrossFieldValidations 
+} from "@/hooks/useFormValidation";
 
 export const useRequestForm = () => {
   const { user } = useAuth();
@@ -42,10 +46,44 @@ export const useRequestForm = () => {
         }
         return null;
       }
+    },
+    transportType: {
+      required: true,
+      custom: (value: string, formData?: Record<string, any>) => {
+        // Validación contextual basada en observaciones
+        if (formData?.observations && formData.observations.toLowerCase().includes('urgente') && value === 'walking') {
+          return "Para casos urgentes se recomienda transporte en camilla o silla de ruedas";
+        }
+        return null;
+      }
     }
   };
 
-  const { errors, validateForm, validateSingleField, clearError } = useFormValidation(validationRules);
+  // Cross-field validations
+  const crossFieldValidations = [
+    createCrossFieldValidations.fieldsDifferent(
+      'origin', 
+      'destination', 
+      'El destino debe ser diferente al origen'
+    ),
+    {
+      fields: ['specialAttention', 'transportType'],
+      validator: (formData) => {
+        if (formData.specialAttention?.toLowerCase().includes('oxígeno') && formData.transportType === 'walking') {
+          return { 
+            field: 'transportType', 
+            error: 'Pacientes con oxígeno requieren transporte en camilla o silla de ruedas' 
+          };
+        }
+        return null;
+      }
+    }
+  ];
+
+  const { errors, validateForm, validateSingleField, clearError } = useFormValidation(
+    validationRules, 
+    crossFieldValidations
+  );
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -59,11 +97,13 @@ export const useRequestForm = () => {
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    validateSingleField(name, value);
+    validateSingleField(name, value, formData);
   };
   
   const handleRadioChange = (value: "stretcher" | "wheelchair" | "walking") => {
     setFormData(prev => ({ ...prev, transportType: value }));
+    // Revalidate transport type with current form data
+    validateSingleField('transportType', value, { ...formData, transportType: value });
   };
   
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,7 +135,7 @@ export const useRequestForm = () => {
       return;
     }
     
-    // Validate all form fields
+    // Validate all form fields with cross-field validations
     const isValid = validateForm(formData);
     if (!isValid) {
       return;
