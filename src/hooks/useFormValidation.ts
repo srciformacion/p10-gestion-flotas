@@ -6,7 +6,7 @@ export interface ValidationRule {
   pattern?: RegExp;
   minLength?: number;
   maxLength?: number;
-  custom?: (value: string) => string | null;
+  custom?: (value: any) => string | null;
 }
 
 export interface ValidationRules {
@@ -20,22 +20,33 @@ export interface ValidationErrors {
 export const useFormValidation = (rules: ValidationRules) => {
   const [errors, setErrors] = useState<ValidationErrors>({});
 
-  const validateField = (name: string, value: string): string | null => {
+  const validateField = (name: string, value: any): string | null => {
     const rule = rules[name];
     if (!rule) return null;
 
+    // Skip validation for boolean fields unless they have custom validation
+    if (typeof value === 'boolean') {
+      if (rule.custom) {
+        return rule.custom(value);
+      }
+      return null;
+    }
+
+    // Convert to string for validation
+    const stringValue = String(value || '');
+
     // Required validation
-    if (rule.required && (!value || value.trim() === '')) {
+    if (rule.required && (!stringValue || stringValue.trim() === '')) {
       return 'Este campo es obligatorio';
     }
 
     // Skip other validations if field is empty and not required
-    if (!value || value.trim() === '') {
+    if (!stringValue || stringValue.trim() === '') {
       return null;
     }
 
     // Pattern validation
-    if (rule.pattern && !rule.pattern.test(value)) {
+    if (rule.pattern && !rule.pattern.test(stringValue)) {
       if (name === 'email') return 'Ingrese un email válido';
       if (name === 'phone') return 'Ingrese un teléfono válido (ej: +34 941 123 456)';
       if (name === 'patientId') return 'Ingrese un DNI/NIE válido (ej: 12345678A o X1234567A)';
@@ -43,11 +54,11 @@ export const useFormValidation = (rules: ValidationRules) => {
     }
 
     // Length validations
-    if (rule.minLength && value.length < rule.minLength) {
+    if (rule.minLength && stringValue.length < rule.minLength) {
       return `Debe tener al menos ${rule.minLength} caracteres`;
     }
 
-    if (rule.maxLength && value.length > rule.maxLength) {
+    if (rule.maxLength && stringValue.length > rule.maxLength) {
       return `No puede exceder ${rule.maxLength} caracteres`;
     }
 
@@ -59,12 +70,12 @@ export const useFormValidation = (rules: ValidationRules) => {
     return null;
   };
 
-  const validateForm = (formData: Record<string, string>): boolean => {
+  const validateForm = (formData: Record<string, any>): boolean => {
     const newErrors: ValidationErrors = {};
     let isValid = true;
 
     Object.keys(rules).forEach(fieldName => {
-      const error = validateField(fieldName, formData[fieldName] || '');
+      const error = validateField(fieldName, formData[fieldName]);
       if (error) {
         newErrors[fieldName] = error;
         isValid = false;
@@ -75,7 +86,7 @@ export const useFormValidation = (rules: ValidationRules) => {
     return isValid;
   };
 
-  const validateSingleField = (name: string, value: string) => {
+  const validateSingleField = (name: string, value: any) => {
     const error = validateField(name, value);
     setErrors(prev => ({
       ...prev,
