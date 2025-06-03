@@ -3,12 +3,11 @@ import { Navbar } from "@/components/Navbar";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/ui/form-field";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
-import { FileCheck } from "lucide-react";
-import { PatientSection } from "@/components/requests/form/PatientSection";
+import { FileCheck, AlertCircle } from "lucide-react";
 import { LocationSection } from "@/components/requests/form/LocationSection";
 import { TransportTypeSection } from "@/components/requests/form/TransportTypeSection";
 import { AdditionalInfoSection } from "@/components/requests/form/AdditionalInfoSection";
@@ -18,16 +17,30 @@ const NewRequest = () => {
   const navigate = useNavigate();
   const {
     formData,
-    error,
+    errors,
     submitError,
     isSubmitting,
     uploadedFile,
     handleChange,
+    handleBlur,
     handleRadioChange,
     handleFileUpload,
     handleSubmit,
     user
   } = useRequestForm();
+
+  const getFileError = () => {
+    if (errors.authorizationFile === 'invalid-type') {
+      return 'El archivo debe ser un documento PDF';
+    }
+    if (errors.authorizationFile === 'too-large') {
+      return 'El archivo no puede superar los 5MB';
+    }
+    if (errors.authorizationFile === 'required-file') {
+      return 'Como usuario particular, debe adjuntar la autorización médica';
+    }
+    return errors.authorizationFile;
+  };
 
   return (
     <RequireAuth allowedRoles={['admin', 'hospital', 'individual']}>
@@ -47,38 +60,93 @@ const NewRequest = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {(error || submitError) && (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {(Object.keys(errors).length > 0 || submitError) && (
                     <Alert variant="destructive">
-                      <AlertTitle>Error</AlertTitle>
-                      <AlertDescription>{error || submitError}</AlertDescription>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Errores en el formulario</AlertTitle>
+                      <AlertDescription>
+                        {submitError || "Por favor, corrija los errores marcados en el formulario"}
+                      </AlertDescription>
                     </Alert>
                   )}
                   
-                  <PatientSection 
-                    patientName={formData.patientName}
-                    patientId={formData.patientId}
-                    responsiblePerson={formData.responsiblePerson}
-                    onChange={handleChange}
-                  />
-                  
-                  <LocationSection 
-                    origin={formData.origin}
-                    destination={formData.destination}
-                    onChange={handleChange}
-                  />
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="dateTime">Fecha y hora deseada *</Label>
-                    <Input
-                      id="dateTime"
-                      name="dateTime"
-                      type="datetime-local"
-                      value={formData.dateTime}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Información del Paciente</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        label="Nombre del paciente"
+                        name="patientName"
+                        value={formData.patientName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.patientName}
+                        required
+                        placeholder="Nombre completo del paciente"
+                      />
+                      
+                      <FormField
+                        label="DNI/NIE del paciente"
+                        name="patientId"
+                        value={formData.patientId}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.patientId}
+                        required
+                        placeholder="12345678A o X1234567A"
+                      />
+                    </div>
+                    
+                    <FormField
+                      label="Persona responsable del traslado"
+                      name="responsiblePerson"
+                      value={formData.responsiblePerson}
                       onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={errors.responsiblePerson}
                       required
+                      placeholder="Médico, enfermero, etc."
                     />
                   </div>
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Ubicaciones</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        label="Centro de origen"
+                        name="origin"
+                        value={formData.origin}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.origin}
+                        required
+                        placeholder="Hospital de origen"
+                      />
+                      
+                      <FormField
+                        label="Destino"
+                        name="destination"
+                        value={formData.destination}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.destination}
+                        required
+                        placeholder="Hospital de destino"
+                      />
+                    </div>
+                  </div>
+                  
+                  <FormField
+                    label="Fecha y hora deseada"
+                    name="dateTime"
+                    type="datetime-local"
+                    value={formData.dateTime}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.dateTime}
+                    required
+                  />
                   
                   <TransportTypeSection 
                     transportType={formData.transportType}
@@ -97,20 +165,26 @@ const NewRequest = () => {
                       <Label htmlFor="authorizationFile">
                         Autorización médica (PDF) {user?.role === 'individual' ? '*' : ''}
                       </Label>
-                      <div className="border rounded-md p-2">
-                        <Input
+                      <div className={`border rounded-md p-2 ${errors.authorizationFile ? 'border-destructive' : ''}`}>
+                        <input
                           id="authorizationFile"
                           name="authorizationFile"
                           type="file"
                           accept=".pdf"
                           onChange={handleFileUpload}
-                          className="mb-2"
+                          className="mb-2 w-full"
                           required={user?.role === 'individual'}
                         />
                         {uploadedFile && (
                           <div className="flex items-center text-sm text-green-600 mt-2">
                             <FileCheck className="h-4 w-4 mr-1" />
                             Archivo subido: {uploadedFile.name}
+                          </div>
+                        )}
+                        {errors.authorizationFile && (
+                          <div className="flex items-center gap-2 text-sm text-destructive mt-2">
+                            <AlertCircle className="h-4 w-4" />
+                            <span>{getFileError()}</span>
                           </div>
                         )}
                         <p className="text-xs text-muted-foreground mt-2">

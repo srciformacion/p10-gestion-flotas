@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useCreateRequest } from "@/hooks/useCreateRequest";
+import { useFormValidation, commonValidationRules } from "@/hooks/useFormValidation";
 
 export const useRequestForm = () => {
   const { user } = useAuth();
@@ -21,12 +22,44 @@ export const useRequestForm = () => {
     specialAttention: ""
   });
   
-  const [error, setError] = useState("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  
+  // Validation rules for the request form
+  const validationRules = {
+    patientName: commonValidationRules.name,
+    patientId: commonValidationRules.patientId,
+    origin: commonValidationRules.location,
+    destination: commonValidationRules.location,
+    responsiblePerson: commonValidationRules.responsiblePerson,
+    dateTime: {
+      required: true,
+      custom: (value: string) => {
+        if (!value) return null;
+        const selectedDate = new Date(value);
+        const now = new Date();
+        if (selectedDate < now) {
+          return "La fecha debe ser futura";
+        }
+        return null;
+      }
+    }
+  };
+
+  const { errors, validateForm, validateSingleField, clearError } = useFormValidation(validationRules);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      clearError(name);
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    validateSingleField(name, value);
   };
   
   const handleRadioChange = (value: "stretcher" | "wheelchair" | "walking") => {
@@ -38,36 +71,33 @@ export const useRequestForm = () => {
       const file = e.target.files[0];
       
       if (file.type !== 'application/pdf') {
-        setError("El archivo debe ser un documento PDF");
+        validateSingleField('authorizationFile', 'invalid-type');
         return;
       }
       
       if (file.size > 5 * 1024 * 1024) {
-        setError("El archivo no puede superar los 5MB");
+        validateSingleField('authorizationFile', 'too-large');
         return;
       }
       
       setUploadedFile(file);
       setFormData(prev => ({ ...prev, authorizationFile: file.name }));
-      
-      if (error.includes("autorización")) {
-        setError("");
-      }
+      clearError('authorizationFile');
     }
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     
-    if (!formData.patientName || !formData.patientId || !formData.origin || 
-        !formData.destination || !formData.dateTime || !formData.responsiblePerson) {
-      setError("Por favor, complete todos los campos obligatorios");
+    // Validate required file for individual users
+    if (user?.role === 'individual' && !uploadedFile) {
+      validateSingleField('authorizationFile', 'required-file');
       return;
     }
     
-    if (user?.role === 'individual' && !uploadedFile) {
-      setError("Como usuario particular, debe adjuntar la autorización médica");
+    // Validate all form fields
+    const isValid = validateForm(formData);
+    if (!isValid) {
       return;
     }
     
@@ -81,11 +111,12 @@ export const useRequestForm = () => {
 
   return {
     formData,
-    error,
+    errors,
     submitError,
     isSubmitting,
     uploadedFile,
     handleChange,
+    handleBlur,
     handleRadioChange,
     handleFileUpload,
     handleSubmit,

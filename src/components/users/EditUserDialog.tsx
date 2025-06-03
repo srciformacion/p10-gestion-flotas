@@ -1,9 +1,10 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/ui/form-field";
 import { Label } from "@/components/ui/label";
 import { User, UserRole } from "@/types/user";
+import { useFormValidation, commonValidationRules } from "@/hooks/useFormValidation";
 
 interface EditUserDialogProps {
   user: User;
@@ -21,29 +22,18 @@ export const EditUserDialog = ({ user, onEditUser, onCancel }: EditUserDialogPro
     isActive: user.isActive ?? true
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'El nombre es obligatorio';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'El email es obligatorio';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'El email no es válido';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const validationRules = {
+    name: commonValidationRules.name,
+    email: commonValidationRules.email,
+    phone: { ...commonValidationRules.phone, required: false }
   };
+
+  const { errors, validateForm, validateSingleField, clearError } = useFormValidation(validationRules);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (validateForm()) {
+    if (validateForm(formData)) {
       onEditUser({
         ...user,
         ...formData
@@ -51,55 +41,64 @@ export const EditUserDialog = ({ user, onEditUser, onCancel }: EditUserDialogPro
     }
   };
 
-  const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Limpiar error del campo cuando el usuario empiece a escribir
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      clearError(name);
     }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    validateSingleField(name, value);
+  };
+
+  const handleSelectChange = (field: string, value: string | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="edit-name">Nombre completo *</Label>
-        <Input
-          id="edit-name"
-          value={formData.name}
-          onChange={(e) => handleInputChange('name', e.target.value)}
-          placeholder="Ej: Juan Pérez García"
-        />
-        {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
-      </div>
+      <FormField
+        label="Nombre completo"
+        name="name"
+        value={formData.name}
+        onChange={handleInputChange}
+        onBlur={handleBlur}
+        error={errors.name}
+        required
+        placeholder="Ej: Juan Pérez García"
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="edit-email">Email *</Label>
-        <Input
-          id="edit-email"
-          type="email"
-          value={formData.email}
-          onChange={(e) => handleInputChange('email', e.target.value)}
-          placeholder="Ej: juan.perez@larioja.es"
-        />
-        {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
-      </div>
+      <FormField
+        label="Email"
+        name="email"
+        type="email"
+        value={formData.email}
+        onChange={handleInputChange}
+        onBlur={handleBlur}
+        error={errors.email}
+        required
+        placeholder="Ej: juan.perez@larioja.es"
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="edit-phone">Teléfono</Label>
-        <Input
-          id="edit-phone"
-          value={formData.phone}
-          onChange={(e) => handleInputChange('phone', e.target.value)}
-          placeholder="Ej: +34 941 123 456"
-        />
-      </div>
+      <FormField
+        label="Teléfono"
+        name="phone"
+        value={formData.phone}
+        onChange={handleInputChange}
+        onBlur={handleBlur}
+        error={errors.phone}
+        placeholder="Ej: +34 941 123 456"
+      />
 
       <div className="space-y-2">
         <Label htmlFor="edit-role">Rol</Label>
         <select
           id="edit-role"
           value={formData.role}
-          onChange={(e) => handleInputChange('role', e.target.value as UserRole)}
+          onChange={(e) => handleSelectChange('role', e.target.value as UserRole)}
           className="w-full px-3 py-2 border border-input rounded-md bg-background"
         >
           <option value="individual">Usuario Individual</option>
@@ -110,22 +109,20 @@ export const EditUserDialog = ({ user, onEditUser, onCancel }: EditUserDialogPro
         </select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="edit-organization">Organización</Label>
-        <Input
-          id="edit-organization"
-          value={formData.organization}
-          onChange={(e) => handleInputChange('organization', e.target.value)}
-          placeholder="Ej: Hospital San Juan de Dios"
-        />
-      </div>
+      <FormField
+        label="Organización"
+        name="organization"
+        value={formData.organization}
+        onChange={handleInputChange}
+        placeholder="Ej: Hospital San Juan de Dios"
+      />
 
       <div className="flex items-center space-x-2">
         <input
           type="checkbox"
           id="edit-isActive"
           checked={formData.isActive}
-          onChange={(e) => handleInputChange('isActive', e.target.checked)}
+          onChange={(e) => handleSelectChange('isActive', e.target.checked)}
           className="rounded border-input"
         />
         <Label htmlFor="edit-isActive">Usuario activo</Label>
