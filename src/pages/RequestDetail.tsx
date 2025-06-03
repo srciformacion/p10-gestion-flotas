@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
@@ -16,7 +15,9 @@ import { TransportInfo } from "@/components/requests/detail/TransportInfo";
 import { DateAndTypeInfo } from "@/components/requests/detail/DateAndTypeInfo";
 import { ResponsibleInfo } from "@/components/requests/detail/ResponsibleInfo";
 import { VehicleInfo } from "@/components/requests/detail/VehicleInfo";
+import { EnhancedVehicleInfo } from "@/components/requests/detail/EnhancedVehicleInfo";
 import { StatusUpdateDialog } from "@/components/requests/detail/StatusUpdateDialog";
+import { VehicleDetails } from "@/types/vehicle";
 
 const RequestDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +33,7 @@ const RequestDetail = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState<RequestStatus | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<VehicleDetails | null>(null);
   
   if (!id) {
     navigate('/solicitudes');
@@ -98,6 +100,11 @@ const RequestDetail = () => {
   
   const availableStatusChanges = statusOptions[request.status] || [];
 
+  const handleVehicleSelect = (vehicle: VehicleDetails, eta: string) => {
+    setSelectedVehicle(vehicle);
+    setVehicleInfo({ vehicle: `${vehicle.vehicleId} - ${vehicle.licensePlate}`, eta });
+  };
+  
   return (
     <RequireAuth>
       <div className="min-h-screen flex flex-col">
@@ -148,11 +155,19 @@ const RequestDetail = () => {
                 )}
                 
                 {(request.status === 'assigned' || request.status === 'inRoute') && (
-                  <VehicleInfo 
-                    vehicle={request.assignedVehicle || ''}
-                    estimatedArrival={request.estimatedArrival}
-                    formatDateTime={formatDateTime}
-                  />
+                  selectedVehicle ? (
+                    <EnhancedVehicleInfo 
+                      vehicle={selectedVehicle}
+                      estimatedArrival={request.estimatedArrival}
+                      formatDateTime={formatDateTime}
+                    />
+                  ) : (
+                    <VehicleInfo 
+                      vehicle={request.assignedVehicle || ''}
+                      estimatedArrival={request.estimatedArrival}
+                      formatDateTime={formatDateTime}
+                    />
+                  )
                 )}
               </CardContent>
               {canUpdateStatus && availableStatusChanges.length > 0 && (
@@ -200,6 +215,7 @@ const RequestDetail = () => {
           onConfirm={() => newStatus && updateStatus(newStatus)}
           isUpdating={isUpdating}
           newStatus={newStatus === 'assigned' || newStatus === 'inRoute' ? newStatus : null}
+          onVehicleSelect={handleVehicleSelect}
         />
       </div>
     </RequireAuth>

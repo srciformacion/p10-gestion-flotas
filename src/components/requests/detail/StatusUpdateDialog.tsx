@@ -1,8 +1,6 @@
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { VehicleSelector } from "@/components/requests/VehicleSelector";
+import { VehicleDetails } from "@/types/vehicle";
 
 interface StatusUpdateDialogProps {
   open: boolean;
@@ -15,6 +13,7 @@ interface StatusUpdateDialogProps {
   onConfirm: () => void;
   isUpdating: boolean;
   newStatus: 'assigned' | 'inRoute' | null;
+  onVehicleSelect?: (vehicle: VehicleDetails, eta: string) => void;
 }
 
 export const StatusUpdateDialog = ({
@@ -24,54 +23,26 @@ export const StatusUpdateDialog = ({
   onVehicleInfoChange,
   onConfirm,
   isUpdating,
-  newStatus
+  newStatus,
+  onVehicleSelect
 }: StatusUpdateDialogProps) => {
+  const handleVehicleSelect = (vehicle: VehicleDetails, eta: string) => {
+    onVehicleInfoChange({ 
+      vehicle: `${vehicle.vehicleId} - ${vehicle.licensePlate}`, 
+      eta 
+    });
+    if (onVehicleSelect) {
+      onVehicleSelect(vehicle, eta);
+    }
+    onConfirm();
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            {newStatus === 'assigned' ? 'Asignar Vehículo' : 'Iniciar Traslado'}
-          </DialogTitle>
-          <DialogDescription>
-            Ingrese la información del vehículo y la hora estimada de llegada
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="vehicle">Vehículo</Label>
-            <Input 
-              id="vehicle"
-              placeholder="Ej: Ambulancia 047"
-              value={vehicleInfo.vehicle}
-              onChange={(e) => onVehicleInfoChange({ ...vehicleInfo, vehicle: e.target.value })}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="eta">Hora estimada de llegada</Label>
-            <Input 
-              id="eta"
-              type="datetime-local"
-              value={vehicleInfo.eta}
-              onChange={(e) => onVehicleInfoChange({ ...vehicleInfo, eta: e.target.value })}
-            />
-          </div>
-        </div>
-        
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancelar
-          </Button>
-          <Button 
-            onClick={onConfirm}
-            disabled={!vehicleInfo.vehicle || !vehicleInfo.eta || isUpdating}
-          >
-            {isUpdating ? "Actualizando..." : "Confirmar"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <VehicleSelector
+      open={open}
+      onOpenChange={onOpenChange}
+      onVehicleSelect={handleVehicleSelect}
+      isUpdating={isUpdating}
+    />
   );
 };
