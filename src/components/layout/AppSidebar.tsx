@@ -21,7 +21,8 @@ import {
   MessageSquare, 
   Settings,
   BarChart3,
-  Smartphone
+  Smartphone,
+  Plus
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -35,6 +36,14 @@ export function AppSidebar() {
   const isActive = (path: string) => location.pathname === path;
   const collapsed = state === "collapsed";
 
+  const getNavClasses = (path: string) => {
+    const baseClasses = "w-full justify-start transition-colors duration-200";
+    if (isActive(path)) {
+      return `${baseClasses} bg-rioja-green text-rioja-white font-medium`;
+    }
+    return `${baseClasses} hover:bg-rioja-green/20 hover:text-rioja-green`;
+  };
+
   const menuItems = [
     {
       title: "Dashboard",
@@ -46,7 +55,7 @@ export function AppSidebar() {
       title: "Solicitudes",
       url: "/solicitudes",
       icon: FileText,
-      roles: ["admin", "centroCoordinador", "hospital", "individual", "ambulance"] // Removed equipoMovil
+      roles: ["admin", "centroCoordinador", "hospital", "individual", "ambulance"]
     },
     {
       title: "Ambulancias",
@@ -88,7 +97,7 @@ export function AppSidebar() {
       title: "Analíticas",
       url: "/analiticas",
       icon: BarChart3,
-      roles: ["admin", "centroCoordinador"] // Solo admin y centroCoordinador, NO ambulance
+      roles: ["admin", "centroCoordinador"]
     },
     {
       title: "Mensajes",
@@ -109,15 +118,22 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar className={`bg-rioja-blue border-r border-rioja-blue/20 ${collapsed ? "w-14" : "w-60"}`}>
+    <Sidebar className={`${collapsed ? "w-16" : "w-64"} transition-all duration-300 border-r border-rioja-blue/20 bg-rioja-blue`}>
       <SidebarContent>
-        <div className="p-4 border-b border-rioja-blue/20">
-          <Logo />
+        {/* Header del sidebar */}
+        <div className="p-4 border-b border-rioja-blue/30">
+          {!collapsed ? (
+            <Logo />
+          ) : (
+            <div className="w-8 h-8 bg-rioja-green rounded-lg flex items-center justify-center">
+              <Plus className="w-4 h-4 text-rioja-white" />
+            </div>
+          )}
         </div>
         
         <SidebarGroup>
-          <SidebarGroupLabel className="text-rioja-white/70 font-semibold">
-            Navegación Principal
+          <SidebarGroupLabel className="text-rioja-white/70 font-semibold px-4">
+            {!collapsed && "Navegación Principal"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -126,11 +142,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild className="group">
                     <Link 
                       to={item.url} 
-                      className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                        isActive(item.url)
-                          ? 'bg-rioja-green text-white font-medium'
-                          : 'text-rioja-white hover:bg-rioja-green/20 hover:text-rioja-green'
-                      }`}
+                      className={getNavClasses(item.url)}
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       {!collapsed && <span>{item.title}</span>}
@@ -141,6 +153,25 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Perfil de usuario en sidebar */}
+        {user && (
+          <div className="px-4 py-4 mt-auto border-t border-rioja-blue/30">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-rioja-green rounded-full flex items-center justify-center">
+                <span className="text-xs font-medium text-rioja-white">
+                  {user.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
+                </span>
+              </div>
+              {!collapsed && (
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-rioja-white">{user.name}</span>
+                  <span className="text-xs text-rioja-white/70">{user.role}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </SidebarContent>
     </Sidebar>
   );
