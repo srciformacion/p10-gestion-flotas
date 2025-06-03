@@ -1,5 +1,5 @@
 
-import { TransportRequest } from "@/types";
+import { TransportRequest } from "@/types/request";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RequestStatusBadge } from "@/components/RequestStatusBadge";
