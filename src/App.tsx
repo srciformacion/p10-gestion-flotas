@@ -1,43 +1,73 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense, lazy } from "react";
 import { AuthProvider } from "@/context/AuthContext";
-import { RequestsProvider } from "@/context/RequestsContext";
+import { RequestsProvider } from "@/context/RequestsProvider";
 import { ChatProvider } from "@/context/ChatContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import NewRequest from "./pages/NewRequest";
-import RequestList from "./pages/RequestList";
-import RequestDetail from "./pages/RequestDetail";
-import Profile from "./pages/Profile";
-import AccessDenied from "./pages/AccessDenied";
-import NotFound from "./pages/NotFound";
-import RecoverPassword from "./pages/RecoverPassword";
-import ChatPage from "./pages/messages/ChatPage";
+// Lazy load pages for better performance
+const Index = lazy(() => import("./pages/Index"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const NewRequest = lazy(() => import("./pages/NewRequest"));
+const RequestList = lazy(() => import("./pages/RequestList"));
+const RequestDetail = lazy(() => import("./pages/RequestDetail"));
+const Profile = lazy(() => import("./pages/Profile"));
+const AccessDenied = lazy(() => import("./pages/AccessDenied"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const RecoverPassword = lazy(() => import("./pages/RecoverPassword"));
+const ChatPage = lazy(() => import("./pages/messages/ChatPage"));
 
-// Nuevas páginas para el sistema completo
-import AmbulanceList from "./pages/ambulances/AmbulanceList";
-import AmbulanceDetail from "./pages/ambulances/AmbulanceDetail";
-import UserManagement from "./pages/users/UserManagement";
-import RouteManagement from "./pages/routes/RouteManagement";
-import TrackingPage from "./pages/tracking/TrackingPage";
-import DispatchPage from "./pages/dispatch/DispatchPage";
-import AnalyticsPage from "./pages/analytics/AnalyticsPage";
-import ConfigurationPage from "./pages/configuration/ConfigurationPage";
-import MobileTeamDashboard from "./pages/mobile/MobileTeamDashboard";
+// Admin pages
+const AmbulanceList = lazy(() => import("./pages/ambulances/AmbulanceList"));
+const AmbulanceDetail = lazy(() => import("./pages/ambulances/AmbulanceDetail"));
+const UserManagement = lazy(() => import("./pages/users/UserManagement"));
+const RouteManagement = lazy(() => import("./pages/routes/RouteManagement"));
+const TrackingPage = lazy(() => import("./pages/tracking/TrackingPage"));
+const DispatchPage = lazy(() => import("./pages/dispatch/DispatchPage"));
+const AnalyticsPage = lazy(() => import("./pages/analytics/AnalyticsPage"));
+const ConfigurationPage = lazy(() => import("./pages/configuration/ConfigurationPage"));
+const MobileTeamDashboard = lazy(() => import("./pages/mobile/MobileTeamDashboard"));
 
-// Driver specific pages
-import BatchViewPage from "./pages/driver/BatchViewPage";
-import RouteDetailsPage from "./pages/driver/RouteDetailsPage";
+// Driver pages
+const BatchViewPage = lazy(() => import("./pages/driver/BatchViewPage"));
+const RouteDetailsPage = lazy(() => import("./pages/driver/RouteDetailsPage"));
 
-const queryClient = new QueryClient();
+// Optimized QueryClient configuration
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
+
+// Loading component
+const PageLoader = () => (
+  <div className="flex flex-col space-y-4 p-6">
+    <Skeleton className="h-8 w-3/4" />
+    <Skeleton className="h-4 w-1/2" />
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <Skeleton className="h-32 w-full" />
+      <Skeleton className="h-32 w-full" />
+      <Skeleton className="h-32 w-full" />
+    </div>
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -50,34 +80,36 @@ const App = () => (
             <PWAInstallPrompt />
             <BrowserRouter>
               <AppLayout>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/registro" element={<Register />} />
-                  <Route path="/recuperar-password" element={<RecoverPassword />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/nueva-solicitud" element={<NewRequest />} />
-                  <Route path="/solicitudes" element={<RequestList />} />
-                  <Route path="/solicitudes/:id" element={<RequestDetail />} />
-                  <Route path="/ambulancias" element={<AmbulanceList />} />
-                  <Route path="/ambulancias/:id" element={<AmbulanceDetail />} />
-                  <Route path="/usuarios" element={<UserManagement />} />
-                  <Route path="/rutas" element={<RouteManagement />} />
-                  <Route path="/seguimiento" element={<TrackingPage />} />
-                  <Route path="/despacho" element={<DispatchPage />} />
-                  <Route path="/analiticas" element={<AnalyticsPage />} />
-                  <Route path="/mensajes" element={<ChatPage />} />
-                  <Route path="/configuracion" element={<ConfigurationPage />} />
-                  <Route path="/equipo-movil" element={<MobileTeamDashboard />} />
-                  
-                  {/* Driver specific routes */}
-                  <Route path="/driver/batch-view/:loteId" element={<BatchViewPage />} />
-                  <Route path="/driver/route-details/:loteId" element={<RouteDetailsPage />} />
-                  
-                  <Route path="/perfil" element={<Profile />} />
-                  <Route path="/acceso-denegado" element={<AccessDenied />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/registro" element={<Register />} />
+                    <Route path="/recuperar-password" element={<RecoverPassword />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/nueva-solicitud" element={<NewRequest />} />
+                    <Route path="/solicitudes" element={<RequestList />} />
+                    <Route path="/solicitudes/:id" element={<RequestDetail />} />
+                    <Route path="/ambulancias" element={<AmbulanceList />} />
+                    <Route path="/ambulancias/:id" element={<AmbulanceDetail />} />
+                    <Route path="/usuarios" element={<UserManagement />} />
+                    <Route path="/rutas" element={<RouteManagement />} />
+                    <Route path="/seguimiento" element={<TrackingPage />} />
+                    <Route path="/despacho" element={<DispatchPage />} />
+                    <Route path="/analiticas" element={<AnalyticsPage />} />
+                    <Route path="/mensajes" element={<ChatPage />} />
+                    <Route path="/configuracion" element={<ConfigurationPage />} />
+                    <Route path="/equipo-movil" element={<MobileTeamDashboard />} />
+                    
+                    {/* Driver specific routes */}
+                    <Route path="/driver/batch-view/:loteId" element={<BatchViewPage />} />
+                    <Route path="/driver/route-details/:loteId" element={<RouteDetailsPage />} />
+                    
+                    <Route path="/perfil" element={<Profile />} />
+                    <Route path="/acceso-denegado" element={<AccessDenied />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
               </AppLayout>
             </BrowserRouter>
           </ChatProvider>
