@@ -37,11 +37,11 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
 
   const getNavClasses = (path: string) => {
-    const baseClasses = "w-full justify-start transition-colors duration-200";
+    const baseClasses = "w-full justify-start transition-all duration-200 font-medium";
     if (isActive(path)) {
-      return `${baseClasses} bg-rioja-green text-rioja-white font-medium`;
+      return `${baseClasses} bg-rioja-green text-rioja-white shadow-md`;
     }
-    return `${baseClasses} hover:bg-rioja-green/20 hover:text-rioja-green`;
+    return `${baseClasses} text-rioja-white/90 hover:bg-rioja-green/20 hover:text-rioja-white`;
   };
 
   const menuItems = [
@@ -118,21 +118,21 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar className={`${collapsed ? "w-16" : "w-64"} transition-all duration-300 border-r border-rioja-blue/20 bg-rioja-blue`}>
+    <Sidebar className={`${collapsed ? "w-16" : "w-64"} transition-all duration-300 border-r border-rioja-blue/30 bg-rioja-blue shadow-lg`}>
       <SidebarContent>
         {/* Header del sidebar */}
         <div className="p-4 border-b border-rioja-blue/30">
           {!collapsed ? (
             <Logo />
           ) : (
-            <div className="w-8 h-8 bg-rioja-green rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-rioja-green rounded-lg flex items-center justify-center shadow-md">
               <Plus className="w-4 h-4 text-rioja-white" />
             </div>
           )}
         </div>
         
         <SidebarGroup>
-          <SidebarGroupLabel className="text-rioja-white/70 font-semibold px-4">
+          <SidebarGroupLabel className="text-rioja-white/80 font-semibold px-4 text-sm uppercase tracking-wide">
             {!collapsed && "Navegación Principal"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -145,7 +145,7 @@ export function AppSidebar() {
                       className={getNavClasses(item.url)}
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && <span className="ml-3">{item.title}</span>}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -158,8 +158,8 @@ export function AppSidebar() {
         {user && (
           <div className="px-4 py-4 mt-auto border-t border-rioja-blue/30">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-rioja-green rounded-full flex items-center justify-center">
-                <span className="text-xs font-medium text-rioja-white">
+              <div className="w-8 h-8 bg-rioja-green rounded-full flex items-center justify-center shadow-md">
+                <span className="text-xs font-semibold text-rioja-white">
                   {user.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
                 </span>
               </div>

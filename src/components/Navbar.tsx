@@ -34,7 +34,7 @@ export const Navbar = () => {
   const showAdminLink = user && (user.role === 'admin' || user.role === 'ambulance');
 
   return (
-    <nav className="bg-white dark:bg-gray-900 border-b sticky top-0 z-50">
+    <nav className="bg-rioja-blue dark:bg-rioja-blue border-b border-rioja-blue/20 sticky top-0 z-50 shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between items-center">
           <div className="flex items-center">
@@ -47,42 +47,44 @@ export const Navbar = () => {
               <>
                 <div className="flex items-center space-x-4 mr-4">
                   {showDashboardLink && (
-                    <Link to="/dashboard" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
+                    <Link to="/dashboard" className="text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
                       Dashboard
                     </Link>
                   )}
                   
                   {(user.role === 'hospital' || user.role === 'individual') && (
-                    <Link to="/nueva-solicitud" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
+                    <Link to="/nueva-solicitud" className="text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
                       Nueva Solicitud
                     </Link>
                   )}
                   
-                  <Link to="/solicitudes" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
+                  <Link to="/solicitudes" className="text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
                     Mis Solicitudes
                   </Link>
                   
                   {showAdminLink && (
-                    <Link to="/admin" className="text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-sm font-medium">
+                    <Link to="/admin" className="text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
                       Administración
                     </Link>
                   )}
                 </div>
                 
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="focus:outline-none">
-                    <Avatar className="h-8 w-8 bg-primary-blue text-white cursor-pointer">
-                      <AvatarFallback>{user ? getInitials(user.name) : "U"}</AvatarFallback>
+                  <DropdownMenuTrigger className="focus:outline-none focus:ring-2 focus:ring-rioja-green focus:ring-offset-2 focus:ring-offset-rioja-blue rounded-full">
+                    <Avatar className="h-8 w-8 bg-rioja-green text-rioja-white cursor-pointer ring-2 ring-rioja-green/20 hover:ring-rioja-green/40 transition-all duration-200">
+                      <AvatarFallback className="bg-rioja-green text-rioja-white font-semibold">{user ? getInitials(user.name) : "U"}</AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
-                    <DropdownMenuLabel className="text-xs text-gray-500">{user.email}</DropdownMenuLabel>
+                  <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
+                    <DropdownMenuLabel className="text-rioja-blue font-semibold">{user.name}</DropdownMenuLabel>
+                    <DropdownMenuLabel className="text-xs text-gray-600 dark:text-gray-400">{user.email}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/perfil">Mi Perfil</Link>
+                      <Link to="/perfil" className="text-gray-700 dark:text-gray-200 hover:bg-rioja-green/10 hover:text-rioja-blue focus:bg-rioja-green/10 focus:text-rioja-blue cursor-pointer">
+                        Mi Perfil
+                      </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={logout}>
+                    <DropdownMenuItem className="text-red-600 hover:bg-red-50 focus:bg-red-50 cursor-pointer" onClick={logout}>
                       Cerrar Sesión
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -91,10 +93,10 @@ export const Navbar = () => {
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="outline" className="mr-2">Iniciar Sesión</Button>
+                  <Button variant="outline" className="mr-2 bg-transparent border-rioja-white text-rioja-white hover:bg-rioja-white hover:text-rioja-blue">Iniciar Sesión</Button>
                 </Link>
                 <Link to="/registro">
-                  <Button>Registrarse</Button>
+                  <Button className="bg-rioja-green text-rioja-white hover:bg-rioja-green/90">Registrarse</Button>
                 </Link>
               </>
             )}
@@ -103,7 +105,7 @@ export const Navbar = () => {
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
             <button
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-600"
+              className="inline-flex items-center justify-center p-2 rounded-md text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 focus:outline-none focus:ring-2 focus:ring-rioja-green focus:ring-offset-2 focus:ring-offset-rioja-blue transition-colors duration-200"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -114,14 +116,14 @@ export const Navbar = () => {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden">
+        <div className="md:hidden bg-rioja-blue border-t border-rioja-blue/30">
           <div className="space-y-1 px-2 pb-3 pt-2">
             {user ? (
               <>
                 {showDashboardLink && (
                   <Link
                     to="/dashboard"
-                    className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
+                    className="block text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                     onClick={closeMenu}
                   >
                     Dashboard
@@ -131,7 +133,7 @@ export const Navbar = () => {
                 {(user.role === 'hospital' || user.role === 'individual') && (
                   <Link
                     to="/nueva-solicitud"
-                    className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
+                    className="block text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                     onClick={closeMenu}
                   >
                     Nueva Solicitud
@@ -140,7 +142,7 @@ export const Navbar = () => {
                 
                 <Link
                   to="/solicitudes"
-                  className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
+                  className="block text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                   onClick={closeMenu}
                 >
                   Mis Solicitudes
@@ -149,7 +151,7 @@ export const Navbar = () => {
                 {showAdminLink && (
                   <Link
                     to="/admin"
-                    className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
+                    className="block text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                     onClick={closeMenu}
                   >
                     Administración
@@ -158,14 +160,14 @@ export const Navbar = () => {
                 
                 <Link
                   to="/perfil"
-                  className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
+                  className="block text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                   onClick={closeMenu}
                 >
                   Mi Perfil
                 </Link>
                 
                 <button
-                  className="w-full text-left text-red-600 px-3 py-2 rounded-md text-base font-medium"
+                  className="w-full text-left text-red-300 hover:text-red-200 hover:bg-red-500/20 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                   onClick={() => {
                     logout();
                     closeMenu();
@@ -178,14 +180,14 @@ export const Navbar = () => {
               <>
                 <Link
                   to="/login"
-                  className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
+                  className="block text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                   onClick={closeMenu}
                 >
                   Iniciar Sesión
                 </Link>
                 <Link
                   to="/registro"
-                  className="block text-gray-600 hover:text-primary-blue-dark px-3 py-2 rounded-md text-base font-medium"
+                  className="block text-rioja-white/90 hover:text-rioja-green hover:bg-rioja-green/10 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                   onClick={closeMenu}
                 >
                   Registrarse
