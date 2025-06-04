@@ -1,4 +1,5 @@
 
+import { memo } from "react";
 import { TransportRequest } from "@/types/request";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,33 @@ interface RecentRequestsProps {
   requests: TransportRequest[];
 }
 
-export const RecentRequests = ({ requests }: RecentRequestsProps) => {
+const RequestItem = memo(({ request }: { request: TransportRequest }) => (
+  <div className="flex justify-between items-center border-b pb-2">
+    <div>
+      <div className="font-medium">{request.patientName}</div>
+      <div className="text-sm text-muted-foreground">
+        {new Date(request.dateTime).toLocaleDateString('es-ES', { 
+          day: '2-digit', 
+          month: '2-digit',
+          hour: '2-digit', 
+          minute: '2-digit'
+        })}
+      </div>
+      <div className="mt-1">
+        <RequestStatusBadge status={request.status} />
+      </div>
+    </div>
+    <Link to={`/solicitudes/${request.id}`}>
+      <Button variant="ghost" size="sm">
+        <ArrowRight className="h-4 w-4" />
+      </Button>
+    </Link>
+  </div>
+));
+
+RequestItem.displayName = 'RequestItem';
+
+export const RecentRequests = memo(({ requests }: RecentRequestsProps) => {
   return (
     <Card className="col-span-2">
       <CardHeader>
@@ -26,27 +53,7 @@ export const RecentRequests = ({ requests }: RecentRequestsProps) => {
         {requests.length > 0 ? (
           <div className="space-y-4">
             {requests.map((request) => (
-              <div key={request.id} className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <div className="font-medium">{request.patientName}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {new Date(request.dateTime).toLocaleDateString('es-ES', { 
-                      day: '2-digit', 
-                      month: '2-digit',
-                      hour: '2-digit', 
-                      minute: '2-digit'
-                    })}
-                  </div>
-                  <div className="mt-1">
-                    <RequestStatusBadge status={request.status} />
-                  </div>
-                </div>
-                <Link to={`/solicitudes/${request.id}`}>
-                  <Button variant="ghost" size="sm">
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
+              <RequestItem key={request.id} request={request} />
             ))}
           </div>
         ) : (
@@ -64,4 +71,6 @@ export const RecentRequests = ({ requests }: RecentRequestsProps) => {
       </CardFooter>
     </Card>
   );
-};
+});
+
+RecentRequests.displayName = 'RecentRequests';

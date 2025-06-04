@@ -1,30 +1,35 @@
 
+import { memo, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRequests } from "@/context/RequestsContext";
 import { RequireAuth } from "@/components/RequireAuth";
-import { DashboardActions } from "@/components/dashboard/DashboardActions";
-import { StatsCard } from "@/components/dashboard/StatsCard";
-import { RecentRequests } from "@/components/dashboard/RecentRequests";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { DashboardContent } from "@/components/dashboard/DashboardContent";
 import DriverDashboard from "./driver/DriverDashboard";
-import { Clock, CheckCircle, AlertCircle } from "lucide-react";
 
-const Dashboard = () => {
+const Dashboard = memo(() => {
   const { user } = useAuth();
-  const { requests } = useRequests();
+  const { requests, isLoading } = useRequests();
 
   // If user is ambulance role, show driver dashboard
   if (user?.role === 'ambulance') {
     return (
       <RequireAuth allowedRoles={['ambulance']}>
-        <DriverDashboard />
+        <Suspense fallback={<LoadingSpinner text="Cargando dashboard del conductor..." />}>
+          <DriverDashboard />
+        </Suspense>
       </RequireAuth>
     );
   }
 
-  // For other roles, show the regular dashboard
-  const pendingRequests = requests.filter(req => req.status === 'pending');
-  const assignedRequests = requests.filter(req => req.status === 'assigned');
-  const completedRequests = requests.filter(req => req.status === 'completed');
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <LoadingSpinner size="lg" text="Cargando dashboard..." />
+      </div>
+    );
+  }
 
   return (
     <RequireAuth>
@@ -36,44 +41,18 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard
-            title="Solicitudes Pendientes"
-            value={pendingRequests.length}
-            description="Esperando asignación"
-            icon={Clock}
-            iconClassName="text-yellow-500"
-          />
-          <StatsCard
-            title="En Proceso"
-            value={assignedRequests.length}
-            description="Asignadas y en ruta"
-            icon={AlertCircle}
-            iconClassName="text-blue-500"
-          />
-          <StatsCard
-            title="Completadas"
-            value={completedRequests.length}
-            description="Finalizadas correctamente"
-            icon={CheckCircle}
-            iconClassName="text-green-500"
-          />
-        </div>
+        <Suspense fallback={<LoadingSpinner text="Cargando estadísticas..." />}>
+          <DashboardStats requests={requests} />
+        </Suspense>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Quick Actions */}
-          <DashboardActions 
-            user={user!} 
-          />
-
-          {/* Recent Requests */}
-          <RecentRequests requests={requests.slice(0, 5)} />
-        </div>
+        <Suspense fallback={<LoadingSpinner text="Cargando contenido..." />}>
+          <DashboardContent user={user!} requests={requests} />
+        </Suspense>
       </div>
     </RequireAuth>
   );
-};
+});
+
+Dashboard.displayName = 'Dashboard';
 
 export default Dashboard;

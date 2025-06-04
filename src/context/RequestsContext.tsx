@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { TransportRequest } from '@/types/request';
 import { requestsApi } from '@/services/api/requests';
 import { mockServices } from '@/services/api/mock-services';
@@ -23,7 +23,11 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
   const [useMockData, setUseMockData] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+    
     const loadRequests = async () => {
+      if (!mounted) return;
+      
       setIsLoading(true);
       try {
         if (useMockData) {
@@ -36,20 +40,25 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
             updatedAt: service.updatedAt || new Date().toISOString(),
             observations: service.observations || ''
           }));
-          setRequests(mockData);
+          if (mounted) setRequests(mockData);
         } else {
           // Use API data
           const data = await requestsApi.getAll();
-          setRequests(data);
+          if (mounted) setRequests(data);
         }
       } catch (error) {
         console.error('Error loading requests:', error);
+        if (mounted) setRequests([]);
       } finally {
-        setIsLoading(false);
+        if (mounted) setIsLoading(false);
       }
     };
 
     loadRequests();
+    
+    return () => {
+      mounted = false;
+    };
   }, [useMockData]);
 
   const addRequest = async (requestData: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>) => {
@@ -96,23 +105,22 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
     return requests.find(req => req.id === id);
   };
 
-  // Added filteredRequests - currently just returning all requests
-  // This can be modified later to actually filter based on criteria if needed
-  const filteredRequests = requests;
+  // Memoize filteredRequests to avoid unnecessary recalculations
+  const filteredRequests = useMemo(() => requests, [requests]);
+
+  const contextValue = useMemo(() => ({
+    requests, 
+    filteredRequests,
+    addRequest, 
+    updateRequestStatus, 
+    getRequestById,
+    isLoading,
+    useMockData,
+    setUseMockData
+  }), [requests, filteredRequests, isLoading, useMockData]);
 
   return (
-    <RequestsContext.Provider 
-      value={{ 
-        requests, 
-        filteredRequests,
-        addRequest, 
-        updateRequestStatus, 
-        getRequestById,
-        isLoading,
-        useMockData,
-        setUseMockData
-      }}
-    >
+    <RequestsContext.Provider value={contextValue}>
       {children}
     </RequestsContext.Provider>
   );
