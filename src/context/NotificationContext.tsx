@@ -1,233 +1,234 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Notification, NotificationPreference, MessageTemplate } from '@/types/notification';
-import { useAuth } from '@/context/AuthContext';
-import { toast } from '@/hooks/use-toast';
-import { RequestStatus } from '@/types/request';
-
-// Plantillas de mensajes predefinidas
-const DEFAULT_MESSAGE_TEMPLATES: MessageTemplate[] = [
-  {
-    id: '1',
-    name: 'Solicitud Asignada',
-    content: 'Su solicitud #{requestId} ha sido asignada al vehículo {vehicle}. Tiempo estimado de llegada: {eta}',
-    category: 'status_update',
-    roles: ['admin', 'centroCoordinador'],
-    variables: ['requestId', 'vehicle', 'eta']
-  },
-  {
-    id: '2',
-    name: 'En Camino',
-    content: 'El vehículo {vehicle} está en camino a su ubicación. Llegada estimada: {eta}',
-    category: 'status_update',
-    roles: ['ambulance'],
-    variables: ['vehicle', 'eta']
-  },
-  {
-    id: '3',
-    name: 'Servicio Completado',
-    content: 'El servicio de transporte se ha completado satisfactoriamente. Gracias por confiar en nosotros.',
-    category: 'status_update',
-    roles: ['ambulance', 'admin']
-  },
-  {
-    id: '4',
-    name: 'Respuesta Urgente',
-    content: 'Entendido, procesando su solicitud urgente inmediatamente. Un coordinador se pondrá en contacto enseguida.',
-    category: 'emergency',
-    roles: ['admin', 'centroCoordinador']
-  },
-  {
-    id: '5',
-    name: 'Información Adicional',
-    content: 'Para procesar su solicitud, necesitamos información adicional. ¿Podría proporcionar más detalles sobre {topic}?',
-    category: 'response',
-    roles: ['admin', 'centroCoordinador'],
-    variables: ['topic']
-  },
-  {
-    id: '6',
-    name: 'Cancelación de Servicio',
-    content: 'Su solicitud #{requestId} ha sido cancelada. Si necesita reprogramar, no dude en contactarnos.',
-    category: 'status_update',
-    roles: ['admin', 'centroCoordinador'],
-    variables: ['requestId']
-  }
-];
+import { type Notification } from '@/types/notification';
 
 interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
-  messageTemplates: MessageTemplate[];
-  preferences: NotificationPreference;
-  addNotification: (notification: Omit<Notification, 'id' | 'timestamp' | 'userId'>) => void;
+  addNotification: (notification: Omit<Notification, 'id' | 'userId' | 'timestamp'>) => void;
   markAsRead: (notificationId: string) => void;
   markAllAsRead: () => void;
   deleteNotification: (notificationId: string) => void;
-  requestPushPermission: () => Promise<boolean>;
-  sendPushNotification: (title: string, body: string, options?: NotificationOptions) => void;
-  updatePreferences: (preferences: Partial<NotificationPreference>) => void;
-  createNotificationFromTemplate: (templateId: string, variables?: Record<string, string>) => string;
-  addStatusUpdateNotification: (requestId: string, oldStatus: RequestStatus, newStatus: RequestStatus) => void;
+  clearAllNotifications: () => void;
+  addStatusUpdateNotification: (requestId: string, oldStatus: string, newStatus: string) => void;
+  requestNotificationPermission: () => Promise<boolean>;
+  preferences: NotificationPreferences;
+  updatePreferences: (preferences: Partial<NotificationPreferences>) => void;
 }
+
+interface NotificationPreferences {
+  pushEnabled: boolean;
+  emailEnabled: boolean;
+  requestStatusChanges: boolean;
+  vehicleAssignments: boolean;
+  emergencyAlerts: boolean;
+  quietHours: {
+    enabled: boolean;
+    start: string;
+    end: string;
+  };
+}
+
+const defaultPreferences: NotificationPreferences = {
+  pushEnabled: true,
+  emailEnabled: true,
+  requestStatusChanges: true,
+  vehicleAssignments: true,
+  emergencyAlerts: true,
+  quietHours: {
+    enabled: false,
+    start: '22:00',
+    end: '08:00'
+  }
+};
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [messageTemplates] = useState<MessageTemplate[]>(DEFAULT_MESSAGE_TEMPLATES);
-  const [preferences, setPreferences] = useState<NotificationPreference>({
-    userId: user?.id || '',
-    pushEnabled: false,
-    emailEnabled: true,
-    categories: {
-      request_status: true,
-      system: true,
-      chat: true,
-      maintenance: false
-    },
-    urgentOnly: false
-  });
+  const [preferences, setPreferences] = useState<NotificationPreferences>(defaultPreferences);
 
-  // Solicitar permisos de notificación al cargar
+  // Cargar notificaciones del localStorage al inicializar
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission().then(permission => {
-        setPreferences(prev => ({ ...prev, pushEnabled: permission === 'granted' }));
-      });
+    const stored = localStorage.getItem('notifications');
+    if (stored) {
+      try {
+        setNotifications(JSON.parse(stored));
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+      }
+    }
+
+    const storedPreferences = localStorage.getItem('notificationPreferences');
+    if (storedPreferences) {
+      try {
+        setPreferences(JSON.parse(storedPreferences));
+      } catch (error) {
+        console.error('Error loading notification preferences:', error);
+      }
     }
   }, []);
 
-  // Generar notificaciones automáticas para cambios de estado
-  const getStatusUpdateMessage = (oldStatus: RequestStatus, newStatus: RequestStatus): { title: string; message: string; type: any } => {
-    const statusMessages = {
-      pending: { title: 'Solicitud Pendiente', message: 'Su solicitud está pendiente de asignación', type: 'info' as const },
-      assigned: { title: 'Vehículo Asignado', message: 'Se ha asignado un vehículo a su solicitud', type: 'success' as const },
-      inRoute: { title: 'En Camino', message: 'El vehículo está en camino a su ubicación', type: 'info' as const },
-      completed: { title: 'Servicio Completado', message: 'El servicio de transporte se ha completado', type: 'success' as const },
-      cancelled: { title: 'Servicio Cancelado', message: 'Su solicitud ha sido cancelada', type: 'warning' as const }
-    };
+  // Guardar notificaciones en localStorage cuando cambien
+  useEffect(() => {
+    localStorage.setItem('notifications', JSON.stringify(notifications));
+  }, [notifications]);
 
-    return statusMessages[newStatus] || { title: 'Actualización', message: 'Estado actualizado', type: 'info' as const };
-  };
+  // Guardar preferencias en localStorage cuando cambien
+  useEffect(() => {
+    localStorage.setItem('notificationPreferences', JSON.stringify(preferences));
+  }, [preferences]);
 
-  const addNotification = (notification: Omit<Notification, 'id' | 'timestamp' | 'userId'>) => {
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const addNotification = (notification: Omit<Notification, 'id' | 'userId' | 'timestamp'>) => {
     const newNotification: Notification = {
       ...notification,
       id: crypto.randomUUID(),
+      userId: 'current-user', // En producción esto vendría del contexto de autenticación
       timestamp: new Date().toISOString(),
-      userId: user?.id || '',
       read: false
     };
 
     setNotifications(prev => [newNotification, ...prev]);
 
-    // Mostrar toast
-    toast({
-      title: notification.title,
-      description: notification.message,
-      variant: notification.type === 'error' ? 'destructive' : 'default'
-    });
-
-    // Enviar notificación push si está habilitada
-    if (preferences.pushEnabled && preferences.categories[notification.category]) {
-      sendPushNotification(notification.title, notification.message);
+    // Mostrar notificación push si está habilitada
+    if (preferences.pushEnabled && shouldShowNotification(notification.category)) {
+      showPushNotification(newNotification);
     }
   };
 
-  const addStatusUpdateNotification = (requestId: string, oldStatus: RequestStatus, newStatus: RequestStatus) => {
-    const { title, message, type } = getStatusUpdateMessage(oldStatus, newStatus);
+  const shouldShowNotification = (category: string): boolean => {
+    switch (category) {
+      case 'request_status':
+        return preferences.requestStatusChanges;
+      case 'vehicle_assignment':
+        return preferences.vehicleAssignments;
+      case 'emergency':
+        return preferences.emergencyAlerts;
+      default:
+        return true;
+    }
+  };
+
+  const isQuietTime = (): boolean => {
+    if (!preferences.quietHours.enabled) return false;
     
-    addNotification({
-      title,
-      message: `${message} (Solicitud #${requestId})`,
-      type,
-      category: 'request_status',
-      priority: newStatus === 'assigned' || newStatus === 'inRoute' ? 'high' : 'medium',
-      requestId,
-      actionUrl: `/solicitud/${requestId}`,
-      actionLabel: 'Ver Detalles'
-    });
+    const now = new Date();
+    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    
+    return currentTime >= preferences.quietHours.start || currentTime <= preferences.quietHours.end;
+  };
+
+  const showPushNotification = (notification: Notification) => {
+    // No mostrar durante horas silenciosas (excepto emergencias)
+    if (isQuietTime() && notification.category !== 'emergency') {
+      return;
+    }
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(notification.title, {
+        body: notification.message,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        tag: notification.id,
+        requireInteraction: notification.priority === 'high',
+        data: {
+          url: notification.actionUrl
+        }
+      });
+    }
+  };
+
+  const requestNotificationPermission = async (): Promise<boolean> => {
+    if (!('Notification' in window)) {
+      console.log('This browser does not support notifications');
+      return false;
+    }
+
+    if (Notification.permission === 'granted') {
+      return true;
+    }
+
+    if (Notification.permission !== 'denied') {
+      const permission = await Notification.requestPermission();
+      return permission === 'granted';
+    }
+
+    return false;
   };
 
   const markAsRead = (notificationId: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === notificationId ? { ...notif, read: true } : notif
+    setNotifications(prev =>
+      prev.map(notification =>
+        notification.id === notificationId
+          ? { ...notification, read: true }
+          : notification
       )
     );
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
+    setNotifications(prev =>
+      prev.map(notification => ({ ...notification, read: true }))
+    );
   };
 
   const deleteNotification = (notificationId: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== notificationId));
+    setNotifications(prev =>
+      prev.filter(notification => notification.id !== notificationId)
+    );
   };
 
-  const requestPushPermission = async (): Promise<boolean> => {
-    if (!('Notification' in window)) {
-      return false;
-    }
-
-    const permission = await Notification.requestPermission();
-    const granted = permission === 'granted';
-    
-    setPreferences(prev => ({ ...prev, pushEnabled: granted }));
-    return granted;
+  const clearAllNotifications = () => {
+    setNotifications([]);
   };
 
-  const sendPushNotification = (title: string, body: string, options?: NotificationOptions) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, {
-        body,
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        ...options
-      });
-    }
-  };
-
-  const updatePreferences = (newPreferences: Partial<NotificationPreference>) => {
+  const updatePreferences = (newPreferences: Partial<NotificationPreferences>) => {
     setPreferences(prev => ({ ...prev, ...newPreferences }));
   };
 
-  const createNotificationFromTemplate = (templateId: string, variables?: Record<string, string>): string => {
-    const template = messageTemplates.find(t => t.id === templateId);
-    if (!template) return '';
+  // Función específica para notificaciones de cambio de estado
+  const addStatusUpdateNotification = (requestId: string, oldStatus: string, newStatus: string) => {
+    const statusMessages = {
+      pending: 'Pendiente',
+      assigned: 'Asignado',
+      inRoute: 'En camino', 
+      completed: 'Completado',
+      cancelled: 'Cancelado'
+    };
 
-    let content = template.content;
-    if (variables && template.variables) {
-      template.variables.forEach(variable => {
-        if (variables[variable]) {
-          content = content.replace(`{${variable}}`, variables[variable]);
-        }
-      });
-    }
-
-    return content;
+    const priority = newStatus === 'cancelled' ? 'high' : 'medium';
+    
+    addNotification({
+      title: 'Estado de solicitud actualizado',
+      message: `La solicitud ${requestId} cambió de ${statusMessages[oldStatus as keyof typeof statusMessages]} a ${statusMessages[newStatus as keyof typeof statusMessages]}`,
+      type: newStatus === 'cancelled' ? 'warning' : 'info',
+      category: 'request_status',
+      priority,
+      requestId,
+      actionUrl: `/solicitud/${requestId}`,
+      actionLabel: 'Ver detalles',
+      read: false
+    });
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const value: NotificationContextType = {
+    notifications,
+    unreadCount,
+    addNotification,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    clearAllNotifications,
+    addStatusUpdateNotification,
+    requestNotificationPermission,
+    preferences,
+    updatePreferences
+  };
 
   return (
-    <NotificationContext.Provider value={{
-      notifications,
-      unreadCount,
-      messageTemplates,
-      preferences,
-      addNotification,
-      markAsRead,
-      markAllAsRead,
-      deleteNotification,
-      requestPushPermission,
-      sendPushNotification,
-      updatePreferences,
-      createNotificationFromTemplate,
-      addStatusUpdateNotification
-    }}>
+    <NotificationContext.Provider value={value}>
       {children}
     </NotificationContext.Provider>
   );

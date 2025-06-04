@@ -1,40 +1,31 @@
 
-export type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'urgent';
-export type NotificationCategory = 'request_status' | 'system' | 'chat' | 'maintenance';
+export type NotificationType = 'info' | 'success' | 'warning' | 'error';
+export type NotificationPriority = 'low' | 'medium' | 'high';
+export type NotificationCategory = 'request_status' | 'vehicle_assignment' | 'emergency' | 'system' | 'chat';
 
 export interface Notification {
   id: string;
+  userId: string;
   title: string;
   message: string;
   type: NotificationType;
   category: NotificationCategory;
-  timestamp: string;
+  priority: NotificationPriority;
   read: boolean;
-  userId: string;
+  timestamp: string;
+  requestId?: string;
   actionUrl?: string;
   actionLabel?: string;
-  requestId?: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  metadata?: Record<string, any>;
 }
 
-export interface MessageTemplate {
+export interface NotificationTemplate {
   id: string;
   name: string;
-  content: string;
-  category: 'response' | 'status_update' | 'emergency' | 'routine';
-  roles: string[];
-  variables?: string[];
-}
-
-export interface NotificationPreference {
-  userId: string;
-  pushEnabled: boolean;
-  emailEnabled: boolean;
-  categories: {
-    request_status: boolean;
-    system: boolean;
-    chat: boolean;
-    maintenance: boolean;
-  };
-  urgentOnly: boolean;
+  title: string;
+  message: string;
+  type: NotificationType;
+  category: NotificationCategory;
+  priority: NotificationPriority;
+  variables: string[];
 }
