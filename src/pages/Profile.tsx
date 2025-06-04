@@ -42,7 +42,7 @@ const Profile = () => {
                       {user?.role === 'individual' && 'Usuario Individual'}
                       {user?.role === 'hospital' && 'Hospital'}
                       {user?.role === 'admin' && 'Administrador'}
-                      {user?.role === 'driver' && 'Conductor'}
+                      {user?.role === 'transport_team' && 'Conductor'}
                     </Badge>
                   </div>
                 </div>
