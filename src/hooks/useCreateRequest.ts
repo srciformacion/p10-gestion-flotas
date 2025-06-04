@@ -1,39 +1,37 @@
 
 import { useState } from 'react';
 import { useRequests } from '@/context/RequestsProvider';
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 import { TransportRequest } from '@/types/request';
+import { useToast } from '@/hooks/use-toast';
 
 export const useCreateRequest = () => {
-  const { addRequest } = useRequests();
+  const [isLoading, setIsLoading] = useState(false);
+  const { createRequest } = useRequests();
   const { toast } = useToast();
-  const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
-  const createRequest = async (formData: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>) => {
-    setError("");
-    setIsSubmitting(true);
-
+  const submitRequest = async (requestData: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>) => {
+    setIsLoading(true);
     try {
-      await addRequest(formData);
-      
+      const newRequest = await createRequest(requestData);
       toast({
         title: "Solicitud creada",
-        description: "Su solicitud de transporte ha sido registrada correctamente",
+        description: "La solicitud se ha creado correctamente",
       });
-      
-      navigate("/solicitudes");
-    } catch (err) {
-      setError("Error al crear la solicitud. Inténtelo de nuevo más tarde.");
-      console.error(err);
+      return newRequest;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo crear la solicitud",
+        variant: "destructive"
+      });
+      throw error;
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
-
-    return { error, isSubmitting };
   };
 
-  return { createRequest, error, isSubmitting };
+  return {
+    submitRequest,
+    isLoading
+  };
 };

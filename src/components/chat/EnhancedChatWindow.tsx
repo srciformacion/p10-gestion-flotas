@@ -1,154 +1,171 @@
 
-import { useState, useRef } from 'react';
-import { useChat } from '@/context/ChatContext';
-import { useAuth } from '@/context/AuthContext';
-import { ChatMessage } from './ChatMessage';
-import { MessageTemplateSelector } from './MessageTemplateSelector';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { SendIcon, XIcon, Paperclip, Smile } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { useState, useEffect, useRef } from "react";
+import { useChat } from "@/context/ChatContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Send, Phone, Video, MoreVertical, Paperclip } from "lucide-react";
+import { ChatMessage } from "./ChatMessage";
+import { MessageTemplateSelector } from "./MessageTemplateSelector";
+import { MessageTemplate } from "@/types/message";
 
 interface EnhancedChatWindowProps {
-  onClose: () => void;
-  className?: string;
+  conversationId: string;
+  participantName: string;
+  participantRole?: string;
+  participantAvatar?: string;
+  onClose?: () => void;
 }
 
-export const EnhancedChatWindow = ({ onClose, className }: EnhancedChatWindowProps) => {
-  const { currentConversation, sendMessage } = useChat();
-  const { user } = useAuth();
-  const [message, setMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim()) {
-      sendMessage(message.trim());
-      setMessage('');
+export const EnhancedChatWindow = ({
+  conversationId,
+  participantName,
+  participantRole,
+  participantAvatar,
+  onClose
+}: EnhancedChatWindowProps) => {
+  const { 
+    conversations, 
+    sendMessage, 
+    markAsRead,
+    isOnline 
+  } = useChat();
+  
+  const [newMessage, setNewMessage] = useState("");
+  const [showTemplates, setShowTemplates] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  
+  const conversation = conversations.find(c => c.id === conversationId);
+  const messages = conversation?.messages || [];
+  
+  useEffect(() => {
+    if (conversation && conversation.unreadCount > 0) {
+      markAsRead(conversationId);
+    }
+  }, [conversationId, conversation, markAsRead]);
+  
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
+  
+  const handleSendMessage = () => {
+    if (newMessage.trim()) {
+      sendMessage(conversationId, newMessage.trim());
+      setNewMessage("");
     }
   };
-
-  const handleTemplateSelect = (templateMessage: string) => {
-    setMessage(templateMessage);
-  };
-
-  const handleFileAttach = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Aquí se implementaría la subida de archivos
-      console.log('Archivo seleccionado:', file.name);
-      // Por ahora solo añadimos un mensaje indicando el archivo
-      sendMessage(`📎 Archivo adjunto: ${file.name}`);
+  
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
-
-  // Simular indicador de "escribiendo"
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
-    
-    // Simular que alguien está escribiendo
-    if (!isTyping && e.target.value.length > 0) {
-      setIsTyping(true);
-      setTimeout(() => setIsTyping(false), 3000);
-    }
+  
+  const handleTemplateSelect = (template: MessageTemplate) => {
+    setNewMessage(template.content);
+    setShowTemplates(false);
   };
-
-  const getParticipantName = (senderId: string) => {
-    if (user?.id === senderId) return user.name;
-    return user?.role === 'admin' ? 'Usuario' : 'Administrador';
-  };
-
-  if (!currentConversation) return null;
-
+  
+  if (!conversation) {
+    return (
+      <Card className="h-full flex items-center justify-center">
+        <CardContent>
+          <p className="text-muted-foreground">Conversación no encontrada</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   return (
-    <div className={cn('flex flex-col h-[600px] shadow-lg rounded-lg border', className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between bg-primary text-primary-foreground px-4 py-3 rounded-t-lg">
-        <div>
-          <h3 className="text-lg font-medium">
-            Chat con {user?.role === 'admin' ? 'Usuario' : 'Administración'}
-          </h3>
-          {isTyping && (
-            <p className="text-sm opacity-75">
-              Escribiendo...
-            </p>
-          )}
-        </div>
-        <Button variant="ghost" size="icon" onClick={onClose} className="text-primary-foreground hover:bg-primary-foreground/20">
-          <XIcon size={18} />
-        </Button>
-      </div>
-
-      {/* Messages area */}
-      <ScrollArea className="flex-1 p-4 bg-background">
-        <div className="flex flex-col space-y-1">
-          <div className="text-xs text-center text-muted-foreground py-2">
-            {format(new Date(currentConversation.messages[0]?.timestamp || Date.now()), 'PPP', { locale: es })}
-          </div>
-          
-          {currentConversation.messages.map((msg) => (
-            <ChatMessage 
-              key={msg.id} 
-              message={msg} 
-              senderName={getParticipantName(msg.senderId)} 
-            />
-          ))}
-          
-          {isTyping && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
-              <div className="flex gap-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+    <Card className="h-full flex flex-col">
+      <CardHeader className="flex-row items-center justify-between space-y-0 pb-4 border-b">
+        <div className="flex items-center space-x-3">
+          <Avatar>
+            <AvatarImage src={participantAvatar} />
+            <AvatarFallback>
+              {participantName.split(' ').map(n => n[0]).join('')}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <CardTitle className="text-lg">{participantName}</CardTitle>
+            <div className="flex items-center space-x-2">
+              {participantRole && (
+                <Badge variant="secondary" className="text-xs">
+                  {participantRole}
+                </Badge>
+              )}
+              <div className="flex items-center space-x-1">
+                <div className={`w-2 h-2 rounded-full ${isOnline(conversation.participants[0]) ? 'bg-green-500' : 'bg-gray-400'}`} />
+                <span className="text-xs text-muted-foreground">
+                  {isOnline(conversation.participants[0]) ? 'En línea' : 'Desconectado'}
+                </span>
               </div>
-              <span>Escribiendo...</span>
             </div>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Button variant="ghost" size="icon">
+            <Phone className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Video className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+          {onClose && (
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              ×
+            </Button>
           )}
         </div>
-      </ScrollArea>
-
-      {/* Quick actions */}
-      <div className="border-t px-4 py-2 bg-muted/30">
-        <div className="flex gap-2">
-          <MessageTemplateSelector onSelectTemplate={handleTemplateSelect} />
-          <Button variant="outline" size="sm" onClick={handleFileAttach}>
-            <Paperclip className="h-4 w-4 mr-2" />
-            Adjuntar
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            onChange={handleFileChange}
-            accept="image/*,.pdf,.doc,.docx"
-          />
+      </CardHeader>
+      
+      <CardContent className="flex-1 flex flex-col p-0">
+        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <ChatMessage key={message.id} message={message} />
+            ))}
+          </div>
+        </ScrollArea>
+        
+        {showTemplates && (
+          <div className="border-t p-4">
+            <MessageTemplateSelector 
+              onSelect={handleTemplateSelect}
+              onClose={() => setShowTemplates(false)}
+            />
+          </div>
+        )}
+        
+        <div className="border-t p-4">
+          <div className="flex items-end space-x-2">
+            <div className="flex-1">
+              <Input
+                placeholder="Escribe un mensaje..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="min-h-[40px] resize-none"
+              />
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setShowTemplates(!showTemplates)}>
+              <Paperclip className="h-4 w-4" />
+            </Button>
+            <Button onClick={handleSendMessage} disabled={!newMessage.trim()}>
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </div>
-
-      {/* Message input */}
-      <form onSubmit={handleSendMessage} className="border-t p-3 flex gap-2 bg-background rounded-b-lg">
-        <Input
-          value={message}
-          onChange={handleInputChange}
-          placeholder="Escribe un mensaje..."
-          className="flex-1"
-        />
-        <Button type="button" variant="ghost" size="icon">
-          <Smile size={18} />
-        </Button>
-        <Button type="submit" disabled={!message.trim()}>
-          <SendIcon size={18} className="mr-1" />
-          Enviar
-        </Button>
-      </form>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

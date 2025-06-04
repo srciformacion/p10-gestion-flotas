@@ -1,12 +1,11 @@
-
 import { useState, useEffect } from "react";
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
 import { useRequests } from "@/context/RequestsProvider";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 import { RequestStatus } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -18,6 +17,7 @@ import { ResponsibleInfo } from "@/components/requests/detail/ResponsibleInfo";
 import { VehicleInfo } from "@/components/requests/detail/VehicleInfo";
 import { EnhancedVehicleInfo } from "@/components/requests/detail/EnhancedVehicleInfo";
 import { StatusUpdateDialog } from "@/components/requests/detail/StatusUpdateDialog";
+import { ReassignVehicleDialog } from "@/components/requests/ReassignVehicleDialog";
 import { VehicleDetails } from "@/types/vehicle";
 
 const RequestDetail = () => {
@@ -33,6 +33,7 @@ const RequestDetail = () => {
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [reassignDialogOpen, setReassignDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState<RequestStatus | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleDetails | null>(null);
   
@@ -142,6 +143,10 @@ const RequestDetail = () => {
   };
   
   const canUpdateStatus = user?.role === 'ambulance' || user?.role === 'admin';
+  const canReassignVehicle = (user?.role === 'admin' || user?.role === 'ambulance') && 
+                            (request.status === 'assigned' || request.status === 'inRoute') &&
+                            request.assignedVehicle;
+  
   const statusOptions = {
     pending: ['assigned', 'cancelled'],
     assigned: ['inRoute', 'cancelled'],
@@ -181,7 +186,19 @@ const RequestDetail = () => {
                       Creada: {formatDateTime(request.dateTime)}
                     </CardDescription>
                   </div>
-                  <RequestStatusBadge status={request.status} />
+                  <div className="flex items-center gap-2">
+                    <RequestStatusBadge status={request.status} />
+                    {canReassignVehicle && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setReassignDialogOpen(true)}
+                      >
+                        <RefreshCw className="h-4 w-4 mr-1" />
+                        Reasignar
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -268,6 +285,12 @@ const RequestDetail = () => {
           isUpdating={isUpdating}
           newStatus={newStatus === 'assigned' || newStatus === 'inRoute' ? newStatus : null}
           onVehicleSelect={handleVehicleSelect}
+        />
+
+        <ReassignVehicleDialog
+          open={reassignDialogOpen}
+          onOpenChange={setReassignDialogOpen}
+          request={request}
         />
       </div>
     </RequireAuth>

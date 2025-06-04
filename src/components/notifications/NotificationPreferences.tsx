@@ -1,160 +1,182 @@
 
-import { useNotifications } from '@/context/NotificationContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Bell, BellOff } from 'lucide-react';
+import { useNotifications } from "@/context/NotificationContext";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export const NotificationPreferences = () => {
-  const { preferences, updatePreferences, requestPushPermission } = useNotifications();
+  const { preferences, updatePreferences, requestNotificationPermission } = useNotifications();
 
-  const handleCategoryToggle = (category: keyof typeof preferences.categories) => {
-    updatePreferences({
-      categories: {
-        ...preferences.categories,
-        [category]: !preferences.categories[category]
-      }
-    });
-  };
-
-  const handleEnablePush = async () => {
-    const granted = await requestPushPermission();
-    if (granted) {
-      updatePreferences({ pushEnabled: true });
-    }
+  const handlePermissionRequest = async () => {
+    await requestNotificationPermission();
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Bell className="h-5 w-5" />
-          Preferencias de Notificaciones
-        </CardTitle>
-        <CardDescription>
-          Configura cómo y cuándo quieres recibir notificaciones
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Notificaciones Push */}
-        <div className="space-y-4">
-          <h4 className="font-medium">Métodos de Notificación</h4>
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label>Notificaciones Push del Navegador</Label>
-              <p className="text-sm text-muted-foreground">
-                Recibe alertas instantáneas en tu navegador
-              </p>
-            </div>
-            {preferences.pushEnabled ? (
-              <div className="flex items-center gap-2">
-                <Bell className="h-4 w-4 text-green-600" />
-                <Switch
-                  checked={preferences.pushEnabled}
-                  onCheckedChange={(checked) => updatePreferences({ pushEnabled: checked })}
-                />
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Preferencias de Notificaciones</CardTitle>
+          <CardDescription>
+            Configura cómo y cuándo quieres recibir notificaciones
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Configuración General */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="push-notifications">Notificaciones Push</Label>
+                <p className="text-sm text-muted-foreground">
+                  Recibir notificaciones en tiempo real en el navegador
+                </p>
               </div>
-            ) : (
-              <Button onClick={handleEnablePush} variant="outline" size="sm">
-                <BellOff className="h-4 w-4 mr-2" />
-                Habilitar
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="push-notifications"
+                  checked={preferences.pushEnabled}
+                  onCheckedChange={(checked) => 
+                    updatePreferences({ pushEnabled: checked })
+                  }
+                />
+                {!preferences.pushEnabled && (
+                  <Button variant="outline" size="sm" onClick={handlePermissionRequest}>
+                    Activar
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="email-notifications">Notificaciones por Email</Label>
+                <p className="text-sm text-muted-foreground">
+                  Recibir resúmenes y actualizaciones por correo electrónico
+                </p>
+              </div>
+              <Switch
+                id="email-notifications"
+                checked={preferences.emailEnabled}
+                onCheckedChange={(checked) => 
+                  updatePreferences({ emailEnabled: checked })
+                }
+              />
+            </div>
+          </div>
+
+          {/* Categorías de Notificaciones */}
+          <div className="space-y-4">
+            <h4 className="font-medium">Tipos de Notificaciones</h4>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="request-status">Cambios de Estado de Solicitudes</Label>
+                <p className="text-sm text-muted-foreground">
+                  Cuando una solicitud cambia de estado
+                </p>
+              </div>
+              <Switch
+                id="request-status"
+                checked={preferences.requestStatusChanges}
+                onCheckedChange={(checked) => 
+                  updatePreferences({ requestStatusChanges: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="vehicle-assignments">Asignaciones de Vehículos</Label>
+                <p className="text-sm text-muted-foreground">
+                  Cuando se asigna o reasigna un vehículo
+                </p>
+              </div>
+              <Switch
+                id="vehicle-assignments"
+                checked={preferences.vehicleAssignments}
+                onCheckedChange={(checked) => 
+                  updatePreferences({ vehicleAssignments: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="emergency-alerts">Alertas de Emergencia</Label>
+                <p className="text-sm text-muted-foreground">
+                  Notificaciones críticas y de emergencia
+                </p>
+              </div>
+              <Switch
+                id="emergency-alerts"
+                checked={preferences.emergencyAlerts}
+                onCheckedChange={(checked) => 
+                  updatePreferences({ emergencyAlerts: checked })
+                }
+              />
+            </div>
+          </div>
+
+          {/* Horario Silencioso */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="quiet-hours">Horario Silencioso</Label>
+                <p className="text-sm text-muted-foreground">
+                  No recibir notificaciones durante estas horas (excepto emergencias)
+                </p>
+              </div>
+              <Switch
+                id="quiet-hours"
+                checked={preferences.quietHours.enabled}
+                onCheckedChange={(checked) => 
+                  updatePreferences({ 
+                    quietHours: { ...preferences.quietHours, enabled: checked }
+                  })
+                }
+              />
+            </div>
+
+            {preferences.quietHours.enabled && (
+              <div className="grid grid-cols-2 gap-4 pl-4">
+                <div className="space-y-2">
+                  <Label htmlFor="quiet-start">Hora de inicio</Label>
+                  <Input
+                    id="quiet-start"
+                    type="time"
+                    value={preferences.quietHours.start}
+                    onChange={(e) => 
+                      updatePreferences({
+                        quietHours: { 
+                          ...preferences.quietHours, 
+                          start: e.target.value 
+                        }
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="quiet-end">Hora de fin</Label>
+                  <Input
+                    id="quiet-end"
+                    type="time"
+                    value={preferences.quietHours.end}
+                    onChange={(e) => 
+                      updatePreferences({
+                        quietHours: { 
+                          ...preferences.quietHours, 
+                          end: e.target.value 
+                        }
+                      })
+                    }
+                  />
+                </div>
+              </div>
             )}
           </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label>Notificaciones por Email</Label>
-              <p className="text-sm text-muted-foreground">
-                Recibe resúmenes por correo electrónico
-              </p>
-            </div>
-            <Switch
-              checked={preferences.emailEnabled}
-              onCheckedChange={(checked) => updatePreferences({ emailEnabled: checked })}
-            />
-          </div>
-        </div>
-
-        {/* Categorías de Notificación */}
-        <div className="space-y-4">
-          <h4 className="font-medium">Tipos de Notificaciones</h4>
-          
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label>Cambios de Estado de Solicitudes</Label>
-                <p className="text-sm text-muted-foreground">
-                  Actualizaciones sobre tus solicitudes de transporte
-                </p>
-              </div>
-              <Switch
-                checked={preferences.categories.request_status}
-                onCheckedChange={() => handleCategoryToggle('request_status')}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label>Mensajes de Chat</Label>
-                <p className="text-sm text-muted-foreground">
-                  Nuevos mensajes en conversaciones
-                </p>
-              </div>
-              <Switch
-                checked={preferences.categories.chat}
-                onCheckedChange={() => handleCategoryToggle('chat')}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label>Notificaciones del Sistema</Label>
-                <p className="text-sm text-muted-foreground">
-                  Actualizaciones importantes del sistema
-                </p>
-              </div>
-              <Switch
-                checked={preferences.categories.system}
-                onCheckedChange={() => handleCategoryToggle('system')}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label>Mantenimiento y Actualizaciones</Label>
-                <p className="text-sm text-muted-foreground">
-                  Información sobre mantenimiento programado
-                </p>
-              </div>
-              <Switch
-                checked={preferences.categories.maintenance}
-                onCheckedChange={() => handleCategoryToggle('maintenance')}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Configuración Avanzada */}
-        <div className="space-y-4">
-          <h4 className="font-medium">Configuración Avanzada</h4>
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label>Solo Notificaciones Urgentes</Label>
-              <p className="text-sm text-muted-foreground">
-                Recibir únicamente notificaciones de alta prioridad
-              </p>
-            </div>
-            <Switch
-              checked={preferences.urgentOnly}
-              onCheckedChange={(checked) => updatePreferences({ urgentOnly: checked })}
-            />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
