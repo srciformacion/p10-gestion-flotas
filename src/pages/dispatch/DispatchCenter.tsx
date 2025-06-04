@@ -379,7 +379,7 @@ export default function DispatchCenter() {
                       onChange={(e) => setAutoDispatch(e.target.checked)}
                       className="rounded" 
                     />
-                    <span className="text-sm">Despacho automático (confianza >95%)</span>
+                    <span className="text-sm">Despacho automático (confianza {'>'}95%)</span>
                   </label>
                   <label className="flex items-center gap-2">
                     <input type="checkbox" className="rounded" />
