@@ -11,7 +11,7 @@ import {
   AlertTriangle, 
   Activity, 
   Zap,
-  Refresh,
+  RefreshCw,
   Filter,
   Radio
 } from 'lucide-react';
@@ -183,7 +183,7 @@ export default function TrackingDashboard() {
               onClick={() => setAutoRefresh(!autoRefresh)}
               className={autoRefresh ? "bg-rioja-green hover:bg-rioja-green/90" : ""}
             >
-              <Refresh className={`w-4 h-4 mr-2 ${autoRefresh ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 mr-2 ${autoRefresh ? 'animate-spin' : ''}`} />
               Auto-refresh
             </Button>
             <Button variant="outline" className="text-rioja-blue border-rioja-blue hover:bg-rioja-blue/10">
