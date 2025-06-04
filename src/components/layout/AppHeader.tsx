@@ -40,9 +40,15 @@ export function AppHeader() {
 
   return (
     <header className="h-16 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 sticky top-0 z-50 flex items-center justify-between px-4 shadow-sm">
-      <div className="flex items-center gap-2">
-        <SidebarTrigger className="text-rioja-blue hover:text-rioja-green hover:bg-rioja-green/10 transition-colors duration-200" />
-        <h1 className="font-semibold text-lg text-rioja-blue">Sistema de Gestión de Ambulancias</h1>
+      <div className="flex items-center gap-3">
+        <SidebarTrigger className="text-rioja-blue hover:text-rioja-green hover:bg-rioja-green/10 transition-colors duration-200 p-2 rounded-md" />
+        <div className="h-6 w-px bg-gray-300 hidden md:block" />
+        <h1 className="font-semibold text-lg text-rioja-blue hidden sm:block">
+          Sistema de Gestión de Ambulancias
+        </h1>
+        <h1 className="font-semibold text-base text-rioja-blue sm:hidden">
+          AmbulLink
+        </h1>
       </div>
       
       <div className="flex items-center gap-2">
