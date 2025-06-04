@@ -1,11 +1,9 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Settings } from 'lucide-react';
+import React from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { MapPin } from 'lucide-react';
 import { AmbulanceStatus } from '@/types/ambulance';
 
 interface AmbulanceLocation {
@@ -25,229 +23,111 @@ interface InteractiveMapProps {
   onAmbulanceSelect?: (ambulanceId: string) => void;
 }
 
-export const InteractiveMap: React.FC<InteractiveMapProps> = ({ 
-  ambulances, 
-  onAmbulanceSelect 
-}) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const markers = useRef<{ [key: string]: mapboxgl.Marker }>({});
-  const [mapboxToken, setMapboxToken] = useState('');
-  const [showTokenInput, setShowTokenInput] = useState(true);
+// Colores por estado
+const getStatusColor = (status: AmbulanceStatus) => {
+  switch (status) {
+    case 'available': return '#10b981'; // verde
+    case 'busy': return '#f59e0b'; // amarillo
+    case 'maintenance': return '#8b5cf6'; // morado
+    case 'offline': return '#6b7280'; // gris
+    default: return '#6b7280';
+  }
+};
 
-  // Colores por estado - actualizado para incluir maintenance
-  const getStatusColor = (status: AmbulanceStatus) => {
-    switch (status) {
-      case 'available': return '#10b981'; // verde
-      case 'busy': return '#f59e0b'; // amarillo
-      case 'maintenance': return '#8b5cf6'; // morado
-      case 'offline': return '#6b7280'; // gris
-      default: return '#6b7280';
-    }
-  };
-
-  // Crear marcador personalizado
-  const createMarkerElement = (ambulance: AmbulanceLocation) => {
-    const el = document.createElement('div');
-    el.className = 'ambulance-marker';
-    el.style.cssText = `
-      width: 32px;
-      height: 32px;
-      background-color: ${getStatusColor(ambulance.status)};
-      border: 3px solid white;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: bold;
-      color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-      position: relative;
-    `;
-    el.innerHTML = '🚑';
-    
-    // Añadir pulso para ambulancias en mantenimiento (ya no hay emergency)
-    if (ambulance.status === 'maintenance') {
-      el.style.animation = 'pulse 2s infinite';
-      const style = document.createElement('style');
-      style.textContent = `
+// Crear icono personalizado para cada ambulancia
+const createCustomIcon = (status: AmbulanceStatus) => {
+  const color = getStatusColor(status);
+  
+  return L.divIcon({
+    html: `
+      <div style="
+        width: 32px;
+        height: 32px;
+        background-color: ${color};
+        border: 3px solid white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        ${status === 'maintenance' ? 'animation: pulse 2s infinite;' : ''}
+      ">
+        🚑
+      </div>
+      <style>
         @keyframes pulse {
           0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
           70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
           100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
         }
-      `;
-      document.head.appendChild(style);
-    }
+      </style>
+    `,
+    className: 'custom-ambulance-marker',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+  });
+};
 
-    return el;
-  };
-
-  // Inicializar mapa - centrado en La Rioja, España
-  useEffect(() => {
-    if (!mapboxToken || !mapContainer.current) return;
-
-    mapboxgl.accessToken = mapboxToken;
-    
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-2.4449, 42.4627], // La Rioja, España
-      zoom: 10
-    });
-
-    // Añadir controles de navegación
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-    // Añadir control de geolocalización
-    map.current.addControl(
-      new mapboxgl.GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true
-        },
-        trackUserLocation: true,
-        showUserHeading: true
-      }),
-      'top-right'
-    );
-
-    setShowTokenInput(false);
-
-    return () => {
-      if (map.current) {
-        map.current.remove();
-        map.current = null;
-      }
-    };
-  }, [mapboxToken]);
-
-  // Actualizar marcadores cuando cambien las ambulancias
-  useEffect(() => {
-    if (!map.current) return;
-
-    // Limpiar marcadores existentes
-    Object.values(markers.current).forEach(marker => marker.remove());
-    markers.current = {};
-
-    // Añadir nuevos marcadores
-    ambulances.forEach(ambulance => {
-      const el = createMarkerElement(ambulance);
-      
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat([ambulance.lng, ambulance.lat])
-        .addTo(map.current!);
-
-      // Crear popup con información
-      const popup = new mapboxgl.Popup({
-        offset: 25,
-        closeButton: false,
-        closeOnClick: false
-      }).setHTML(`
-        <div class="p-2">
-          <h3 class="font-bold text-sm">${ambulance.vehicleId}</h3>
-          <p class="text-xs text-gray-600">${ambulance.address}</p>
-          <p class="text-xs">Estado: <span class="font-semibold" style="color: ${getStatusColor(ambulance.status)}">${ambulance.status}</span></p>
-          ${ambulance.speed ? `<p class="text-xs">Velocidad: ${ambulance.speed} km/h</p>` : ''}
-          <p class="text-xs text-gray-500">Actualizado: ${new Date(ambulance.lastUpdate).toLocaleTimeString()}</p>
-        </div>
-      `);
-
-      // Eventos del marcador
-      el.addEventListener('mouseenter', () => {
-        popup.addTo(map.current!);
-        marker.setPopup(popup);
-      });
-
-      el.addEventListener('mouseleave', () => {
-        popup.remove();
-      });
-
-      el.addEventListener('click', () => {
-        if (onAmbulanceSelect) {
-          onAmbulanceSelect(ambulance.id);
-        }
-        // Centrar mapa en la ambulancia
-        map.current!.flyTo({
-          center: [ambulance.lng, ambulance.lat],
-          zoom: 15,
-          duration: 1000
-        });
-      });
-
-      markers.current[ambulance.id] = marker;
-    });
-
-    // Ajustar vista para mostrar todas las ambulancias
-    if (ambulances.length > 0) {
-      const bounds = new mapboxgl.LngLatBounds();
-      ambulances.forEach(ambulance => {
-        bounds.extend([ambulance.lng, ambulance.lat]);
-      });
-      
-      map.current.fitBounds(bounds, {
-        padding: 50,
-        maxZoom: 15
-      });
-    }
-  }, [ambulances, onAmbulanceSelect]);
-
-  const handleTokenSubmit = () => {
-    if (mapboxToken.trim()) {
-      localStorage.setItem('mapbox_token', mapboxToken);
-    }
-  };
-
-  if (showTokenInput) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Configuración de Mapa
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <p className="text-sm text-gray-600 mb-3">
-              Para mostrar el mapa interactivo, necesitas proporcionar tu token público de Mapbox.
-            </p>
-            <div className="flex gap-2">
-              <Input
-                type="text"
-                placeholder="Ingresa tu token público de Mapbox..."
-                value={mapboxToken}
-                onChange={(e) => setMapboxToken(e.target.value)}
-                className="flex-1"
-              />
-              <Button onClick={handleTokenSubmit} disabled={!mapboxToken.trim()}>
-                Configurar
-              </Button>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Puedes obtener tu token en{' '}
-              <a 
-                href="https://mapbox.com/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                mapbox.com
-              </a>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+export const InteractiveMap: React.FC<InteractiveMapProps> = ({ 
+  ambulances, 
+  onAmbulanceSelect 
+}) => {
+  // Centro del mapa en La Rioja, España
+  const laRiojaCenter: [number, number] = [42.4627, -2.4449];
 
   return (
     <div className="relative w-full h-full">
-      <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
+      <MapContainer
+        center={laRiojaCenter}
+        zoom={10}
+        className="absolute inset-0 rounded-lg"
+        style={{ height: '100%', width: '100%' }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        
+        {ambulances.map((ambulance) => (
+          <Marker
+            key={ambulance.id}
+            position={[ambulance.lat, ambulance.lng]}
+            icon={createCustomIcon(ambulance.status)}
+            eventHandlers={{
+              click: () => {
+                if (onAmbulanceSelect) {
+                  onAmbulanceSelect(ambulance.id);
+                }
+              },
+            }}
+          >
+            <Popup>
+              <div className="p-2">
+                <h3 className="font-bold text-sm">{ambulance.vehicleId}</h3>
+                <p className="text-xs text-gray-600">{ambulance.address}</p>
+                <p className="text-xs">
+                  Estado: <span 
+                    className="font-semibold" 
+                    style={{ color: getStatusColor(ambulance.status) }}
+                  >
+                    {ambulance.status}
+                  </span>
+                </p>
+                {ambulance.speed && (
+                  <p className="text-xs">Velocidad: {ambulance.speed} km/h</p>
+                )}
+                <p className="text-xs text-gray-500">
+                  Actualizado: {new Date(ambulance.lastUpdate).toLocaleTimeString()}
+                </p>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
       
       {/* Leyenda */}
-      <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-3 z-10">
+      <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-3 z-[1000]">
         <h4 className="text-sm font-semibold mb-2">Estados</h4>
         <div className="space-y-1 text-xs">
           <div className="flex items-center gap-2">
@@ -270,7 +150,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       </div>
 
       {/* Info de ambulancias */}
-      <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-3 z-10">
+      <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-3 z-[1000]">
         <div className="flex items-center gap-2 text-sm">
           <MapPin className="h-4 w-4 text-blue-500" />
           <span className="font-semibold">{ambulances.length}</span>
