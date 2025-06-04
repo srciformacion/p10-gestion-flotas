@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
-import { useRequests } from "@/context/RequestsContext";
+import { useRequests } from "@/context/RequestsProvider";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";

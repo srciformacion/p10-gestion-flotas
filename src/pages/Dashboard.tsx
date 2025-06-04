@@ -1,7 +1,7 @@
 
 import { memo, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRequests } from "@/context/RequestsContext";
+import { useRequests } from "@/context/RequestsProvider";
 import { RequireAuth } from "@/components/RequireAuth";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
