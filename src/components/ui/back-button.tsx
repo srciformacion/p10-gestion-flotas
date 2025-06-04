@@ -1,30 +1,48 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useSmartNavigation } from "@/hooks/useSmartNavigation";
 
 interface BackButtonProps {
   to?: string;
   className?: string;
   variant?: "default" | "outline" | "ghost" | "link";
   size?: "default" | "sm" | "lg" | "icon";
+  onConfirm?: () => boolean; // Retorna true si puede navegar
+  confirmMessage?: string;
 }
 
 export function BackButton({ 
   to, 
   className = "", 
   variant = "outline",
-  size = "sm"
+  size = "sm",
+  onConfirm,
+  confirmMessage = "¿Estás seguro de que quieres salir? Podrías perder tu progreso."
 }: BackButtonProps) {
-  const navigate = useNavigate();
+  const { goBack, navigateToRole, canGoBack } = useSmartNavigation();
 
   const handleBack = () => {
+    // Si hay una función de confirmación, ejecutarla
+    if (onConfirm) {
+      const canProceed = onConfirm();
+      if (!canProceed) {
+        const confirmed = window.confirm(confirmMessage);
+        if (!confirmed) return;
+      }
+    }
+
     if (to) {
-      navigate(to);
+      navigateToRole(to);
     } else {
-      navigate(-1);
+      goBack();
     }
   };
+
+  // No mostrar el botón si no se puede/debe ir atrás
+  if (!to && !canGoBack()) {
+    return null;
+  }
 
   return (
     <Button
