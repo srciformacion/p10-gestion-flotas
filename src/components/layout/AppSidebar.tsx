@@ -55,19 +55,19 @@ export function AppSidebar() {
       title: "Solicitudes",
       url: "/solicitudes",
       icon: FileText,
-      roles: ["admin", "centroCoordinador", "hospital", "individual", "ambulance"]
+      roles: ["admin", "centroCoordinador", "hospital", "individual"]
     },
     {
       title: "Ambulancias",
       url: "/ambulancias",
       icon: Ambulance,
-      roles: ["admin", "centroCoordinador", "ambulance"]
+      roles: ["admin", "centroCoordinador"]
     },
     {
       title: "Usuarios",
       url: "/usuarios",
       icon: Users,
-      roles: ["admin", "ambulance"]
+      roles: ["admin"]
     },
     {
       title: "Rutas",
@@ -79,13 +79,13 @@ export function AppSidebar() {
       title: "Seguimiento",
       url: "/seguimiento",
       icon: MapPin,
-      roles: ["admin", "centroCoordinador", "hospital", "ambulance"]
+      roles: ["admin", "centroCoordinador", "hospital", "individual"]
     },
     {
       title: "Despacho IA",
       url: "/despacho",
       icon: Brain,
-      roles: ["admin", "centroCoordinador", "ambulance"]
+      roles: ["admin", "centroCoordinador"]
     },
     {
       title: "Equipo Móvil",
@@ -109,7 +109,7 @@ export function AppSidebar() {
       title: "Configuración",
       url: "/configuracion",
       icon: Settings,
-      roles: ["admin", "centroCoordinador", "ambulance"]
+      roles: ["admin", "centroCoordinador"]
     }
   ];
 
