@@ -19,14 +19,14 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
   const canManageVehicles = user?.role === 'admin' || user?.role === 'ambulance';
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div className="w-full max-w-5xl mx-auto px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {/* Acción: Crear nueva solicitud */}
         {canCreateRequest && (
-          <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-rioja-green">
+          <Card className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-rioja-green transform hover:scale-105">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-xl text-rioja-blue">
-                <Plus className="h-6 w-6 text-rioja-green" />
+                <Plus className="h-7 w-7 text-rioja-green" />
                 Nueva Solicitud
               </CardTitle>
             </CardHeader>
@@ -35,7 +35,7 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
                 Crear una nueva solicitud de transporte sanitario de forma rápida y sencilla
               </p>
               <Link to="/nueva-solicitud" className="w-full">
-                <Button className="w-full bg-rioja-green hover:bg-rioja-green/90 h-11 font-medium">
+                <Button className="w-full bg-rioja-green hover:bg-rioja-green/90 h-12 font-medium text-base">
                   Crear Solicitud
                 </Button>
               </Link>
@@ -44,10 +44,10 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
         )}
 
         {/* Acción: Ver todas las solicitudes */}
-        <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-orange-500">
+        <Card className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-orange-500 transform hover:scale-105">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-3 text-xl text-rioja-blue">
-              <FileText className="h-6 w-6 text-orange-500" />
+              <FileText className="h-7 w-7 text-orange-500" />
               Solicitudes
             </CardTitle>
           </CardHeader>
@@ -56,7 +56,7 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
               Ver y gestionar todas las solicitudes de transporte en el sistema
             </p>
             <Link to="/solicitudes" className="w-full">
-              <Button variant="outline" className="w-full h-11 font-medium border-orange-500 text-orange-600 hover:bg-orange-50">
+              <Button variant="outline" className="w-full h-12 font-medium text-base border-orange-500 text-orange-600 hover:bg-orange-50">
                 Ver Solicitudes
               </Button>
             </Link>
@@ -64,10 +64,10 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
         </Card>
 
         {/* Acción: Mensajes */}
-        <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
+        <Card className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500 transform hover:scale-105">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-3 text-xl text-rioja-blue">
-              <MessageCircle className="h-6 w-6 text-blue-500" />
+              <MessageCircle className="h-7 w-7 text-blue-500" />
               Mensajes
               {totalUnread > 0 && (
                 <span className="bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-semibold">
@@ -81,7 +81,7 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
               Comunícate con {user?.role === 'admin' || user?.role === 'ambulance' ? 'los usuarios del sistema' : 'la administración'}
             </p>
             <Link to="/mensajes" className="w-full">
-              <Button variant="outline" className="w-full h-11 font-medium border-blue-500 text-blue-600 hover:bg-blue-50">
+              <Button variant="outline" className="w-full h-12 font-medium text-base border-blue-500 text-blue-600 hover:bg-blue-50">
                 Ver Mensajes
               </Button>
             </Link>
@@ -90,10 +90,10 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
 
         {/* Acción: Gestionar usuarios (admin y ambulancias) */}
         {canManageUsers && (
-          <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500">
+          <Card className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-purple-500 transform hover:scale-105">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-xl text-rioja-blue">
-                <Users className="h-6 w-6 text-purple-500" />
+                <Users className="h-7 w-7 text-purple-500" />
                 Usuarios
               </CardTitle>
             </CardHeader>
@@ -102,7 +102,7 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
                 Gestionar los usuarios del sistema y sus permisos
               </p>
               <Link to="/usuarios" className="w-full">
-                <Button variant="outline" className="w-full h-11 font-medium border-purple-500 text-purple-600 hover:bg-purple-50">
+                <Button variant="outline" className="w-full h-12 font-medium text-base border-purple-500 text-purple-600 hover:bg-purple-50">
                   Gestionar Usuarios
                 </Button>
               </Link>
@@ -112,10 +112,10 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
 
         {/* Acción: Gestionar vehículos (admin y ambulancias) */}
         {canManageVehicles && (
-          <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-rioja-green">
+          <Card className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-rioja-green transform hover:scale-105">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-xl text-rioja-blue">
-                <Ambulance className="h-6 w-6 text-rioja-green" />
+                <Ambulance className="h-7 w-7 text-rioja-green" />
                 Ambulancias
               </CardTitle>
             </CardHeader>
@@ -124,7 +124,7 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
                 Gestionar la flota de vehículos disponibles y su estado
               </p>
               <Link to="/ambulancias" className="w-full">
-                <Button variant="outline" className="w-full h-11 font-medium border-rioja-green text-rioja-green hover:bg-rioja-green/10">
+                <Button variant="outline" className="w-full h-12 font-medium text-base border-rioja-green text-rioja-green hover:bg-rioja-green/10">
                   Gestionar Ambulancias
                 </Button>
               </Link>
