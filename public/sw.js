@@ -1,42 +1,64 @@
 
-const CACHE_NAME = 'gestion-p10-v1';
+const CACHE_NAME = 'gestion-p10-v2';
 const urlsToCache = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
   '/manifest.json',
   '/placeholder.svg'
 ];
 
 // Instalación del service worker
 self.addEventListener('install', (event) => {
+  console.log('SW: Installing service worker');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Cache abierto');
-        return cache.addAll(urlsToCache);
+        console.log('SW: Cache opened');
+        // Solo cachear recursos que sabemos que existen
+        return cache.addAll(urlsToCache.filter(url => {
+          // Filtrar URLs que podrían no existir
+          return url === '/' || url === '/manifest.json' || url === '/placeholder.svg';
+        }));
+      })
+      .catch((error) => {
+        console.error('SW: Error adding to cache:', error);
       })
   );
+  // Activar inmediatamente el nuevo service worker
+  self.skipWaiting();
 });
 
 // Activación del service worker
 self.addEventListener('activate', (event) => {
+  console.log('SW: Activating service worker');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Eliminando cache antiguo:', cacheName);
+            console.log('SW: Eliminando cache antiguo:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      // Tomar control inmediatamente
+      return self.clients.claim();
     })
   );
 });
 
 // Interceptar requests
 self.addEventListener('fetch', (event) => {
+  // Solo interceptar requests GET
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Ignorar requests a extensiones del navegador y otros protocolos
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -54,21 +76,57 @@ self.addEventListener('fetch', (event) => {
             return response;
           }
 
-          // Clone the response
-          const responseToCache = response.clone();
+          // Solo cachear ciertos tipos de recursos
+          const url = new URL(event.request.url);
+          const shouldCache = url.pathname.endsWith('.js') || 
+                            url.pathname.endsWith('.css') || 
+                            url.pathname.endsWith('.png') || 
+                            url.pathname.endsWith('.jpg') || 
+                            url.pathname.endsWith('.svg') ||
+                            url.pathname === '/';
 
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
+          if (shouldCache) {
+            // Clone the response
+            const responseToCache = response.clone();
+
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseToCache);
+              })
+              .catch((error) => {
+                console.error('SW: Error caching response:', error);
+              });
+          }
 
           return response;
         }).catch(() => {
           // Si estamos offline y no hay cache, mostrar página offline básica
           if (event.request.destination === 'document') {
             return new Response(
-              '<html><body><h1>Sin conexión</h1><p>Por favor, verifica tu conexión a internet.</p></body></html>',
-              { headers: { 'Content-Type': 'text/html' } }
+              `<!DOCTYPE html>
+              <html>
+                <head>
+                  <title>Sin conexión</title>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <style>
+                    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                    h1 { color: #333; }
+                    p { color: #666; }
+                  </style>
+                </head>
+                <body>
+                  <h1>Sin conexión</h1>
+                  <p>Por favor, verifica tu conexión a internet.</p>
+                  <button onclick="window.location.reload()">Reintentar</button>
+                </body>
+              </html>`,
+              { 
+                headers: { 
+                  'Content-Type': 'text/html',
+                  'Cache-Control': 'no-cache'
+                } 
+              }
             );
           }
         });

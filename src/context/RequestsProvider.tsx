@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { TransportRequest } from '@/types/request';
 import { requestsApi } from '@/services/api/requests';
 import { mockServices } from '@/services/api/mock-services';
@@ -24,8 +24,8 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
   const [useMockData, setUseMockData] = useState(false);
 
   const loadRequests = useCallback(async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       if (useMockData) {
         // Use mock data - convert to the expected format
         const mockData = mockServices.map(service => ({
@@ -44,6 +44,7 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
       }
     } catch (error) {
       console.error('Error loading requests:', error);
+      setRequests([]);
     } finally {
       setIsLoading(false);
     }
@@ -54,23 +55,28 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
   }, [loadRequests]);
 
   const addRequest = useCallback(async (requestData: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>) => {
-    if (useMockData) {
-      // Add to mock data
-      const newRequest: TransportRequest = {
-        ...requestData,
-        id: `srv-${Date.now()}`,
-        status: 'pending',
-        type: 'simple',
-        priority: 'medium',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        observations: requestData.observations || ''
-      };
-      setRequests(prev => [newRequest, ...prev]);
-    } else {
-      // Use API
-      const newRequest = await requestsApi.create(requestData);
-      setRequests(prev => [...prev, newRequest]);
+    try {
+      if (useMockData) {
+        // Add to mock data
+        const newRequest: TransportRequest = {
+          ...requestData,
+          id: `srv-${Date.now()}`,
+          status: 'pending',
+          type: 'simple',
+          priority: 'medium',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          observations: requestData.observations || ''
+        };
+        setRequests(prev => [newRequest, ...prev]);
+      } else {
+        // Use API
+        const newRequest = await requestsApi.create(requestData);
+        setRequests(prev => [newRequest, ...prev]);
+      }
+    } catch (error) {
+      console.error('Error adding request:', error);
+      throw error;
     }
   }, [useMockData]);
 
@@ -79,17 +85,22 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
     status: TransportRequest['status'], 
     data?: Partial<TransportRequest>
   ) => {
-    if (useMockData) {
-      // Update mock data
-      setRequests(prev => prev.map(req => 
-        req.id === id 
-          ? { ...req, status, ...data, updatedAt: new Date().toISOString() }
-          : req
-      ));
-    } else {
-      // Use API
-      const updatedRequest = await requestsApi.update(id, { status, ...data });
-      setRequests(prev => prev.map(req => req.id === id ? updatedRequest : req));
+    try {
+      if (useMockData) {
+        // Update mock data
+        setRequests(prev => prev.map(req => 
+          req.id === id 
+            ? { ...req, status, ...data, updatedAt: new Date().toISOString() }
+            : req
+        ));
+      } else {
+        // Use API
+        const updatedRequest = await requestsApi.update(id, { status, ...data });
+        setRequests(prev => prev.map(req => req.id === id ? updatedRequest : req));
+      }
+    } catch (error) {
+      console.error('Error updating request status:', error);
+      throw error;
     }
   }, [useMockData]);
 
@@ -101,24 +112,33 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
     await loadRequests();
   }, [loadRequests]);
 
-  // Added filteredRequests - currently just returning all requests
-  // This can be modified later to actually filter based on criteria if needed
-  const filteredRequests = requests;
+  // Memoize filteredRequests - currently just returning all requests
+  const filteredRequests = useMemo(() => requests, [requests]);
+
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    requests, 
+    filteredRequests,
+    addRequest, 
+    updateRequestStatus, 
+    getRequestById,
+    isLoading,
+    useMockData,
+    setUseMockData,
+    refreshRequests
+  }), [
+    requests, 
+    filteredRequests, 
+    addRequest, 
+    updateRequestStatus, 
+    getRequestById, 
+    isLoading, 
+    useMockData, 
+    refreshRequests
+  ]);
 
   return (
-    <RequestsContext.Provider 
-      value={{ 
-        requests, 
-        filteredRequests,
-        addRequest, 
-        updateRequestStatus, 
-        getRequestById,
-        isLoading,
-        useMockData,
-        setUseMockData,
-        refreshRequests
-      }}
-    >
+    <RequestsContext.Provider value={contextValue}>
       {children}
     </RequestsContext.Provider>
   );
