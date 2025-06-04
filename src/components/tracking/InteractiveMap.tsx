@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Settings } from 'lucide-react';
+import { AmbulanceStatus } from '@/types/ambulance';
 
 interface AmbulanceLocation {
   id: string;
   vehicleId: string;
   lat: number;
   lng: number;
-  status: 'available' | 'busy' | 'emergency' | 'offline';
+  status: AmbulanceStatus;
   address: string;
   speed?: number;
   heading?: number;
@@ -34,12 +35,12 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const [mapboxToken, setMapboxToken] = useState('');
   const [showTokenInput, setShowTokenInput] = useState(true);
 
-  // Colores por estado
-  const getStatusColor = (status: string) => {
+  // Colores por estado - actualizado para incluir maintenance
+  const getStatusColor = (status: AmbulanceStatus) => {
     switch (status) {
       case 'available': return '#10b981'; // verde
       case 'busy': return '#f59e0b'; // amarillo
-      case 'emergency': return '#ef4444'; // rojo
+      case 'maintenance': return '#8b5cf6'; // morado
       case 'offline': return '#6b7280'; // gris
       default: return '#6b7280';
     }
@@ -67,15 +68,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     `;
     el.innerHTML = '🚑';
     
-    // Añadir pulso para ambulancias en emergencia
-    if (ambulance.status === 'emergency') {
+    // Añadir pulso para ambulancias en mantenimiento (ya no hay emergency)
+    if (ambulance.status === 'maintenance') {
       el.style.animation = 'pulse 2s infinite';
       const style = document.createElement('style');
       style.textContent = `
         @keyframes pulse {
-          0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-          70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+          0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
+          70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
         }
       `;
       document.head.appendChild(style);
@@ -84,7 +85,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     return el;
   };
 
-  // Inicializar mapa
+  // Inicializar mapa - centrado en La Rioja, España
   useEffect(() => {
     if (!mapboxToken || !mapContainer.current) return;
 
@@ -93,8 +94,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-3.7038, 40.4168], // Madrid como centro por defecto
-      zoom: 11
+      center: [-2.4449, 42.4627], // La Rioja, España
+      zoom: 10
     });
 
     // Añadir controles de navegación
@@ -258,8 +259,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             <span>Ocupada</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span>Emergencia</span>
+            <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+            <span>Mantenimiento</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-gray-500"></div>

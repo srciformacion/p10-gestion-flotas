@@ -39,7 +39,7 @@ const TrackingPage = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
-                Mapa de Ambulancias
+                Mapa de Ambulancias - La Rioja
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -73,7 +73,7 @@ const TrackingPage = () => {
                       className={
                         ambulance.status === 'available' ? 'bg-green-500' :
                         ambulance.status === 'busy' ? 'bg-yellow-500' : 
-                        ambulance.status === 'emergency' ? 'bg-red-500' : 'bg-gray-500'
+                        ambulance.status === 'maintenance' ? 'bg-purple-500' : 'bg-gray-500'
                       }
                     >
                       {ambulance.status}
