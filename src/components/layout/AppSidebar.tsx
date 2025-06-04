@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -73,13 +72,13 @@ export function AppSidebar() {
       title: "Rutas",
       url: "/rutas",
       icon: Route,
-      roles: ["admin", "centroCoordinador", "ambulance"]
+      roles: ["admin", "centroCoordinador", "ambulance", "equipoMovil"]
     },
     {
       title: "Seguimiento",
       url: "/seguimiento",
       icon: MapPin,
-      roles: ["admin", "centroCoordinador", "hospital", "individual"]
+      roles: ["admin", "centroCoordinador", "hospital", "individual", "equipoMovil"]
     },
     {
       title: "Despacho IA",
