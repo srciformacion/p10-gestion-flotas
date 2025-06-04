@@ -14,7 +14,7 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
   const { totalUnread } = useChat();
   
   // Definimos las acciones disponibles según el rol del usuario
-  const canCreateRequest = user?.role === 'hospital' || user?.role === 'individual' || user?.role === 'admin';
+  const canCreateRequest = user?.role === 'hospital' || user?.role === 'individual' || user?.role === 'admin' || user?.role === 'ambulance';
   const canManageUsers = user?.role === 'admin' || user?.role === 'ambulance';
   const canManageVehicles = user?.role === 'admin' || user?.role === 'ambulance';
 
