@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { TransportRequest, RequestStatus } from '@/types/request';
 import { mockServices } from '@/services/api/mock-services';
@@ -11,7 +12,7 @@ interface RequestsContextType {
   setUseMockData: (useMockData: boolean) => void;
   loadRequests: () => Promise<void>;
   getRequestById: (id: string) => TransportRequest | undefined;
-  createRequest: (request: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>> => Promise<TransportRequest>;
+  createRequest: (request: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>) => Promise<TransportRequest>;
   updateRequestStatus: (
     requestId: string,
     status: RequestStatus,
@@ -52,7 +53,7 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
     return requests.find(request => request.id === id);
   };
 
-  const createRequest = async (request: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>>): Promise<TransportRequest> => {
+  const createRequest = async (request: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>): Promise<TransportRequest> => {
     try {
       setIsLoading(true);
       let newRequest: TransportRequest;
