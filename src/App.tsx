@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { RequestsProvider } from '@/context/RequestsProvider';
@@ -19,9 +20,9 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <RequestsProvider>
-          <ChatProvider>
-            <NotificationProvider>
+        <NotificationProvider>
+          <RequestsProvider>
+            <ChatProvider>
               <div className="min-h-screen bg-gray-50">
                 <Routes>
                   <Route path="/" element={<Index />} />
@@ -44,9 +45,9 @@ function App() {
                 </Routes>
                 <Toaster />
               </div>
-            </NotificationProvider>
-          </ChatProvider>
-        </RequestsProvider>
+            </ChatProvider>
+          </RequestsProvider>
+        </NotificationProvider>
       </AuthProvider>
     </BrowserRouter>
   );
