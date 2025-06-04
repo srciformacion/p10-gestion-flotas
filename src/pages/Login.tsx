@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Truck } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -22,6 +22,14 @@ const Login = () => {
   const location = useLocation();
   
   const from = (location.state as any)?.from?.pathname || "/dashboard";
+
+  // Precargar email si viene desde la página de inicio
+  useEffect(() => {
+    const stateEmail = (location.state as any)?.email;
+    if (stateEmail) {
+      setEmail(stateEmail);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,15 +63,21 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow flex items-center justify-center p-4">
-        <div className="w-full max-w-md space-y-8">
-          <Card className="w-full">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl">Iniciar sesión</CardTitle>
-              <CardDescription>
-                Ingresa tus credenciales para acceder a AmbulLink
+      <main className="flex-grow flex items-center justify-center p-4 bg-gray-50">
+        <div className="w-full max-w-md">
+          <Card className="shadow-lg">
+            <CardHeader className="text-center space-y-4">
+              <div className="mx-auto w-16 h-16 bg-rioja-green rounded-lg flex items-center justify-center">
+                <Truck className="h-8 w-8 text-white" />
+              </div>
+              <CardTitle className="text-2xl font-semibold text-gray-800">
+                Iniciar sesión
+              </CardTitle>
+              <CardDescription className="text-gray-600">
+                Ingresa tus credenciales para acceder a P10 - Gestión de usuarios y flota.
               </CardDescription>
             </CardHeader>
+            
             <CardContent className="space-y-4">
               <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
@@ -72,22 +86,23 @@ const Login = () => {
                   </Alert>
                 )}
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-gray-700">Usuario</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="correo@ejemplo.com"
+                    placeholder="usuario@ejemplo.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="border-gray-300"
                     required
                   />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Contraseña</Label>
+                    <Label htmlFor="password" className="text-gray-700">Contraseña</Label>
                     <Link
                       to="/recuperar-password"
-                      className="text-sm font-medium text-primary-blue hover:underline"
+                      className="text-sm font-medium text-rioja-green hover:underline"
                     >
                       ¿Olvidaste tu contraseña?
                     </Link>
@@ -98,22 +113,24 @@ const Login = () => {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="border-gray-300"
                     required
                   />
                 </div>
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full bg-rioja-green hover:bg-rioja-green/90 py-3"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
+                  {isLoading ? "Iniciando sesión..." : "Iniciar sesión →"}
                 </Button>
               </form>
             </CardContent>
+            
             <CardFooter className="flex flex-col space-y-4">
-              <div className="text-center text-sm">
+              <div className="text-center text-sm text-gray-600">
                 ¿No tienes una cuenta?{" "}
-                <Link to="/registro" className="font-medium text-primary-blue hover:underline">
+                <Link to="/registro" className="font-medium text-rioja-green hover:underline">
                   Crear cuenta
                 </Link>
               </div>
@@ -128,11 +145,11 @@ const Login = () => {
                       key={account.email}
                       variant="outline"
                       size="sm"
-                      className="text-xs justify-start"
+                      className="text-xs justify-start border-gray-300 hover:bg-gray-50"
                       onClick={() => setEmail(account.email)}
                     >
-                      <span className="truncate">{account.role}</span>
-                      <ArrowRight className="ml-auto h-3 w-3" />
+                      <span className="truncate text-gray-700">{account.role}</span>
+                      <ArrowRight className="ml-auto h-3 w-3 text-gray-400" />
                     </Button>
                   ))}
                 </div>
