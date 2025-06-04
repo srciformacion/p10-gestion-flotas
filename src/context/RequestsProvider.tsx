@@ -27,11 +27,12 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
   const [isLoading, setIsLoading] = useState(false);
   const [useMockData, setUseMockData] = useState(true);
 
+  // Move the useNotifications hook call here, after the state declarations
+  const { addStatusUpdateNotification } = useNotifications();
+
   useEffect(() => {
     loadRequests();
   }, [useMockData]);
-
-  const { addStatusUpdateNotification } = useNotifications();
 
   const loadRequests = async () => {
     setIsLoading(true);
