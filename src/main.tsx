@@ -3,22 +3,25 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// Crear el root inmediatamente
-const root = createRoot(document.getElementById("root")!);
+// Asegurar que el DOM esté completamente cargado
+const container = document.getElementById("root");
+if (!container) {
+  throw new Error("Root container not found");
+}
 
-// Renderizar la aplicación de forma prioritaria
+// Crear el root y renderizar inmediatamente
+const root = createRoot(container);
 root.render(<App />);
 
-// Registrar Service Worker después del primer render
+// Registrar Service Worker de forma asíncrona para no bloquear la carga inicial
 if ('serviceWorker' in navigator) {
-  // Usar setTimeout para no bloquear la renderización inicial
-  setTimeout(() => {
+  window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
-        console.log('SW registrado:', registration);
+        console.log('SW registrado correctamente:', registration);
       })
       .catch((error) => {
-        console.log('SW registro falló:', error);
+        console.log('Error al registrar SW:', error);
       });
-  }, 2000);
+  });
 }

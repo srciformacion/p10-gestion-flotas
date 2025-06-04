@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Truck } from "lucide-react";
 
 const Index = () => {
-  // Lista simplificada de cuentas de prueba para mejor rendimiento
+  // Lista optimizada de cuentas de prueba
   const testAccounts = [
     { label: "Administrador", email: "admin@ambulink.com" },
     { label: "Centro sanitario", email: "hospital@ambulink.com" },
@@ -31,9 +31,10 @@ const Index = () => {
           </CardHeader>
           
           <CardContent className="space-y-6">
-            <Link to="/login">
+            <Link to="/login" className="block">
               <Button 
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 text-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl"
+                size="lg"
               >
                 Iniciar Sesión
               </Button>
@@ -41,7 +42,7 @@ const Index = () => {
             
             <div className="text-center">
               <span className="text-gray-500">¿No tienes cuenta? </span>
-              <Link to="/registro" className="text-blue-600 hover:text-blue-700 font-semibold hover:underline">
+              <Link to="/registro" className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors">
                 Regístrate aquí
               </Link>
             </div>
@@ -62,6 +63,7 @@ const Index = () => {
                     <Button
                       variant="outline"
                       className="w-full justify-between py-3 border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                      size="sm"
                     >
                       <span className="text-gray-700 font-medium">{account.label}</span>
                       <span className="text-blue-500">→</span>

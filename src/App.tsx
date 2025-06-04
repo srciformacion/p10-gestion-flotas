@@ -10,7 +10,7 @@ import { RequestsProvider } from "@/context/RequestsProvider";
 import { ChatProvider } from "@/context/ChatContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
-import { Skeleton } from "@/components/ui/skeleton";
+import { OptimizedLoader } from "@/components/OptimizedLoader";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -45,8 +45,8 @@ const RouteDetailsPage = lazy(() => import("./pages/driver/RouteDetailsPage"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       refetchOnWindowFocus: false,
       retry: 1,
     },
@@ -55,19 +55,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-// Loading component
-const PageLoader = () => (
-  <div className="flex flex-col space-y-4 p-6">
-    <Skeleton className="h-8 w-3/4" />
-    <Skeleton className="h-4 w-1/2" />
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <Skeleton className="h-32 w-full" />
-      <Skeleton className="h-32 w-full" />
-      <Skeleton className="h-32 w-full" />
-    </div>
-  </div>
-);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -80,7 +67,7 @@ const App = () => (
             <PWAInstallPrompt />
             <BrowserRouter>
               <AppLayout>
-                <Suspense fallback={<PageLoader />}>
+                <Suspense fallback={<OptimizedLoader />}>
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/login" element={<Login />} />
