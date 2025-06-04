@@ -1,4 +1,3 @@
-
 import { User } from '@/types/user';
 import { Ambulance } from '@/types/ambulance';
 import { TransportRequest } from '@/types/request';
@@ -440,7 +439,9 @@ export const mockConversations: Conversation[] = [
     type: 'direct',
     unreadCount: 2,
     createdAt: '2024-01-15T08:00:00Z',
-    updatedAt: '2024-01-15T10:30:00Z'
+    updatedAt: '2024-01-15T10:30:00Z',
+    messages: [],
+    lastMessageTimestamp: '2024-01-15T10:30:00Z'
   },
   {
     id: 'conv-002',
@@ -449,7 +450,9 @@ export const mockConversations: Conversation[] = [
     type: 'direct',
     unreadCount: 1,
     createdAt: '2024-01-15T16:30:00Z',
-    updatedAt: '2024-01-15T16:45:00Z'
+    updatedAt: '2024-01-15T16:45:00Z',
+    messages: [],
+    lastMessageTimestamp: '2024-01-15T16:45:00Z'
   },
   {
     id: 'conv-003',
@@ -458,7 +461,9 @@ export const mockConversations: Conversation[] = [
     type: 'group',
     unreadCount: 0,
     createdAt: '2024-01-15T09:00:00Z',
-    updatedAt: '2024-01-15T14:20:00Z'
+    updatedAt: '2024-01-15T14:20:00Z',
+    messages: [],
+    lastMessageTimestamp: '2024-01-15T14:20:00Z'
   }
 ];
 

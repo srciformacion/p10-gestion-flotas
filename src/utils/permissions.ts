@@ -63,6 +63,16 @@ export const getRolePermissions = (role: UserRole): UserPermissions => {
       canAccessDispatch: false,
       canViewAnalytics: false,
     },
+    transport_team: {
+      canManageUsers: false,
+      canManageAmbulances: false,
+      canCreateRequests: false,
+      canManageRequests: false,
+      canViewTracking: true,
+      canManageRoutes: false,
+      canAccessDispatch: false,
+      canViewAnalytics: false,
+    },
   };
 
   return permissions[role];
