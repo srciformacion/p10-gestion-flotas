@@ -5,65 +5,66 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Truck } from "lucide-react";
 
 const Index = () => {
-  // Cuentas de prueba para facilitar el acceso
+  // Lista simplificada de cuentas de prueba para mejor rendimiento
   const testAccounts = [
     { label: "Administrador", email: "admin@ambulink.com" },
     { label: "Centro sanitario", email: "hospital@ambulink.com" },
-    { label: "Usuario particular", email: "usuario@ambulink.com" },
-    { label: "Empresa de ambulancias", email: "ambulancia@ambulink.com" },
-    { label: "Ambulancia", email: "equipo@ambulink.com" }
+    { label: "Usuario particular", email: "usuario@ambulink.com" }
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Card className="shadow-lg">
-          <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-16 h-16 bg-rioja-green rounded-lg flex items-center justify-center">
-              <Truck className="h-8 w-8 text-white" />
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+          <CardHeader className="text-center space-y-6 pb-8">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Truck className="h-10 w-10 text-white" />
             </div>
-            <CardTitle className="text-2xl font-semibold text-gray-800">
-              Iniciar sesión
-            </CardTitle>
-            <CardDescription className="text-gray-600">
-              Ingresa tus credenciales para acceder a P10 - Gestión de usuarios y flota.
-            </CardDescription>
+            <div className="space-y-2">
+              <CardTitle className="text-3xl font-bold text-gray-900">
+                AmbulLink
+              </CardTitle>
+              <CardDescription className="text-gray-600 text-lg">
+                Sistema de gestión de transporte sanitario
+              </CardDescription>
+            </div>
           </CardHeader>
           
           <CardContent className="space-y-6">
-            <div className="text-center space-y-4">
-              <Link to="/login">
-                <Button className="w-full bg-rioja-green hover:bg-rioja-green/90 text-white py-3">
-                  Acceder al sistema
-                </Button>
+            <Link to="/login">
+              <Button 
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 text-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl"
+              >
+                Iniciar Sesión
+              </Button>
+            </Link>
+            
+            <div className="text-center">
+              <span className="text-gray-500">¿No tienes cuenta? </span>
+              <Link to="/registro" className="text-blue-600 hover:text-blue-700 font-semibold hover:underline">
+                Regístrate aquí
               </Link>
-              
-              <div className="text-center text-sm text-gray-600">
-                ¿No tienes una cuenta?{" "}
-                <Link to="/registro" className="text-rioja-green hover:underline font-medium">
-                  Crear cuenta
-                </Link>
-              </div>
             </div>
 
             <div className="border-t pt-6">
-              <p className="text-xs text-center text-gray-500 mb-4">
-                Cuentas de prueba (usar contraseña: 123456)
+              <p className="text-sm text-center text-gray-500 mb-4 font-medium">
+                Acceso rápido - Contraseña: 123456
               </p>
               
-              <div className="grid grid-cols-1 gap-2">
+              <div className="space-y-2">
                 {testAccounts.map((account) => (
                   <Link
                     key={account.email}
                     to="/login"
                     state={{ email: account.email }}
+                    className="block"
                   >
                     <Button
                       variant="outline"
-                      className="w-full justify-between text-left py-3 border-gray-300 hover:bg-gray-50"
+                      className="w-full justify-between py-3 border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors"
                     >
-                      <span className="text-gray-700">{account.label}</span>
-                      <span className="text-gray-400">→</span>
+                      <span className="text-gray-700 font-medium">{account.label}</span>
+                      <span className="text-blue-500">→</span>
                     </Button>
                   </Link>
                 ))}
