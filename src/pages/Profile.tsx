@@ -1,159 +1,58 @@
-import { useState } from "react";
-import { Navbar } from "@/components/Navbar";
-import { useAuth } from "@/context/AuthContext";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+
+import React from "react";
+import Navbar from "@/components/Navbar";
 import { RequireAuth } from "@/components/RequireAuth";
-import { User } from "lucide-react";
-import { NotificationPreferences } from "@/components/notifications/NotificationPreferences";
+import { useAuth } from "@/context/AuthContext";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const Profile = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
-
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    password: "",
-    confirmPassword: ""
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Validate form
-    if (formData.password && formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Las contraseñas no coinciden",
-        variant: "destructive"
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Simulate update profile (in a real app this would call an API)
-    setTimeout(() => {
-      toast({
-        title: "Perfil actualizado",
-        description: "Los datos de tu perfil se han actualizado correctamente"
-      });
-      setIsSubmitting(false);
-      // Reset password fields
-      setFormData(prev => ({
-        ...prev,
-        password: "",
-        confirmPassword: ""
-      }));
-    }, 1000);
-  };
-
-  const getRoleText = (role: string) => {
-    switch (role) {
-      case 'admin': return 'Administrador';
-      case 'hospital': return 'Centro Sanitario';
-      case 'individual': return 'Particular';
-      case 'ambulance': return 'Empresa de Ambulancias';
-      default: return role;
-    }
-  };
 
   return (
     <RequireAuth>
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow p-4 md:p-6">
-          <div className="max-w-4xl mx-auto space-y-6">
-            <h1 className="text-2xl md:text-3xl font-bold">Mi Perfil</h1>
+          <div className="max-w-2xl mx-auto">
+            <h1 className="text-2xl md:text-3xl font-bold mb-6">Mi Perfil</h1>
             
             <Card>
               <CardHeader>
-                <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 rounded-full bg-primary-blue flex items-center justify-center text-white">
-                    <User className="h-8 w-8" />
-                  </div>
-                  <div>
-                    <CardTitle>{user?.name}</CardTitle>
-                    <CardDescription>
-                      {getRoleText(user?.role || '')}
-                    </CardDescription>
+                <CardTitle>Información Personal</CardTitle>
+                <CardDescription>
+                  Datos de tu cuenta en el sistema
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Nombre</label>
+                  <p className="text-lg">{user?.name || "No especificado"}</p>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Email</label>
+                  <p className="text-lg">{user?.email || "No especificado"}</p>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Rol</label>
+                  <div className="mt-1">
+                    <Badge variant="secondary">
+                      {user?.role === 'individual' && 'Usuario Individual'}
+                      {user?.role === 'hospital' && 'Hospital'}
+                      {user?.role === 'admin' && 'Administrador'}
+                      {user?.role === 'driver' && 'Conductor'}
+                    </Badge>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nombre</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Correo electrónico</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      disabled
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      El correo electrónico no se puede cambiar
-                    </p>
-                  </div>
-
-                  <div className="pt-4 border-t">
-                    <h3 className="font-medium mb-4">Cambiar contraseña</h3>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="password">Nueva contraseña</Label>
-                        <Input
-                          id="password"
-                          name="password"
-                          type="password"
-                          value={formData.password}
-                          onChange={handleChange}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
-                        <Input
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          type="password"
-                          value={formData.confirmPassword}
-                          onChange={handleChange}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </form>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">ID de Usuario</label>
+                  <p className="text-sm text-muted-foreground">{user?.id}</p>
+                </div>
               </CardContent>
-              <CardFooter>
-                <Button onClick={handleSubmit} disabled={isSubmitting}>
-                  {isSubmitting ? "Guardando..." : "Guardar cambios"}
-                </Button>
-              </CardFooter>
             </Card>
-            
-            <NotificationPreferences />
           </div>
         </main>
       </div>

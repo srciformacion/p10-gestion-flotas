@@ -1,9 +1,8 @@
-
 import { useState } from "react";
-import { Navbar } from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
+import Navbar from "@/components/Navbar";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Search } from "lucide-react";

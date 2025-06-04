@@ -1,11 +1,10 @@
-
 import { useState } from "react";
-import { Navbar } from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
+import Navbar from "@/components/Navbar";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, UserCheck, UserX, Edit } from "lucide-react";
 import { mockUsers } from "@/services/api/mock-data";

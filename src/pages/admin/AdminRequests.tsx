@@ -1,5 +1,5 @@
-
-import { Navbar } from "@/components/Navbar";
+import React from "react";
+import Navbar from "@/components/Navbar";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";

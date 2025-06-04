@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
 import { useRequests } from "@/context/RequestsProvider";
 import { Card, CardContent } from "@/components/ui/card";
