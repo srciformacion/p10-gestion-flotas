@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
 import { useRequests } from "@/context/RequestsProvider";
@@ -23,7 +23,7 @@ import { VehicleDetails } from "@/types/vehicle";
 const RequestDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const { getRequestById, updateRequestStatus } = useRequests();
+  const { getRequestById, updateRequestStatus, requests, isLoading } = useRequests();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -36,16 +36,63 @@ const RequestDetail = () => {
   const [newStatus, setNewStatus] = useState<RequestStatus | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleDetails | null>(null);
   
+  console.log('RequestDetail - ID from params:', id);
+  console.log('RequestDetail - Total requests:', requests.length);
+  console.log('RequestDetail - Is loading:', isLoading);
+  
   if (!id) {
+    console.log('No ID provided, navigating to requests list');
     navigate('/solicitudes');
     return null;
   }
   
   const request = getRequestById(id);
+  console.log('RequestDetail - Found request:', request);
+  
+  // Mostrar loading mientras se cargan los datos
+  if (isLoading) {
+    return (
+      <RequireAuth>
+        <div className="min-h-screen flex flex-col">
+          <Navbar />
+          <main className="flex-grow p-4 md:p-6">
+            <div className="max-w-3xl mx-auto">
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold mb-4">Cargando solicitud...</h2>
+                  <p className="text-muted-foreground">Por favor espere</p>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </RequireAuth>
+    );
+  }
   
   if (!request) {
-    navigate('/solicitudes');
-    return null;
+    console.log('Request not found, navigating to requests list');
+    return (
+      <RequireAuth>
+        <div className="min-h-screen flex flex-col">
+          <Navbar />
+          <main className="flex-grow p-4 md:p-6">
+            <div className="max-w-3xl mx-auto">
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold mb-4">Solicitud no encontrada</h2>
+                  <p className="text-muted-foreground mb-4">La solicitud con ID {id} no existe</p>
+                  <Button onClick={() => navigate('/solicitudes')}>
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Volver a solicitudes
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </RequireAuth>
+    );
   }
 
   const formatDateTime = (dateTimeStr: string) => {
@@ -79,6 +126,10 @@ const RequestDetail = () => {
         await updateRequestStatus(id, status);
       }
       setDialogOpen(false);
+      toast({
+        title: "Estado actualizado",
+        description: "El estado de la solicitud se ha actualizado correctamente",
+      });
     } catch (error) {
       toast({
         title: "Error",

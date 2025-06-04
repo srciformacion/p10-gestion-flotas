@@ -21,11 +21,13 @@ const RequestsContext = createContext<RequestsContextType | undefined>(undefined
 export const RequestsProvider = ({ children }: { children: React.ReactNode }) => {
   const [requests, setRequests] = useState<TransportRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [useMockData, setUseMockData] = useState(false);
+  const [useMockData, setUseMockData] = useState(true); // Cambio a true por defecto para mostrar datos
 
   const loadRequests = useCallback(async () => {
     try {
       setIsLoading(true);
+      console.log('Loading requests, useMockData:', useMockData);
+      
       if (useMockData) {
         // Use mock data - convert to the expected format
         const mockData = mockServices.map(service => ({
@@ -36,10 +38,12 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
           updatedAt: service.updatedAt || new Date().toISOString(),
           observations: service.observations || ''
         }));
+        console.log('Loaded mock data:', mockData.length, 'requests');
         setRequests(mockData);
       } else {
         // Use API data
         const data = await requestsApi.getAll();
+        console.log('Loaded API data:', data.length, 'requests');
         setRequests(data);
       }
     } catch (error) {
@@ -86,6 +90,8 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
     data?: Partial<TransportRequest>
   ) => {
     try {
+      console.log('Updating request status:', id, status, data);
+      
       if (useMockData) {
         // Update mock data
         setRequests(prev => prev.map(req => 
@@ -105,7 +111,10 @@ export const RequestsProvider = ({ children }: { children: React.ReactNode }) =>
   }, [useMockData]);
 
   const getRequestById = useCallback((id: string) => {
-    return requests.find(req => req.id === id);
+    console.log('Getting request by ID:', id, 'from', requests.length, 'requests');
+    const found = requests.find(req => req.id === id);
+    console.log('Found request:', found ? 'yes' : 'no');
+    return found;
   }, [requests]);
 
   const refreshRequests = useCallback(async () => {
