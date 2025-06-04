@@ -4,7 +4,8 @@ export type UserRole =
   | 'individual' 
   | 'ambulance'
   | 'centroCoordinador'
-  | 'equipoMovil';
+  | 'equipoMovil'
+  | 'transport_team';
 
 export interface User {
   id: string;

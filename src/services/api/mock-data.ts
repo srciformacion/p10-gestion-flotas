@@ -435,7 +435,7 @@ export const mockRoutes: Route[] = [
 export const mockConversations: Conversation[] = [
   {
     id: 'conv-001',
-    participants: ['1', '2'],
+    participantIds: ['1', '2'],
     title: 'Coordinación General',
     type: 'direct',
     unreadCount: 2,
@@ -444,7 +444,7 @@ export const mockConversations: Conversation[] = [
   },
   {
     id: 'conv-002',
-    participants: ['2', '10'],
+    participantIds: ['2', '10'],
     title: 'Emergencias 112',
     type: 'direct',
     unreadCount: 1,
@@ -453,7 +453,7 @@ export const mockConversations: Conversation[] = [
   },
   {
     id: 'conv-003',
-    participants: ['3', '4', '5'],
+    participantIds: ['3', '4', '5'],
     title: 'Coordinación Hospitales',
     type: 'group',
     unreadCount: 0,
