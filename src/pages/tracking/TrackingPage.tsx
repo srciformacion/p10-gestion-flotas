@@ -4,9 +4,30 @@ import { MapPin, Navigation, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { mockAmbulances } from "@/services/api/mock-data";
+import { InteractiveMap } from "@/components/tracking/InteractiveMap";
 
 const TrackingPage = () => {
   const [ambulances] = useState(mockAmbulances);
+  const [selectedAmbulance, setSelectedAmbulance] = useState<string | null>(null);
+
+  // Convertir datos de ambulancias para el mapa
+  const ambulanceLocations = ambulances
+    .filter(amb => amb.currentLocation)
+    .map(amb => ({
+      id: amb.id,
+      vehicleId: amb.vehicleId,
+      lat: amb.currentLocation!.lat,
+      lng: amb.currentLocation!.lng,
+      status: amb.status,
+      address: amb.currentLocation!.address || 'Ubicación desconocida',
+      lastUpdate: amb.updatedAt
+    }));
+
+  const handleAmbulanceSelect = (ambulanceId: string) => {
+    setSelectedAmbulance(ambulanceId);
+  };
+
+  const selectedAmbulanceData = ambulances.find(amb => amb.id === selectedAmbulance);
 
   return (
     <div className="space-y-6">
@@ -22,14 +43,11 @@ const TrackingPage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-500">Mapa interactivo en desarrollo</p>
-                  <p className="text-sm text-gray-400">
-                    Aquí se mostrará la ubicación en tiempo real de las ambulancias
-                  </p>
-                </div>
+              <div className="h-96">
+                <InteractiveMap 
+                  ambulances={ambulanceLocations}
+                  onAmbulanceSelect={handleAmbulanceSelect}
+                />
               </div>
             </CardContent>
           </Card>
@@ -42,13 +60,20 @@ const TrackingPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {ambulances.map((ambulance) => (
-                <div key={ambulance.id} className="border rounded-lg p-3">
+                <div 
+                  key={ambulance.id} 
+                  className={`border rounded-lg p-3 cursor-pointer transition-colors ${
+                    selectedAmbulance === ambulance.id ? 'bg-blue-50 border-blue-200' : ''
+                  }`}
+                  onClick={() => handleAmbulanceSelect(ambulance.id)}
+                >
                   <div className="flex justify-between items-start mb-2">
                     <strong className="text-sm">{ambulance.vehicleId}</strong>
                     <Badge 
                       className={
                         ambulance.status === 'available' ? 'bg-green-500' :
-                        ambulance.status === 'busy' ? 'bg-yellow-500' : 'bg-red-500'
+                        ambulance.status === 'busy' ? 'bg-yellow-500' : 
+                        ambulance.status === 'emergency' ? 'bg-red-500' : 'bg-gray-500'
                       }
                     >
                       {ambulance.status}
@@ -77,6 +102,49 @@ const TrackingPage = () => {
               ))}
             </CardContent>
           </Card>
+
+          {/* Información detallada de ambulancia seleccionada */}
+          {selectedAmbulanceData && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">
+                  {selectedAmbulanceData.vehicleId}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <strong className="text-sm">Matrícula:</strong>
+                  <p className="text-sm">{selectedAmbulanceData.licensePlate}</p>
+                </div>
+                <div>
+                  <strong className="text-sm">Modelo:</strong>
+                  <p className="text-sm">{selectedAmbulanceData.model}</p>
+                </div>
+                <div>
+                  <strong className="text-sm">Tipo:</strong>
+                  <p className="text-sm">{selectedAmbulanceData.type}</p>
+                </div>
+                {selectedAmbulanceData.fuelLevel && (
+                  <div>
+                    <strong className="text-sm">Combustible:</strong>
+                    <p className="text-sm">{selectedAmbulanceData.fuelLevel}%</p>
+                  </div>
+                )}
+                {selectedAmbulanceData.assignedDriver && (
+                  <div>
+                    <strong className="text-sm">Conductor:</strong>
+                    <p className="text-sm">{selectedAmbulanceData.assignedDriver}</p>
+                  </div>
+                )}
+                {selectedAmbulanceData.assignedMedic && (
+                  <div>
+                    <strong className="text-sm">Médico:</strong>
+                    <p className="text-sm">{selectedAmbulanceData.assignedMedic}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
