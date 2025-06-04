@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/context/AuthContext";
@@ -9,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { RequireAuth } from "@/components/RequireAuth";
 import { User } from "lucide-react";
+import { NotificationPreferences } from "@/components/notifications/NotificationPreferences";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -74,11 +74,9 @@ const Profile = () => {
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow p-4 md:p-6">
-          <div className="max-w-3xl mx-auto">
-            <h1 className="text-2xl md:text-3xl font-bold mb-6">
-              Mi Perfil
-            </h1>
-
+          <div className="max-w-4xl mx-auto space-y-6">
+            <h1 className="text-2xl md:text-3xl font-bold">Mi Perfil</h1>
+            
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-4">
@@ -154,6 +152,8 @@ const Profile = () => {
                 </Button>
               </CardFooter>
             </Card>
+            
+            <NotificationPreferences />
           </div>
         </main>
       </div>

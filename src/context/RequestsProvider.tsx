@@ -1,153 +1,150 @@
-
-import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { TransportRequest } from '@/types/request';
-import { requestsApi } from '@/services/api/requests';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { TransportRequest, RequestStatus } from '@/types/request';
 import { mockServices } from '@/services/api/mock-services';
+import { requestsApi } from '@/services/api/requests';
+import { useNotifications } from '@/context/NotificationContext';
 
 interface RequestsContextType {
   requests: TransportRequest[];
-  filteredRequests: TransportRequest[];
-  addRequest: (request: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>) => Promise<void>;
-  updateRequestStatus: (id: string, status: TransportRequest['status'], data?: Partial<TransportRequest>) => Promise<void>;
-  getRequestById: (id: string) => TransportRequest | undefined;
   isLoading: boolean;
   useMockData: boolean;
-  setUseMockData: (use: boolean) => void;
-  refreshRequests: () => Promise<void>;
+  setUseMockData: (useMockData: boolean) => void;
+  loadRequests: () => Promise<void>;
+  getRequestById: (id: string) => TransportRequest | undefined;
+  createRequest: (request: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>> => Promise<TransportRequest>;
+  updateRequestStatus: (
+    requestId: string,
+    status: RequestStatus,
+    additionalData?: { assignedVehicle?: string; estimatedArrival?: string }
+  ) => Promise<TransportRequest>;
 }
 
 const RequestsContext = createContext<RequestsContextType | undefined>(undefined);
 
 export const RequestsProvider = ({ children }: { children: React.ReactNode }) => {
   const [requests, setRequests] = useState<TransportRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [useMockData, setUseMockData] = useState(true); // Cambio a true por defecto para mostrar datos
-
-  const loadRequests = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      console.log('Loading requests, useMockData:', useMockData);
-      
-      if (useMockData) {
-        // Use mock data - convert to the expected format
-        const mockData = mockServices.map(service => ({
-          ...service,
-          type: 'simple' as const,
-          priority: 'medium' as const,
-          createdAt: service.createdAt || new Date().toISOString(),
-          updatedAt: service.updatedAt || new Date().toISOString(),
-          observations: service.observations || ''
-        }));
-        console.log('Loaded mock data:', mockData.length, 'requests');
-        setRequests(mockData);
-      } else {
-        // Use API data
-        const data = await requestsApi.getAll();
-        console.log('Loaded API data:', data.length, 'requests');
-        setRequests(data);
-      }
-    } catch (error) {
-      console.error('Error loading requests:', error);
-      setRequests([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [useMockData]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [useMockData, setUseMockData] = useState(true);
 
   useEffect(() => {
     loadRequests();
-  }, [loadRequests]);
+  }, [useMockData]);
 
-  const addRequest = useCallback(async (requestData: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>) => {
+  const { addStatusUpdateNotification } = useNotifications();
+
+  const loadRequests = async () => {
+    setIsLoading(true);
     try {
       if (useMockData) {
-        // Add to mock data
-        const newRequest: TransportRequest = {
-          ...requestData,
-          id: `srv-${Date.now()}`,
+        setRequests(mockServices);
+      } else {
+        const requests = await requestsApi.getAll();
+        setRequests(requests);
+      }
+    } catch (error) {
+      console.error('Error loading requests:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getRequestById = (id: string): TransportRequest | undefined => {
+    return requests.find(request => request.id === id);
+  };
+
+  const createRequest = async (request: Omit<TransportRequest, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'type' | 'priority'>>): Promise<TransportRequest> => {
+    try {
+      setIsLoading(true);
+      let newRequest: TransportRequest;
+
+      if (useMockData) {
+        // Simular creación en mock data
+        newRequest = {
+          ...request,
+          id: crypto.randomUUID(),
           status: 'pending',
           type: 'simple',
           priority: 'medium',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          observations: requestData.observations || ''
+          observations: request.observations || ''
         };
-        setRequests(prev => [newRequest, ...prev]);
+        setRequests(prevRequests => [newRequest, ...prevRequests]);
       } else {
-        // Use API
-        const newRequest = await requestsApi.create(requestData);
-        setRequests(prev => [newRequest, ...prev]);
+        // Llamar a la API para crear la solicitud
+        newRequest = await requestsApi.create(request);
+        setRequests(prevRequests => [newRequest, ...prevRequests]);
       }
+      return newRequest;
     } catch (error) {
-      console.error('Error adding request:', error);
+      console.error('Error creating request:', error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
-  }, [useMockData]);
+  };
 
-  const updateRequestStatus = useCallback(async (
-    id: string, 
-    status: TransportRequest['status'], 
-    data?: Partial<TransportRequest>
+  const updateRequestStatus = async (
+    requestId: string, 
+    status: RequestStatus, 
+    additionalData?: { assignedVehicle?: string; estimatedArrival?: string }
   ) => {
     try {
-      console.log('Updating request status:', id, status, data);
-      
-      if (useMockData) {
-        // Update mock data
-        setRequests(prev => prev.map(req => 
-          req.id === id 
-            ? { ...req, status, ...data, updatedAt: new Date().toISOString() }
-            : req
-        ));
-      } else {
-        // Use API
-        const updatedRequest = await requestsApi.update(id, { status, ...data });
-        setRequests(prev => prev.map(req => req.id === id ? updatedRequest : req));
+      const currentRequest = getRequestById(requestId);
+      if (!currentRequest) {
+        throw new Error('Solicitud no encontrada');
       }
+
+      const oldStatus = currentRequest.status;
+      
+      const updatedRequest = {
+        ...currentRequest,
+        status,
+        updatedAt: new Date().toISOString(),
+        ...(additionalData?.assignedVehicle && { assignedVehicle: additionalData.assignedVehicle }),
+        ...(additionalData?.estimatedArrival && { estimatedArrival: additionalData.estimatedArrival })
+      };
+
+      if (useMockData) {
+        // Actualizar en el array de mock data
+        const updatedMockData = mockServices.map(req => 
+          req.id === requestId ? updatedRequest : req
+        );
+        setRequests(updatedMockData);
+      } else {
+        // Actualizar en localStorage
+        const stored = localStorage.getItem('requests');
+        const requests: TransportRequest[] = stored ? JSON.parse(stored) : [];
+        const updatedRequests = requests.map(req => 
+          req.id === requestId ? updatedRequest : req
+        );
+        localStorage.setItem('requests', JSON.stringify(updatedRequests));
+        setRequests(updatedRequests);
+      }
+
+      // Generar notificación automática para el cambio de estado
+      addStatusUpdateNotification(requestId, oldStatus, status);
+
+      return updatedRequest;
     } catch (error) {
       console.error('Error updating request status:', error);
       throw error;
     }
-  }, [useMockData]);
+  };
 
-  const getRequestById = useCallback((id: string) => {
-    console.log('Getting request by ID:', id, 'from', requests.length, 'requests');
-    const found = requests.find(req => req.id === id);
-    console.log('Found request:', found ? 'yes' : 'no');
-    return found;
-  }, [requests]);
-
-  const refreshRequests = useCallback(async () => {
-    await loadRequests();
-  }, [loadRequests]);
-
-  // Memoize filteredRequests - currently just returning all requests
-  const filteredRequests = useMemo(() => requests, [requests]);
-
-  // Memoize context value to prevent unnecessary re-renders
-  const contextValue = useMemo(() => ({
-    requests, 
-    filteredRequests,
-    addRequest, 
-    updateRequestStatus, 
-    getRequestById,
+  const value: RequestsContextType = {
+    requests,
     isLoading,
     useMockData,
     setUseMockData,
-    refreshRequests
-  }), [
-    requests, 
-    filteredRequests, 
-    addRequest, 
-    updateRequestStatus, 
-    getRequestById, 
-    isLoading, 
-    useMockData, 
-    refreshRequests
-  ]);
+    loadRequests,
+    getRequestById,
+    createRequest,
+    updateRequestStatus
+  };
 
   return (
-    <RequestsContext.Provider value={contextValue}>
+    <RequestsContext.Provider value={value}>
       {children}
     </RequestsContext.Provider>
   );

@@ -1,7 +1,7 @@
 
 import { useChat } from "@/context/ChatContext";
 import { ConversationList } from "@/components/chat/ConversationList";
-import { ChatWindow } from "@/components/chat/ChatWindow";
+import { EnhancedChatWindow } from "@/components/chat/EnhancedChatWindow";
 
 const ChatPage = () => {
   const { currentConversation } = useChat();
@@ -16,7 +16,7 @@ const ChatPage = () => {
         </div>
         <div className="md:col-span-2 h-full">
           {currentConversation ? (
-            <ChatWindow onClose={() => {}} className="h-full" />
+            <EnhancedChatWindow onClose={() => {}} className="h-full" />
           ) : (
             <div className="flex items-center justify-center h-full border rounded-lg">
               <p className="text-muted-foreground">
