@@ -6,6 +6,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
+import { AppLayout } from "@/components/layout/AppLayout";
 import DriverDashboard from "./driver/DriverDashboard";
 
 const Dashboard = memo(() => {
@@ -25,30 +26,34 @@ const Dashboard = memo(() => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" text="Cargando dashboard..." />
-      </div>
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner size="lg" text="Cargando dashboard..." />
+        </div>
+      </AppLayout>
     );
   }
 
   return (
     <RequireAuth>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <div className="text-sm text-muted-foreground">
-            Bienvenido, {user?.name}
+      <AppLayout>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <div className="text-sm text-muted-foreground">
+              Bienvenido, {user?.name}
+            </div>
           </div>
+
+          <Suspense fallback={<LoadingSpinner text="Cargando estadísticas..." />}>
+            <DashboardStats requests={requests} />
+          </Suspense>
+
+          <Suspense fallback={<LoadingSpinner text="Cargando contenido..." />}>
+            <DashboardContent user={user!} requests={requests} />
+          </Suspense>
         </div>
-
-        <Suspense fallback={<LoadingSpinner text="Cargando estadísticas..." />}>
-          <DashboardStats requests={requests} />
-        </Suspense>
-
-        <Suspense fallback={<LoadingSpinner text="Cargando contenido..." />}>
-          <DashboardContent user={user!} requests={requests} />
-        </Suspense>
-      </div>
+      </AppLayout>
     </RequireAuth>
   );
 });
