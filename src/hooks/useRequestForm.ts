@@ -10,7 +10,7 @@ import {
 
 export const useRequestForm = () => {
   const { user } = useAuth();
-  const { createRequest, error: submitError, isSubmitting } = useCreateRequest();
+  const { submitRequest, isLoading } = useCreateRequest();
   
   const [formData, setFormData] = useState({
     patientName: "",
@@ -146,14 +146,14 @@ export const useRequestForm = () => {
       createdBy: user?.id || "",
     };
     
-    await createRequest(requestData);
+    await submitRequest(requestData);
   };
 
   return {
     formData,
     errors,
-    submitError,
-    isSubmitting,
+    submitError: null,
+    isSubmitting: isLoading,
     uploadedFile,
     handleChange,
     handleBlur,

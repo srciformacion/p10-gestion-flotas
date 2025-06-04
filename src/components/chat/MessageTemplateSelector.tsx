@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -6,14 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { MessageSquareText, Search, Clock, Heart, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
-
-interface MessageTemplate {
-  id: string;
-  title: string;
-  content: string;
-  category: 'greeting' | 'status' | 'emergency' | 'closing' | 'info';
-  tags: string[];
-}
+import { MessageTemplate } from "@/types/message";
 
 const messageTemplates: MessageTemplate[] = [
   {
@@ -76,10 +68,11 @@ const messageTemplates: MessageTemplate[] = [
 
 interface MessageTemplateSelectorProps {
   onSelectTemplate: (template: MessageTemplate) => void;
+  onClose: () => void;
   trigger?: React.ReactNode;
 }
 
-export const MessageTemplateSelector = ({ onSelectTemplate, trigger }: MessageTemplateSelectorProps) => {
+export const MessageTemplateSelector = ({ onSelectTemplate, onClose, trigger }: MessageTemplateSelectorProps) => {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -118,6 +111,7 @@ export const MessageTemplateSelector = ({ onSelectTemplate, trigger }: MessageTe
 
   const handleSelectTemplate = (template: MessageTemplate) => {
     onSelectTemplate(template);
+    onClose();
     setOpen(false);
   };
 

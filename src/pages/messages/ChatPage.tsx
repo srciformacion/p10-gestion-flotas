@@ -16,7 +16,7 @@ const ChatPage = () => {
         </div>
         <div className="md:col-span-2 h-full">
           {currentConversation ? (
-            <EnhancedChatWindow onClose={() => {}} className="h-full" />
+            <EnhancedChatWindow onClose={() => {}} />
           ) : (
             <div className="flex items-center justify-center h-full border rounded-lg">
               <p className="text-muted-foreground">

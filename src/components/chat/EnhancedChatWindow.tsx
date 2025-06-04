@@ -11,10 +11,11 @@ import { Send, Phone, Video, MoreVertical, Paperclip } from "lucide-react";
 import { ChatMessage } from "./ChatMessage";
 import { MessageTemplateSelector } from "./MessageTemplateSelector";
 import { MessageTemplate } from "@/types/message";
+import { useAuth } from "@/context/AuthContext";
 
 interface EnhancedChatWindowProps {
-  conversationId: string;
-  participantName: string;
+  conversationId?: string;
+  participantName?: string;
   participantRole?: string;
   participantAvatar?: string;
   onClose?: () => void;
@@ -29,23 +30,27 @@ export const EnhancedChatWindow = ({
 }: EnhancedChatWindowProps) => {
   const { 
     conversations, 
-    sendMessage, 
-    markAsRead,
-    isOnline 
+    sendMessage,
+    currentConversation,
+    markConversationAsRead
   } = useChat();
   
+  const { user } = useAuth();
   const [newMessage, setNewMessage] = useState("");
   const [showTemplates, setShowTemplates] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
-  const conversation = conversations.find(c => c.id === conversationId);
+  const conversation = conversationId 
+    ? conversations.find(c => c.id === conversationId)
+    : currentConversation;
+  
   const messages = conversation?.messages || [];
   
   useEffect(() => {
     if (conversation && conversation.unreadCount > 0) {
-      markAsRead(conversationId);
+      markConversationAsRead(conversation.id);
     }
-  }, [conversationId, conversation, markAsRead]);
+  }, [conversation, markConversationAsRead]);
   
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -55,7 +60,7 @@ export const EnhancedChatWindow = ({
   
   const handleSendMessage = () => {
     if (newMessage.trim()) {
-      sendMessage(conversationId, newMessage.trim());
+      sendMessage(newMessage.trim());
       setNewMessage("");
     }
   };
@@ -70,6 +75,11 @@ export const EnhancedChatWindow = ({
   const handleTemplateSelect = (template: MessageTemplate) => {
     setNewMessage(template.content);
     setShowTemplates(false);
+  };
+
+  const getParticipantName = (senderId: string) => {
+    if (user?.id === senderId) return user.name || 'Tú';
+    return participantName || (user?.role === 'admin' ? 'Usuario' : 'Administrador');
   };
   
   if (!conversation) {
@@ -89,11 +99,13 @@ export const EnhancedChatWindow = ({
           <Avatar>
             <AvatarImage src={participantAvatar} />
             <AvatarFallback>
-              {participantName.split(' ').map(n => n[0]).join('')}
+              {(participantName || 'Admin').split(' ').map(n => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
           <div>
-            <CardTitle className="text-lg">{participantName}</CardTitle>
+            <CardTitle className="text-lg">
+              {participantName || (user?.role === 'admin' ? 'Usuario' : 'Administración')}
+            </CardTitle>
             <div className="flex items-center space-x-2">
               {participantRole && (
                 <Badge variant="secondary" className="text-xs">
@@ -101,9 +113,9 @@ export const EnhancedChatWindow = ({
                 </Badge>
               )}
               <div className="flex items-center space-x-1">
-                <div className={`w-2 h-2 rounded-full ${isOnline(conversation.participants[0]) ? 'bg-green-500' : 'bg-gray-400'}`} />
+                <div className="w-2 h-2 rounded-full bg-green-500" />
                 <span className="text-xs text-muted-foreground">
-                  {isOnline(conversation.participants[0]) ? 'En línea' : 'Desconectado'}
+                  En línea
                 </span>
               </div>
             </div>
@@ -132,7 +144,11 @@ export const EnhancedChatWindow = ({
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
           <div className="space-y-4">
             {messages.map((message) => (
-              <ChatMessage key={message.id} message={message} />
+              <ChatMessage 
+                key={message.id} 
+                message={message} 
+                senderName={getParticipantName(message.senderId)}
+              />
             ))}
           </div>
         </ScrollArea>
@@ -140,7 +156,7 @@ export const EnhancedChatWindow = ({
         {showTemplates && (
           <div className="border-t p-4">
             <MessageTemplateSelector 
-              onSelect={handleTemplateSelect}
+              onSelectTemplate={handleTemplateSelect}
               onClose={() => setShowTemplates(false)}
             />
           </div>

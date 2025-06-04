@@ -13,11 +13,21 @@ export interface Message {
 
 export interface Conversation {
   id: string;
-  participants: string[];
+  participantIds: string[];
   lastMessage?: Message;
   unreadCount: number;
   title?: string;
   type: 'direct' | 'group' | 'support';
   createdAt: string;
   updatedAt: string;
+  messages: Message[];
+  lastMessageTimestamp: string;
+}
+
+export interface MessageTemplate {
+  id: string;
+  title: string;
+  content: string;
+  category: 'greeting' | 'status' | 'emergency' | 'closing' | 'info';
+  tags: string[];
 }
