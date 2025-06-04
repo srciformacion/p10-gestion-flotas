@@ -15,27 +15,26 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
   
   // Definimos las acciones disponibles según el rol del usuario
   const canCreateRequest = user?.role === 'hospital' || user?.role === 'individual' || user?.role === 'admin';
-  const canManageRequests = user?.role === 'admin';
-  const canManageUsers = user?.role === 'admin' || user?.role === 'ambulance'; // Ambulancias pueden gestionar usuarios
-  const canManageVehicles = user?.role === 'admin' || user?.role === 'ambulance'; // Ambulancias pueden gestionar vehículos
+  const canManageUsers = user?.role === 'admin' || user?.role === 'ambulance';
+  const canManageVehicles = user?.role === 'admin' || user?.role === 'ambulance';
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {/* Acción: Crear nueva solicitud */}
       {canCreateRequest && (
         <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-primary" />
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Plus className="h-5 w-5 text-rioja-green" />
               Nueva Solicitud
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
+          <CardContent className="pt-0">
+            <p className="text-muted-foreground text-sm mb-4">
               Crear una nueva solicitud de transporte sanitario
             </p>
             <Link to="/nueva-solicitud" className="w-full">
-              <Button className="w-full">
+              <Button className="w-full bg-rioja-green hover:bg-rioja-green/90">
                 Crear Solicitud
               </Button>
             </Link>
@@ -45,14 +44,14 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
 
       {/* Acción: Ver todas las solicitudes */}
       <Card className="hover:shadow-md transition-shadow">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <FileText className="h-5 w-5 text-orange-500" />
             Solicitudes
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-4">
+        <CardContent className="pt-0">
+          <p className="text-muted-foreground text-sm mb-4">
             Ver y gestionar todas las solicitudes de transporte
           </p>
           <Link to="/solicitudes" className="w-full">
@@ -65,19 +64,19 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
 
       {/* Acción: Mensajes */}
       <Card className="hover:shadow-md transition-shadow">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <MessageCircle className="h-5 w-5 text-blue-500" />
             Mensajes
             {totalUnread > 0 && (
-              <span className="bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {totalUnread}
               </span>
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-4">
+        <CardContent className="pt-0">
+          <p className="text-muted-foreground text-sm mb-4">
             Comunícate con {user?.role === 'admin' || user?.role === 'ambulance' ? 'los usuarios' : 'la administración'}
           </p>
           <Link to="/mensajes" className="w-full">
@@ -91,14 +90,14 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
       {/* Acción: Gestionar usuarios (admin y ambulancias) */}
       {canManageUsers && (
         <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <Users className="h-5 w-5 text-blue-500" />
               Usuarios
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
+          <CardContent className="pt-0">
+            <p className="text-muted-foreground text-sm mb-4">
               Gestionar los usuarios del sistema
             </p>
             <Link to="/usuarios" className="w-full">
@@ -113,14 +112,14 @@ export const DashboardActions = ({ user }: DashboardActionsProps) => {
       {/* Acción: Gestionar vehículos (admin y ambulancias) */}
       {canManageVehicles && (
         <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Ambulance className="h-5 w-5 text-green-500" />
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Ambulance className="h-5 w-5 text-rioja-green" />
               Ambulancias
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
+          <CardContent className="pt-0">
+            <p className="text-muted-foreground text-sm mb-4">
               Gestionar la flota de vehículos disponibles
             </p>
             <Link to="/ambulancias" className="w-full">
