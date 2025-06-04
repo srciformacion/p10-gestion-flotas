@@ -14,9 +14,11 @@ export const DashboardContent = memo(({ user, requests }: DashboardContentProps)
   const recentRequests = requests.slice(0, 5);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="w-full max-w-7xl mx-auto space-y-8">
       <DashboardActions user={user} />
-      <RecentRequests requests={recentRequests} />
+      <div className="w-full max-w-4xl mx-auto">
+        <RecentRequests requests={recentRequests} />
+      </div>
     </div>
   );
 });
